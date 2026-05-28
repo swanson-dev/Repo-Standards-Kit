@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs / scratch
+*.log
+.scratch/
+.tmp/
+
+# AI tool caches (not the committed ai/ context — that ships with the repo)
+.claude/cache/
+.copilot/cache/
