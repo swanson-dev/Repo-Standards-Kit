@@ -35,5 +35,6 @@ If a decision is the result of an RFC, the RFC's `Follow-ups → ADR to write` f
 | [0004](./0004-define-ai-directory-contract.md) | Define the ai/ directory as committed, shared, rolling state |
 | [0005](./0005-split-discovery-and-rfcs.md) | Split discovery and RFCs into separate folders |
 | [0006](./0006-adopt-agents-md-pattern.md) | Adopt the AGENTS.md pattern with thin tool-specific pointers |
+| [0007](./0007-author-ai-tool-wrappers-as-thin-shells-over-stdlib-python-scripts.md) | Author AI-tool wrappers as thin shells over stdlib Python scripts |
 
 (Index is maintained manually for now; Slice 4 may automate it.)
