@@ -2,7 +2,7 @@
 
 ## Q-1: Which Slice 2 Skills should ship first?
 
-- **Status:** open
+- **Status:** answered
 - **Blocking:** Slice 2 plan-phase. Choosing the first Skills shapes how much surface the Hooks need to cover.
 - **Context:** The kit's templates and contracts are precise enough to scaffold. The remaining design choice is *which* scaffolding to automate first — the things downstream repos will do most often.
 - **Candidate answers:**
@@ -11,7 +11,7 @@
   - **new-rfc** — same shape as new-adr but creates the folder.
   - **update-handoff** — Stop-hook variant that drafts `ai/handoff.md` from the session transcript.
   - **promote-discovery** — list `status: raw` files and offer to flip with `promoted_to:`.
-- **Resolution:** TBD in Slice 2 discuss-phase.
+- **Resolution:** **Skills first, Hooks deferred to Slice 2.5** (2026-05-28). `new-adr` and `new-rfc` ship as stdlib Python scripts under `scripts/new-doc/` with dual Claude SKILL.md + Copilot prompt.md wrappers. `scaffold-new-repo` waits on Slice 3 distribution. Form factor recorded in ADR-0007.
 
 ## Q-2: What's the kit's distribution mechanism (Slice 3)?
 
