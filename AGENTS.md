@@ -55,4 +55,4 @@ Before you finish a session that produced meaningful change:
 - **Slice 3:** Distribution mechanism (template repo vs. Claude Code plugin vs. copy script).
 - **Slice 4:** Deeper CI enforcement (content linting, doc freshness, link checking).
 
-If you're tempted to add a Skill, Hook, distribution mechanism, or deeper CI check while working on Slice 1 — don't. Open an RFC or an `ai/open-questions.md` entry instead.
+If you're tempted to add a Hook, distribution mechanism, or deeper CI check while working on Slice 2.5 — don't. Open an RFC or an `ai/open-questions.md` entry instead.

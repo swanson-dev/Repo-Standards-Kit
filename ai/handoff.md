@@ -12,7 +12,7 @@ Slice 2 is **complete and green**. Two scaffolding skills shipped (`new-adr`, `n
 
 ## Recently touched
 
-- `scripts/_doc_lib/helpers.py`, `scripts/_doc_lib/__init__.py` — four pure helpers (`slugify`, `today_iso`, `next_nnnn`, `render_template`) used by both CLIs.
+- `scripts/_doc_lib/helpers.py` and `scripts/_doc_lib/__init__.py` — four pure helpers (`repo_root`, `next_nnnn`, `slugify`, `fill_template`) and a `RepoRootNotFound` exception used by both CLIs.
 - `scripts/new-doc/new-adr.py`, `scripts/new-doc/new-rfc.py` — the two scaffolding CLIs (stdlib only).
 - `scripts/new-doc/test_helpers.py`, `scripts/new-doc/test_cli.py` — stdlib `unittest` coverage (14 + 10 tests).
 - `scripts/new-doc/README.md` — script directory contract: invocation, conventions, dogfooding rule.
