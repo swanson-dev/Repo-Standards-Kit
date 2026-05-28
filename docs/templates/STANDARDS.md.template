@@ -1,0 +1,26 @@
+<!--
+docs/STANDARDS.md — per-repo pointer to the kit.
+Keep this short. The authoritative spec lives in the kit's STANDARDS.md.
+This file records: kit version, profile, deviations, and last review.
+-->
+
+# Standards for <repo-name>
+
+This repository follows the **Team Repository Standards Kit**.
+
+- **Kit version adopted:** <e.g. 0.1.0>
+- **Kit source of truth:** <link to the kit's docs/STANDARDS.md at the adopted tag>
+- **Profile:** application | library | infra | data
+- **Last reviewed:** YYYY-MM-DD by <name>
+
+## Local deviations
+
+<!-- Deviations from the kit's defaults. Each MUST link to an ADR in docs/decisions/. -->
+
+<!-- Default: "None." Replace this comment when adding deviations. -->
+
+None.
+
+## Waivers
+
+For Required or Expected docs that this repo skipped, see [`STANDARDS-CHECKLIST.md`](./STANDARDS-CHECKLIST.md). Every unchecked Required/Expected box must include a `**Waived:**` reason.

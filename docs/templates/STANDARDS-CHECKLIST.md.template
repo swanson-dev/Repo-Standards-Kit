@@ -1,0 +1,55 @@
+<!--
+docs/STANDARDS-CHECKLIST.md — per-repo checklist.
+Fill out for your profile. Waiver syntax: append "**Waived:** <reason>" to unchecked boxes.
+The CI standards check parses unchecked boxes — a missing reason fails the build.
+-->
+
+# Standards Checklist — <repo-name>
+
+**Profile:** <application | library | infra | data>
+**Kit version adopted:** <e.g. 0.1.0>
+**Last reviewed:** YYYY-MM-DD by <name>
+
+## Universal core (Required for all profiles)
+
+- [ ] `README.md`
+- [ ] `CHANGELOG.md`
+- [ ] `AGENTS.md`
+- [ ] `CLAUDE.md`
+- [ ] `docs/STANDARDS.md`
+- [ ] `docs/STANDARDS-CHECKLIST.md`
+- [ ] `docs/00-overview.md`
+- [ ] `docs/10-glossary.md`
+- [ ] `docs/decisions/` (folder + README, ≥1 ADR)
+- [ ] `docs/discovery/` (folder + README)
+- [ ] `docs/rfcs/` (folder + README)
+- [ ] `docs/templates/` (kit-supplied templates)
+- [ ] `ai/current-state.md`
+- [ ] `ai/next-actions.md`
+- [ ] `ai/open-questions.md`
+- [ ] `ai/handoff.md`
+- [ ] `.github/copilot-instructions.md`
+- [ ] `.github/pull_request_template.md`
+- [ ] `.github/workflows/repo-standards.yml`
+
+## Profile-required
+
+<!-- Copy the rows for YOUR profile from docs/STANDARDS.md "Profile matrix" where the cell says Required. -->
+
+- [ ] <doc> — <one-line note if helpful>
+
+## Profile-expected
+
+<!-- Copy the rows for YOUR profile where the cell says Expected. -->
+
+- [ ] <doc>
+
+## Profile extras
+
+<!-- library: docs/versioning-policy.md
+     infra:   docs/environments.md
+     data:    docs/data-contracts/<dataset>.md (one or more) -->
+
+## Notes
+
+<!-- Anything that doesn't fit above. Pending reviews, scheduled work, etc. -->
