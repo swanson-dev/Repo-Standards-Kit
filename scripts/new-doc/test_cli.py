@@ -83,5 +83,53 @@ class NewAdrTests(unittest.TestCase):
             self.assertIn("usage:", result.stderr.lower())
 
 
+class NewRfcTests(unittest.TestCase):
+    def test_creates_folder_and_rfc_md(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_fixture_repo(Path(d))
+            result = run(NEW_RFC, "Should we adopt X?", cwd=tmp)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            folder = tmp / "docs" / "rfcs" / "0001-should-we-adopt-x"
+            self.assertTrue(folder.is_dir(), f"expected folder {folder}")
+            rfc = folder / "rfc.md"
+            self.assertTrue(rfc.exists())
+            body = rfc.read_text()
+            self.assertRegex(body, r"opened: \d{4}-\d{2}-\d{2}\n")
+            self.assertIn("# 0001. Should we adopt X?", body)
+            # Other placeholders intact
+            self.assertIn("owner:", body)
+            self.assertIn("time_box:", body)
+
+    def test_does_not_create_artifacts_subdir(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_fixture_repo(Path(d))
+            run(NEW_RFC, "Question one", cwd=tmp)
+            self.assertFalse((tmp / "docs" / "rfcs" / "0001-question-one" / "artifacts").exists())
+
+    def test_picks_next_nnnn_in_rfcs_dir(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_fixture_repo(Path(d))
+            # pre-existing folders that should bump the counter
+            (tmp / "docs" / "rfcs" / "0001-prior").mkdir()
+            (tmp / "docs" / "rfcs" / "0002-also-prior").mkdir()
+            result = run(NEW_RFC, "Third question", cwd=tmp)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertTrue((tmp / "docs" / "rfcs" / "0003-third-question" / "rfc.md").exists())
+
+    def test_refuses_to_overwrite(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_fixture_repo(Path(d))
+            run(NEW_RFC, "Same question", cwd=tmp)
+            second = run(NEW_RFC, "Same question", cwd=tmp)
+            self.assertEqual(second.returncode, 2)
+            self.assertIn("refuse to overwrite", second.stderr.lower())
+
+    def test_non_git_repo_exits_2(self):
+        with tempfile.TemporaryDirectory() as d:
+            result = run(NEW_RFC, "Anything", cwd=Path(d))
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("not in a git repo", result.stderr.lower())
+
+
 if __name__ == "__main__":
     unittest.main()
