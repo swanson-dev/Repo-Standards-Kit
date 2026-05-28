@@ -7,7 +7,7 @@
 ## Universal core (Required for all profiles)
 
 - [x] `README.md`
-- [x] `CHANGELOG.md` — **Waived:** kit pre-1.0; CHANGELOG starts at first tagged release.
+- [x] `CHANGELOG.md`
 - [x] `AGENTS.md`
 - [x] `CLAUDE.md`
 - [x] `docs/STANDARDS.md`

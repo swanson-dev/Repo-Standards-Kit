@@ -27,10 +27,10 @@
 
 ## Q-3: Should the kit ship a CHANGELOG.md before 1.0.0?
 
-- **Status:** open
-- **Blocking:** the upgrade-path verification step in `versioning-policy.md`.
-- **Context:** Pre-1.0, the kit may break minor versions; a CHANGELOG documents that explicitly. Currently waived in `STANDARDS-CHECKLIST.md` as "starts at first tagged release."
+- **Status:** answered
+- **Blocking:** ~~the upgrade-path verification step in `versioning-policy.md`~~ — resolved.
+- **Context:** Pre-1.0, the kit may break minor versions; a CHANGELOG documents that explicitly.
 - **Candidate answers:**
-  - Start CHANGELOG at v0.1.0 (recommended on reflection — gives downstream consumers a credible upgrade story even pre-1.0).
+  - Start CHANGELOG at v0.1.0.
   - Keep waived until v1.0.0.
-- **Resolution:** decide before tagging v0.1.0 in Next Action 3.
+- **Resolution:** **Start CHANGELOG at v0.1.0** (Phase E, 2026-05-28). The pre-1.0 caveat is recorded in the changelog header itself, so downstream consumers get the credible upgrade story without waiting for 1.0. `STANDARDS-CHECKLIST.md` waiver removed in the same change.

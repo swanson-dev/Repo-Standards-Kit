@@ -11,17 +11,20 @@ last_updated_by: josh
 - 21 templates under `docs/templates/` cover every artifact the kit defines: ADR (MADR 3.0), RFC, discovery starters, 11 numbered-doc skeletons, 4 `ai/` starters, 3 profile extras, and 2 per-repo governance templates.
 - 6 bootstrap ADRs (`docs/decisions/0001`–`0006`) capture every Slice 1 decision in the kit's own format.
 - The kit applies its own `library` profile to itself: every Required and Expected doc is present, with waivers recorded for the genuinely-skipped ones.
-- `AGENTS.md` + thin `CLAUDE.md` + `.github/copilot-instructions.md` pattern is in place at the kit level (per-tool pointer files are written when Phase E lands).
+- `AGENTS.md` + thin `CLAUDE.md` + `.github/copilot-instructions.md` pattern is in place at the kit level.
+- `scripts/standards-check/check.py` (stdlib-only Python) implements all six v1 checks and runs green against the kit itself (`0 errors, 0 warnings`).
+- `.github/workflows/repo-standards.yml` invokes the check on push and pull_request.
+- `CHANGELOG.md` is started at v0.1.0 (Keep-a-Changelog), closing `ai/open-questions.md#q-3`.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| Slice 1 Phase E (.github/ files: copilot-instructions, PR template, repo-standards.yml workflow) | `main` | josh | 2026-05-28 |
+| Tag `v0.1.0` and open Slice 2 design | `main` | josh | next session |
 
 ## What's blocked
 
-- Nothing structurally blocked. The remaining Slice 1 work is mechanical — write the GitHub workflow file and the PR template.
+- Nothing.
 
 ## Active environments
 
