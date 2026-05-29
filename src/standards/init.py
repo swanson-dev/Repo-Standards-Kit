@@ -24,6 +24,30 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
             f"{target / MARKER_NAME} exists; pass force=True to re-init"
         )
 
+    if not force:
+        collisions: list[str] = []
+        for full, rel in iter_payload(payload_root()):
+            cls = classify(rel)
+            if cls == "scaffold-once-source":
+                continue
+            dest = target / rel
+            if not dest.exists():
+                continue
+            if cls == "partial":
+                differs = block_hash(dest.read_text(encoding="utf-8")) != \
+                    block_hash(full.read_text(encoding="utf-8"))
+            else:
+                differs = sha256_file(dest) != sha256_file(full)
+            if differs:
+                collisions.append(rel)
+        if collisions:
+            shown = ", ".join(sorted(collisions)[:5])
+            more = "" if len(collisions) <= 5 else f" (+{len(collisions) - 5} more)"
+            raise FileExistsError(
+                f"{len(collisions)} kit file(s) already exist with different content: "
+                f"{shown}{more}. Re-run with force=True to overwrite, or adopt into an empty repo."
+            )
+
     src_root = payload_root()
     tracked: dict[str, str] = {}
     managed: dict[str, str] = {}

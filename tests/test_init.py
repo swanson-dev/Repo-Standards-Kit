@@ -69,5 +69,33 @@ class InitTests(unittest.TestCase):
             )
 
 
+    def test_init_refuses_differing_existing_kit_tracked(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / "docs").mkdir()
+            (target / "docs" / "STANDARDS.md").write_text("PREEXISTING DIFFERENT\n", encoding="utf-8")
+            with self.assertRaises(FileExistsError):
+                self._run(target, profile="library", adopted="2026-05-29")
+            self.assertFalse((target / ".standards-kit.json").exists())
+
+    def test_init_allows_identical_existing_file(self):
+        from standards.payload import payload_root
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / "docs").mkdir()
+            src = payload_root() / "docs" / "STANDARDS.md"
+            (target / "docs" / "STANDARDS.md").write_bytes(src.read_bytes())
+            self._run(target, profile="library", adopted="2026-05-29")  # no raise
+            self.assertTrue((target / ".standards-kit.json").is_file())
+
+    def test_init_force_overwrites_differing(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / "docs").mkdir()
+            (target / "docs" / "STANDARDS.md").write_text("DIFFERENT\n", encoding="utf-8")
+            self._run(target, profile="library", adopted="2026-05-29", force=True)
+            self.assertTrue((target / ".standards-kit.json").is_file())
+
+
 if __name__ == "__main__":
     unittest.main()
