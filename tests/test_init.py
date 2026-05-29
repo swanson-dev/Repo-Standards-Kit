@@ -53,6 +53,21 @@ class InitTests(unittest.TestCase):
                 self._run(target, profile="data", adopted="2026-05-29")
             self._run(target, profile="data", adopted="2026-05-29", force=True)
 
+    def test_partial_files_recorded_in_managed_with_block_hash(self):
+        from standards.marker import read_marker
+        from standards.managed import block_hash
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="library", adopted="2026-05-29")
+            marker = read_marker(target)
+            self.assertIn("AGENTS.md", marker["managed"])
+            self.assertNotIn("AGENTS.md", marker["tracked"])
+            self.assertTrue((target / "AGENTS.md").is_file())
+            self.assertEqual(
+                marker["managed"]["AGENTS.md"],
+                block_hash((target / "AGENTS.md").read_text(encoding="utf-8")),
+            )
+
 
 if __name__ == "__main__":
     unittest.main()

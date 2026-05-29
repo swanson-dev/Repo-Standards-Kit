@@ -5,7 +5,8 @@ import shutil
 from pathlib import Path
 
 from standards.__about__ import __version__
-from standards.manifest import PROFILE_TEMPLATED, SCAFFOLD_ONCE, is_excluded_from_tracked, iter_payload
+from standards.managed import block_hash
+from standards.manifest import PROFILE_TEMPLATED, SCAFFOLD_ONCE, classify, iter_payload
 from standards.marker import MARKER_NAME, read_marker, sha256_file, write_marker
 from standards.payload import payload_root
 
@@ -25,14 +26,19 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
 
     src_root = payload_root()
     tracked: dict[str, str] = {}
+    managed: dict[str, str] = {}
 
     for full, rel in iter_payload(src_root):
-        if is_excluded_from_tracked(rel):
-            continue  # scaffold-once sources handled below
+        cls = classify(rel)
+        if cls == "scaffold-once-source":
+            continue  # handled in the scaffold-once loop below
         dest = target / rel
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(full, dest)
-        tracked[rel] = sha256_file(dest)
+        if cls == "partial":
+            managed[rel] = block_hash(dest.read_text(encoding="utf-8"))
+        else:  # kit-tracked
+            tracked[rel] = sha256_file(dest)
 
     # Scaffold-once: copy source template -> target path only if absent.
     for src_rel, dest_rel in SCAFFOLD_ONCE.items():
@@ -46,5 +52,5 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
         dest.write_text(content, encoding="utf-8")
 
     write_marker(target, kit_version=__version__, profile=profile,
-                 adopted=adopted, tracked=tracked)
+                 adopted=adopted, tracked=tracked, managed=managed)
     return read_marker(target)
