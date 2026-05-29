@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/update-handoff/update_handoff.py --check"
+          }
+        ]
+      }
+    ]
+  }
+}
