@@ -504,7 +504,7 @@ class MarkerTests(unittest.TestCase):
         from standards.marker import sha256_file
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "f.txt"
-            p.write_text("hello\n", encoding="utf-8")
+            p.write_bytes(b"hello\n")  # binary write: LF-only, platform-neutral on Windows
             self.assertEqual(
                 sha256_file(p),
                 "5891b5b522d5df086d0ff0b110fbd9d21bb4fc7163af34d08286a2e846f6be03",
