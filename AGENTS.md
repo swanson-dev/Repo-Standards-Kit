@@ -6,7 +6,7 @@ Single source of truth for AI agents working in this repository. Tool-specific f
 
 This is the **Team Repository Standards Kit** — a versioned set of documentation standards, templates, and (in later slices) AI Skills, Hooks, and CI checks that other repositories adopt.
 
-- Kit version: **0.3.0** (Slice 2.5: `update-handoff` hook + slash command)
+- Kit version: **0.4.0** (Slice 2.6: `promote-discovery` hook + slash command)
 - Profile: **library** (this kit ships templates; it has no runtime, no deployment, no runbook)
 
 ## Canonical reading order
@@ -51,8 +51,7 @@ Before you finish a session that produced meaningful change:
 
 ## What's out of scope right now (queued slices)
 
-- **Slice 2.6:** AI Hook — `promote-discovery` (reminder for raw items in `docs/discovery/`). Slice 2.5 shipped `update-handoff`; this is the second hook, deferred to keep Slice 2.5 surgical.
 - **Slice 3:** Distribution mechanism (template repo vs. Claude Code plugin vs. copy script).
 - **Slice 4:** Deeper CI enforcement (content linting, doc freshness, link checking).
 
-If you're tempted to add a distribution mechanism or deeper CI check while working on Slice 2.6 — don't. Open an RFC or an `ai/open-questions.md` entry instead.
+If you're tempted to add a deeper CI check while working on Slice 3 — don't. Open an RFC or an `ai/open-questions.md` entry instead.
