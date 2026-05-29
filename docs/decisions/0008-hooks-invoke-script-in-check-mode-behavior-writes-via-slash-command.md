@@ -1,9 +1,3 @@
-<!--
-ADR template — MADR 3.0
-Filename: docs/decisions/NNNN-kebab-case-title.md (zero-padded 4 digits)
-Lifecycle: Proposed → Accepted → (Deprecated | Superseded by NNNN)
-Rule: once Accepted, do NOT edit the body. Reversal = new ADR + flip old status.
--->
 ---
 status: Accepted
 date: 2026-05-28
