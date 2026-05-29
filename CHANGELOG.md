@@ -6,6 +6,21 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.6.0] - 2026-05-29
+
+### Added
+- `standards update [target] [--dry-run]` — reconciles an adopted repo with the running kit version: hash-guarded overwrite of unmodified kit-tracked files, managed-block splice for partial files, `<path>.kit-<version>` sidecars on conflict, never destructive. Reports updated/spliced/added/conflicts/unchanged/removed.
+- `src/standards/managed.py` — single managed-region block primitives (find/splice/hash) per ADR-0010.
+- Partial/managed-region ownership class: `AGENTS.md`, `CLAUDE.md`, `.github/copilot-instructions.md` carry a kit-owned `<!-- BEGIN/END kit-managed -->` block; the rest of each file is downstream-owned.
+- `docs/decisions/0010-…md` — ADR-0010 (managed-region sentinel convention).
+
+### Changed
+- `AGENTS.md` restructured: the agent contract lives in the `agents-core` managed block; repo-specifics moved to a downstream-owned `## About this repository` section.
+- `init` now records partial files under the marker's `managed` table (block hash) and **refuses to overwrite pre-existing kit files with differing content** without `force` (first-init guard; closes the PR #2 data-loss gap).
+
+### Notes
+- One managed block per file (multi-block deferred). `standards set-profile` and the PyPI release workflow remain future work (Plan 3).
+
 ## [0.5.0] - 2026-05-29
 
 ### Added
@@ -114,6 +129,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.6.0]: https://example.invalid/releases/tag/v0.6.0
 [0.5.0]: https://example.invalid/releases/tag/v0.5.0
 [0.4.0]: https://example.invalid/releases/tag/v0.4.0
 [0.3.0]: https://example.invalid/releases/tag/v0.3.0
