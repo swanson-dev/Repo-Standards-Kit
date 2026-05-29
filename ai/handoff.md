@@ -36,10 +36,11 @@ Files changed:
 
 ## Open threads
 
-- Tag `v0.4.0` (do not push without explicit user confirmation; remote is `https://github.com/swanson-dev/Repo-Standards-Kit.git`).
-- Slice 3 distribution still queued at `ai/open-questions.md#q-2` — blocks `scaffold-new-repo`. Three credible options (template repo, plugin, copy script); design when ready.
+- Branch pushed to `origin/ai-skills-implementation`; tags `v0.2.0`, `v0.3.0`, `v0.4.0` pushed (closed the CHANGELOG↔git-tag gap that prior slices left). Remote is `https://github.com/swanson-dev/Repo-Standards-Kit.git`. Working tree clean; nothing pending to push.
+- **Slice 3 distribution** still queued at `ai/open-questions.md#q-2` — blocks `scaffold-new-repo`. Three credible options (template repo, plugin, copy script); next session likely starts here per user's stated direction.
 - Slice 4 (deeper CI: content linting, doc freshness, link checking, wrapper-parity lint, every-`promoted_to:`-resolves) still queued.
-- `strip_leading_html_comment` is now duplicated across `new-adr.py`, `new-rfc.py`, and `promote_discovery.py` — kit's "third caller = lift" rule fires. Worth lifting to `_doc_lib/helpers.py` in a Slice 2.7 cleanup or as a chore commit before Slice 3.
+- `strip_leading_html_comment` is now duplicated across `new-adr.py`, `new-rfc.py`, and `promote_discovery.py` — kit's "third caller = lift" rule fires. Worth lifting to `_doc_lib/helpers.py` as a chore commit before or alongside Slice 3.
+- Spec reviewer flagged the live `promote-discovery list` against a real raw discovery item was deferred (kit's own `docs/discovery/` is empty). First real discovery file someone creates will be the proper smoke test.
 
 ## Don't do
 
