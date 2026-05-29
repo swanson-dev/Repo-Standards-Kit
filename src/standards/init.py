@@ -57,6 +57,14 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
         if cls == "scaffold-once-source":
             continue  # handled in the scaffold-once loop below
         dest = target / rel
+        if cls == "partial" and dest.exists() and not force:
+            # Preserve downstream content outside the managed block. The pre-flight
+            # guard already ensured the existing block matches the payload's, so we
+            # record the existing block's hash rather than overwriting the whole file.
+            existing_hash = block_hash(dest.read_text(encoding="utf-8"))
+            if existing_hash is not None:
+                managed[rel] = existing_hash
+                continue
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(full, dest)
         if cls == "partial":

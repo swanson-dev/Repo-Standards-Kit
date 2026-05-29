@@ -96,6 +96,21 @@ class InitTests(unittest.TestCase):
             self._run(target, profile="library", adopted="2026-05-29", force=True)
             self.assertTrue((target / ".standards-kit.json").is_file())
 
+    def test_partial_existing_preserves_downstream_content(self):
+        # A pre-existing partial file with the SAME managed block but extra
+        # downstream content must NOT be clobbered by the payload copy.
+        from standards.payload import payload_root
+        from standards.marker import read_marker
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            src = (payload_root() / "AGENTS.md").read_text(encoding="utf-8")
+            (target / "AGENTS.md").write_text(
+                src + "\n## My downstream section\nkeep me\n", encoding="utf-8")
+            self._run(target, profile="library", adopted="2026-05-29")  # guard passes (block matches)
+            after = (target / "AGENTS.md").read_text(encoding="utf-8")
+            self.assertIn("## My downstream section", after)  # preserved, not overwritten
+            self.assertIn("AGENTS.md", read_marker(target)["managed"])
+
 
 if __name__ == "__main__":
     unittest.main()
