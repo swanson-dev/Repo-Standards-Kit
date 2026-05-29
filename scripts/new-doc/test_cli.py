@@ -51,6 +51,19 @@ class NewAdrTests(unittest.TestCase):
             # stdout has paste-ready index row
             self.assertIn("| [0001](./0001-my-first-decision.md) | My first decision |", result.stdout)
 
+    def test_does_not_emit_template_html_preamble(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_fixture_repo(Path(d))
+            result = run(NEW_ADR, "Some decision", cwd=tmp)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            created = tmp / "docs" / "decisions" / "0001-some-decision.md"
+            body = created.read_text()
+            # The template starts with an HTML comment for human authors; the
+            # generated ADR must NOT carry that — frontmatter parsing in
+            # scripts/standards-check/check.py requires the file to start with `---`.
+            self.assertFalse(body.startswith("<!--"), "ADR begins with template preamble")
+            self.assertTrue(body.startswith("---"), "ADR should start with frontmatter fence")
+
     def test_picks_next_nnnn(self):
         with tempfile.TemporaryDirectory() as d:
             tmp = make_fixture_repo(Path(d))
@@ -99,6 +112,16 @@ class NewRfcTests(unittest.TestCase):
             # Other placeholders intact
             self.assertIn("owner:", body)
             self.assertIn("time_box:", body)
+
+    def test_does_not_emit_template_html_preamble(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_fixture_repo(Path(d))
+            result = run(NEW_RFC, "Some question?", cwd=tmp)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            rfc = tmp / "docs" / "rfcs" / "0001-some-question" / "rfc.md"
+            body = rfc.read_text()
+            self.assertFalse(body.startswith("<!--"), "RFC begins with template preamble")
+            self.assertTrue(body.startswith("---"), "RFC should start with frontmatter fence")
 
     def test_does_not_create_artifacts_subdir(self):
         with tempfile.TemporaryDirectory() as d:

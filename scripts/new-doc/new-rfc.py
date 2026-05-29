@@ -25,6 +25,18 @@ from _doc_lib.helpers import (  # noqa: E402
 NNNN_FOLDER_PATTERN = re.compile(r"^(\d{4})-.*$")
 TITLE_HEADING = "NNNN. <Question being investigated>"
 
+LEADING_HTML_COMMENT_RE = re.compile(r"\A\s*<!--.*?-->\s*", re.DOTALL)
+
+
+def strip_leading_html_comment(text: str) -> str:
+    """Remove a single leading HTML comment block (and surrounding whitespace) from text.
+
+    The ADR/RFC templates begin with `<!-- ... -->` guidance for human authors; that
+    block must not survive into generated RFCs because it breaks frontmatter parsing
+    by scripts/standards-check/check.py.
+    """
+    return LEADING_HTML_COMMENT_RE.sub("", text, count=1)
+
 
 def die(msg: str) -> None:
     print(msg, file=sys.stderr)
@@ -79,6 +91,7 @@ def main(argv: list[str]) -> None:
     out_dir = rfcs_dir / f"{nnnn}-{slug}"
 
     template = template_path.read_text(encoding="utf-8")
+    template = strip_leading_html_comment(template)
     filled = fill_template(
         template,
         {
