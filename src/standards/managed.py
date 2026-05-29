@@ -31,14 +31,16 @@ def _end_pattern(block_id: str) -> re.Pattern:
 
 
 def find_block(text: str) -> Block | None:
-    """Locate the single managed block; None if absent, duplicated, or unterminated."""
+    """Locate the single managed block; None unless exactly one BEGIN and one
+    matching END marker exist (absent, duplicated, or unterminated → None)."""
     begins = list(_BEGIN.finditer(text))
     if len(begins) != 1:
         return None
     b = begins[0]
-    end_match = _end_pattern(b.group("id")).search(text, b.end())
-    if end_match is None:
+    ends = list(_end_pattern(b.group("id")).finditer(text, b.end()))
+    if len(ends) != 1:
         return None
+    end_match = ends[0]
     inner = text[b.end():end_match.start()].strip("\n")
     return Block(block_id=b.group("id"), inner=inner,
                  start=b.end(), end=end_match.start())

@@ -30,6 +30,12 @@ class ManagedTests(unittest.TestCase):
         from standards.managed import find_block
         self.assertIsNone(find_block("<!-- BEGIN kit-managed: x (v1) -->\nbody\n"))
 
+    def test_find_block_none_when_duplicate_end(self):
+        from standards.managed import find_block
+        t = ("<!-- BEGIN kit-managed: a (v1) -->\nbody\n"
+             "<!-- END kit-managed: a -->\n<!-- END kit-managed: a -->\n")
+        self.assertIsNone(find_block(t))
+
     def test_splice_replaces_only_inner(self):
         from standards.managed import splice_block
         out = splice_block(WRAPPED, "NEW BODY")
