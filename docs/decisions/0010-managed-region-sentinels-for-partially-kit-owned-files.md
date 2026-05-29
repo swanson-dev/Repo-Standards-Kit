@@ -51,11 +51,11 @@ Defined block IDs for v1:
 
 ### Update behavior
 
-`standards update` (and first-time `init`) rewrites ONLY the inner content of the managed block, preserving all content outside the sentinel markers byte-for-byte. The version tag in the opening sentinel is updated to match the incoming kit version.
+`standards update` rewrites ONLY the inner content of the managed block, preserving all content outside the sentinel markers — including the sentinel lines themselves — byte-for-byte. The `(v<version>)` tag in the opening sentinel is **informational**: it records the kit version that last *wrote* the block via `init` or a full-file migration, and is not rewritten by an inner-content splice, so it may lag the current version. The authoritative drift signal is the recorded hash (below), not the tag. (A pre-0.6.0 markerless file that was previously kit-tracked is migrated to this format by a full-file copy on the first `update`, which does bring the current sentinel version.)
 
 ### Drift detection
 
-A sha256 hash of the inner block text (between the sentinel lines, exclusive) is recorded in `.standards-kit.json` under the `managed` table keyed by block ID. On each `update` run the script recomputes the hash of the on-disk inner content:
+A sha256 hash of the inner block text (between the sentinel lines, exclusive) is recorded in `.standards-kit.json` under the `managed` table keyed by the file's repo-relative path (e.g. `"AGENTS.md"`). On each `update` run the script recomputes the hash of the on-disk inner content:
 
 - Hash matches → downstream has not edited inside the block; safe to overwrite.
 - Hash mismatch → downstream edited inside the block; degrade to sidecar (see below).
@@ -81,5 +81,5 @@ The operator must resolve the sidecar manually.
 
 ## More Information
 
-- Related ADR: [ADR-0009](./0009-standards-kit-file-ownership-and-sync-model.md)
+- Related ADR: [ADR-0009](./0009-distribute-the-kit-as-a-pypi-standards-cli-with-vendored-copy-sync.md)
 - Design spec: [`../superpowers/specs/2026-05-29-standards-update-and-managed-regions-design.md`](../superpowers/specs/2026-05-29-standards-update-and-managed-regions-design.md)
