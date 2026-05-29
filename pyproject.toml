@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "repo-standards-kit"
+dynamic = ["version"]
+description = "Team Repository Standards Kit — adopt and stay current with the standards via a single CLI."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.9"
+authors = [{ name = "swanson-dev" }]
+keywords = ["standards", "scaffold", "adr", "rfc", "governance"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = []   # runtime is stdlib-only by design
+
+[project.scripts]
+standards = "standards.cli:main"
+
+[project.urls]
+Repository = "https://github.com/swanson-dev/Repo-Standards-Kit"
+
+[tool.hatch.version]
+path = "src/standards/__about__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/standards"]
+
+# Bundle the kit content into the wheel, mirroring the downstream target layout
+# under standards/_payload/ so init can copy by relative path.
+[tool.hatch.build.targets.wheel.force-include]
+"docs/templates" = "standards/_payload/docs/templates"
+"docs/STANDARDS.md" = "standards/_payload/docs/STANDARDS.md"
+"scripts" = "standards/_payload/scripts"
+".github/workflows/repo-standards.yml" = "standards/_payload/.github/workflows/repo-standards.yml"
+".github/prompts" = "standards/_payload/.github/prompts"
+".github/copilot-instructions.md" = "standards/_payload/.github/copilot-instructions.md"
+".github/pull_request_template.md" = "standards/_payload/.github/pull_request_template.md"
+".claude" = "standards/_payload/.claude"
+"AGENTS.md" = "standards/_payload/AGENTS.md"
+"CLAUDE.md" = "standards/_payload/CLAUDE.md"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["/.git", "/dist", "/docs/superpowers"]
