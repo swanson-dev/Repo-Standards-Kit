@@ -4,7 +4,7 @@
 
 **Goal:** Make the Repo-Standards-Kit installable from PyPI and add a `standards init` command that vendors the kit into a target repo and records a version+hash marker.
 
-**Architecture:** *Additive* packaging — add a new `src/standards/` package containing only the distribution CLI; bundle the existing kit content (templates, `docs/STANDARDS.md`, `scripts/`, workflows, AI wrappers) into the wheel as **package data** via hatchling `force-include`, mirroring the downstream target layout under `standards/_payload/`. The existing 57 tests and `scripts/` are **not moved** — they keep working in-repo and double as the bundled payload. `init` reads the payload via `importlib.resources`, classifies each file with an ownership manifest (kit-tracked vs scaffold-once), copies accordingly, and writes a JSON marker.
+**Architecture:** *Additive* packaging — add a new `src/standards/` package containing only the distribution CLI; bundle the existing kit content (templates, `docs/STANDARDS.md`, `scripts/`, workflows, AI wrappers) into the wheel as **package data** via hatchling `force-include`, mirroring the downstream target layout under `standards/_payload/`. The existing 57 tests and `scripts/` are **not moved** — they keep working in-repo and double as the bundled payload. The payload is an **explicitly enumerated set of paths** (`PAYLOAD_DIRS` + `PAYLOAD_FILES` in `manifest.py`, mirrored by the `force-include` map) — never "everything under a root", so `.git/`, `src/`, `tests/`, and the kit's own `ai/`/`docs/rfcs/` are never copied into adopters. `payload_root()` returns the bundled `_payload` when present (installed wheel) and falls back to the **repo root** when running from source (so dev/tests use the real files — zero duplication). `init` enumerates the payload via `manifest.iter_payload(payload_root())`, classifies each file (kit-tracked vs scaffold-once), copies accordingly, and writes a JSON marker.
 
 **Tech Stack:** Python ≥3.9 stdlib only (runtime zero-dependency); hatchling build backend; `importlib.resources`, `hashlib`, `json`, `argparse`, `shutil`, `pathlib`. Tests: stdlib `unittest` (matches the kit's existing convention).
 
@@ -25,8 +25,8 @@
 | `pyproject.toml` (create, repo root) | Build config: hatchling, metadata, `[project.scripts]` entry point, `force-include` payload map. |
 | `src/standards/__init__.py` (create) | Package marker. |
 | `src/standards/__about__.py` (create) | Single source of `__version__`. |
-| `src/standards/payload.py` (create) | Locate the bundled `_payload` tree via `importlib.resources`. |
-| `src/standards/manifest.py` (create) | Classify a target-relative path → `"kit-tracked"` / `"scaffold-once"`; map scaffold-once template sources → target paths. |
+| `src/standards/payload.py` (create) | Locate the kit content: bundled `_payload` (wheel) or repo root (dev) via `importlib.resources` + sentinel walk. |
+| `src/standards/manifest.py` (create) | Enumerate the payload (`PAYLOAD_DIRS`/`PAYLOAD_FILES` + `iter_payload`); classify a payload-relative path → `"kit-tracked"` / `"scaffold-once-source"`; map scaffold-once sources → target paths. |
 | `src/standards/marker.py` (create) | `sha256_file`, `read_marker`, `write_marker` for `.standards-kit.json`. |
 | `src/standards/init.py` (create) | `run_init(target, profile, force)` — the copy + marker logic. |
 | `src/standards/cli.py` (create) | `argparse` dispatch; `main()`; the `init` subcommand. |
@@ -212,12 +212,9 @@ python -c "import zipfile,glob; z=zipfile.ZipFile(sorted(glob.glob('dist/*.whl')
 ```
 Expected: lines including `standards/_payload/docs/templates/adr-template.md`, `standards/_payload/docs/STANDARDS.md`, `standards/_payload/scripts/standards-check/check.py`, and `standards/_payload/AGENTS.md`. Also confirm the wheel's `entry_points.txt` lists `standards = standards.cli:main` (the build will warn if `cli.py` is missing — that is expected until Task 7; the wheel still builds).
 
-- [ ] **Step 3: Install editable and confirm import**
+> **No editable install needed.** Later tasks import `standards` from `src/` (each test inserts `src` on `sys.path`), and `payload_root()` falls back to the repo root in source mode — so the suite runs without installing. The real install path (`pipx run`/`uvx`) is exercised in Plan 3. Keep the built wheel from Step 2 only as a force-include sanity check; you may delete `dist/` afterward.
 
-Run: `python -m pip install -e .`
-Expected: installs `repo-standards-kit 0.5.0` with no dependencies.
-
-- [ ] **Step 4: Commit**
+- [ ] **Step 3: Commit**
 
 ```bash
 git add pyproject.toml
@@ -261,26 +258,41 @@ if __name__ == "__main__":
 Run: `python tests/test_payload.py`
 Expected: FAIL — `ModuleNotFoundError: No module named 'standards.payload'`
 
-> Requires the editable install from Task 3 Step 3 so `_payload` is discoverable. If `_payload` is absent under the editable install, run `python -m build --wheel && pip install --force-reinstall dist/*.whl` to test against the built wheel instead (editable installs do not materialize `force-include` data).
+> No install needed: in source mode `_payload` does not exist, so `payload_root()` falls back to the repo root (found by walking up to the `docs/STANDARDS.md` sentinel), whose real files satisfy the assertions.
 
 - [ ] **Step 3: Write the implementation**
 
 `src/standards/payload.py`:
 ```python
-"""Locate the kit content bundled inside the wheel as package data."""
+"""Locate the kit content: bundled `_payload` in a wheel, or the repo root in dev."""
 from __future__ import annotations
 
 from importlib import resources
 from pathlib import Path
 
+_SENTINEL = "docs/STANDARDS.md"
+
+
+def _repo_root_from_source() -> Path:
+    """Walk up from this file to the dir containing the sentinel (the repo root)."""
+    here = Path(__file__).resolve()
+    for parent in here.parents:
+        if (parent / _SENTINEL).is_file():
+            return parent
+    return here.parents[2]  # src/standards/payload.py -> repo root by layout
+
 
 def payload_root() -> Path:
-    """Return the filesystem path to the bundled `_payload` tree.
+    """Directory holding the kit payload.
 
-    Assumes an unpacked install (pipx/uv install wheels unzipped), which is the
-    distribution model chosen in ADR-0009.
+    An installed wheel bundles the content under `standards/_payload` (ADR-0009).
+    Running from source there is no `_payload`, so fall back to the repo root,
+    whose real files ARE the payload (kept DRY — no duplicated content).
     """
-    return Path(str(resources.files("standards") / "_payload"))
+    bundled = Path(str(resources.files("standards") / "_payload"))
+    if (bundled / _SENTINEL).is_file():
+        return bundled
+    return _repo_root_from_source()
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -339,6 +351,22 @@ class ManifestTests(unittest.TestCase):
         self.assertTrue(is_excluded_from_tracked("docs/templates/ai-starters/current-state.md"))
         self.assertFalse(is_excluded_from_tracked("docs/templates/adr-template.md"))
 
+    def test_iter_payload_yields_known_files_and_excludes_non_payload(self):
+        from standards.manifest import iter_payload
+        from standards.payload import payload_root
+        rels = {rel for _full, rel in iter_payload(payload_root())}
+        # enumerated payload is present
+        self.assertIn("docs/templates/adr-template.md", rels)
+        self.assertIn("docs/STANDARDS.md", rels)
+        self.assertIn("scripts/standards-check/check.py", rels)
+        self.assertIn("AGENTS.md", rels)
+        # non-payload paths are never yielded
+        self.assertFalse(any(r.startswith(".git/") for r in rels))
+        self.assertFalse(any(r.startswith("src/") for r in rels))
+        self.assertFalse(any(r.startswith("tests/") for r in rels))
+        self.assertFalse(any(r == "ai/handoff.md" for r in rels))
+        self.assertFalse(any(r.endswith(".pyc") for r in rels))
+
 
 if __name__ == "__main__":
     unittest.main()
@@ -353,7 +381,7 @@ Expected: FAIL — `ModuleNotFoundError: No module named 'standards.manifest'`
 
 `src/standards/manifest.py`:
 ```python
-"""Ownership classification for kit files.
+"""Payload enumeration + ownership classification for kit files.
 
 Plan 1 recognizes two classes:
   - kit-tracked  : kit owns it; update may overwrite (Plan 2).
@@ -361,8 +389,33 @@ Plan 1 recognizes two classes:
 
 The partial / managed-region class arrives in Plan 2; until then AGENTS.md,
 CLAUDE.md, and .github/copilot-instructions.md are treated as kit-tracked.
+
+The payload is an explicitly enumerated set (mirrored by the force-include map in
+pyproject.toml), NOT "everything under a root" — so .git/, src/, tests/, and the
+kit's own ai/ and docs/rfcs/ are never copied into adopters.
 """
 from __future__ import annotations
+
+import os
+from pathlib import Path
+
+# Directories whose entire contents are payload (relative to payload root).
+PAYLOAD_DIRS: tuple[str, ...] = (
+    "docs/templates",
+    "scripts",
+    ".github/prompts",
+    ".claude",
+)
+
+# Individual payload files (relative to payload root).
+PAYLOAD_FILES: tuple[str, ...] = (
+    "docs/STANDARDS.md",
+    ".github/workflows/repo-standards.yml",
+    ".github/copilot-instructions.md",
+    ".github/pull_request_template.md",
+    "AGENTS.md",
+    "CLAUDE.md",
+)
 
 # Source template (relative to payload root) -> target path (relative to repo root).
 SCAFFOLD_ONCE: dict[str, str] = {
@@ -374,7 +427,7 @@ SCAFFOLD_ONCE: dict[str, str] = {
 }
 
 # Payload files that are scaffold-once *sources* and must not be copied verbatim
-# into the target as kit-tracked templates.
+# into the target as kit-tracked files.
 _TRACKED_EXCLUSIONS = set(SCAFFOLD_ONCE.keys())
 
 
@@ -388,6 +441,30 @@ def classify(rel: str) -> str:
     if rel in _TRACKED_EXCLUSIONS:
         return "scaffold-once-source"
     return "kit-tracked"
+
+
+def iter_payload(root: Path):
+    """Yield (absolute_path, payload_relative_posix) for every enumerated payload file.
+
+    Only PAYLOAD_DIRS + PAYLOAD_FILES are read; __pycache__ dirs and *.pyc files
+    are skipped so build artifacts never leak into adopters.
+    """
+    root = Path(root)
+    for d in PAYLOAD_DIRS:
+        base = root / d
+        if not base.is_dir():
+            continue
+        for dirpath, dirs, files in os.walk(base):
+            dirs[:] = [x for x in dirs if x != "__pycache__"]
+            for name in files:
+                if name.endswith(".pyc"):
+                    continue
+                full = Path(dirpath) / name
+                yield full, full.relative_to(root).as_posix()
+    for f in PAYLOAD_FILES:
+        full = root / f
+        if full.is_file():
+            yield full, Path(f).as_posix()
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -596,23 +673,15 @@ Expected: FAIL — `ModuleNotFoundError: No module named 'standards.init'`
 """`standards init` — vendor the kit into a target repo and write the marker."""
 from __future__ import annotations
 
-import os
 import shutil
 from pathlib import Path
 
 from standards.__about__ import __version__
-from standards.manifest import SCAFFOLD_ONCE, is_excluded_from_tracked
+from standards.manifest import SCAFFOLD_ONCE, is_excluded_from_tracked, iter_payload
 from standards.marker import MARKER_NAME, read_marker, sha256_file, write_marker
 from standards.payload import payload_root
 
 PROFILE_PLACEHOLDER = "<application | library | infra | data>"
-
-
-def _iter_payload_files(root: Path):
-    for dirpath, _dirs, files in os.walk(root):
-        for name in files:
-            full = Path(dirpath) / name
-            yield full, full.relative_to(root).as_posix()
 
 
 def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -> dict:
@@ -629,7 +698,7 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
     src_root = payload_root()
     tracked: dict[str, str] = {}
 
-    for full, rel in _iter_payload_files(src_root):
+    for full, rel in iter_payload(src_root):
         if is_excluded_from_tracked(rel):
             continue  # scaffold-once sources handled below
         dest = target / rel
@@ -773,13 +842,14 @@ if __name__ == "__main__":
 Run: `python tests/test_cli.py`
 Expected: PASS
 
-- [ ] **Step 5: Confirm the installed console script works**
+- [ ] **Step 5: Confirm the CLI entry point works from source**
 
-Run (after `pip install -e .` from Task 3):
-```bash
-standards --version
+Run (PowerShell, from repo root):
+```powershell
+$env:PYTHONPATH="src"; python -m standards.cli --version
 ```
 Expected: `standards 0.5.0`
+(The installed console-script form `standards --version` is verified in Plan 3 once the package is pip-installed; here we exercise the same `main()` via `-m`.)
 
 - [ ] **Step 6: Commit**
 
