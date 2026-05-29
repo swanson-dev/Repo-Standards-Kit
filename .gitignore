@@ -24,3 +24,8 @@ desktop.ini
 __pycache__/
 *.py[cod]
 *$py.class
+
+# Python build artifacts
+dist/
+build/
+*.egg-info/
