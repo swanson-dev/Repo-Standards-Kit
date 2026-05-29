@@ -19,3 +19,8 @@ desktop.ini
 # AI tool caches (not the committed ai/ context — that ships with the repo)
 .claude/cache/
 .copilot/cache/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
