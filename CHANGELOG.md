@@ -114,6 +114,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.5.0]: https://example.invalid/releases/tag/v0.5.0
 [0.4.0]: https://example.invalid/releases/tag/v0.4.0
 [0.3.0]: https://example.invalid/releases/tag/v0.3.0
 [0.2.0]: https://example.invalid/releases/tag/v0.2.0

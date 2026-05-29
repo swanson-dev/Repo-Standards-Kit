@@ -45,15 +45,15 @@ Candidate channels considered: GitHub template repo, Claude Code plugin, `degit`
 One stdlib Python package (working name `repo-standards-kit`, console entry point `standards`), distributed on PyPI and run ephemerally:
 
 ```
-pipx run repo-standards-kit init --profile library .     # adopt into a repo (greenfield or existing)
-pipx run repo-standards-kit==0.4.0 init .                # pinned, reproducible
-pipx run repo-standards-kit update .                     # stay current
-uvx repo-standards-kit init .                            # identical UX via uv — same package, zero extra work
+pipx run repo-standards-kit init --profile library .              # adopt into a repo (greenfield or existing)
+pipx run repo-standards-kit==0.5.0 init --profile library .       # pinned, reproducible
+pipx run repo-standards-kit update .                              # stay current (Plan 2)
+uvx repo-standards-kit init --profile library .                   # identical UX via uv — same package, zero extra work
 ```
 
 Two subcommands cover both jobs Q-2 weighted equally:
 
-- `init [--profile application|library|infra|data] [target]` — copy kit content into the target, record the profile, write a version marker.
+- `init --profile <application|library|infra|data> [target]` — copy kit content into the target, record the profile, write a version marker. (`--profile` is required.)
 - `update [target]` — reconcile the target against a newer kit version (see sync model).
 
 **Key payoff:** the kit ships its content (STANDARDS.md reference, the 22 templates, the scripts, the standards-check workflow) as **package data inside the wheel**, and the **PyPI package version *is* the kit version.** That collapses the version anchor and the distributable into one object — no separate template repo, no release-tarball fetch inside the CLI, full reproducibility via `==<version>`. The package stays **zero-dependency / pure stdlib**; pipx/uvx is only the delivery vehicle.

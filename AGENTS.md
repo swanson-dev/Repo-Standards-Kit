@@ -6,7 +6,7 @@ Single source of truth for AI agents working in this repository. Tool-specific f
 
 This is the **Team Repository Standards Kit** — a versioned set of documentation standards, templates, and (in later slices) AI Skills, Hooks, and CI checks that other repositories adopt.
 
-- Kit version: **0.4.0** (Slice 2.6: `promote-discovery` hook + slash command)
+- Kit version: **0.5.0** (Slice 3: distribution — `standards` CLI + `init`, RFC-0001/ADR-0009)
 - Profile: **library** (this kit ships templates; it has no runtime, no deployment, no runbook)
 
 ## Canonical reading order
