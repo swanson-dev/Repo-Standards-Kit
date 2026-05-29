@@ -5,7 +5,7 @@ import shutil
 from pathlib import Path
 
 from standards.__about__ import __version__
-from standards.manifest import SCAFFOLD_ONCE, is_excluded_from_tracked, iter_payload
+from standards.manifest import PROFILE_TEMPLATED, SCAFFOLD_ONCE, is_excluded_from_tracked, iter_payload
 from standards.marker import MARKER_NAME, read_marker, sha256_file, write_marker
 from standards.payload import payload_root
 
@@ -40,7 +40,7 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
         if dest.exists():
             continue
         content = (src_root / src_rel).read_text(encoding="utf-8")
-        if dest_rel == "docs/STANDARDS-CHECKLIST.md":
+        if dest_rel in PROFILE_TEMPLATED:
             content = content.replace(PROFILE_PLACEHOLDER, profile)
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(content, encoding="utf-8")

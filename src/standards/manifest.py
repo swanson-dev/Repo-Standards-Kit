@@ -43,6 +43,9 @@ SCAFFOLD_ONCE: dict[str, str] = {
     "docs/templates/STANDARDS-CHECKLIST.md.template": "docs/STANDARDS-CHECKLIST.md",
 }
 
+# Scaffold-once destinations whose PROFILE_PLACEHOLDER must be substituted at init.
+PROFILE_TEMPLATED: frozenset[str] = frozenset({"docs/STANDARDS-CHECKLIST.md"})
+
 # Payload files that are scaffold-once *sources* and must not be copied verbatim
 # into the target as kit-tracked files.
 _TRACKED_EXCLUSIONS = set(SCAFFOLD_ONCE.keys())

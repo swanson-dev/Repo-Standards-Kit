@@ -22,6 +22,11 @@ class InitTests(unittest.TestCase):
             self.assertEqual(marker["profile"], "library")
             self.assertIn("docs/STANDARDS.md", marker["tracked"])
             self.assertTrue((target / "ai" / "current-state.md").is_file())
+            from standards.marker import sha256_file
+            self.assertEqual(
+                marker["tracked"]["docs/STANDARDS.md"],
+                sha256_file(target / "docs" / "STANDARDS.md"),
+            )
 
     def test_scaffold_once_not_overwritten(self):
         with tempfile.TemporaryDirectory() as d:
