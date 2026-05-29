@@ -43,5 +43,16 @@ class ManifestTests(unittest.TestCase):
         self.assertFalse(any(r.endswith(".pyc") for r in rels))
 
 
+    def test_partial_files_classified_partial(self):
+        from standards.manifest import classify, PARTIAL_FILES
+        self.assertIn("AGENTS.md", PARTIAL_FILES)
+        self.assertIn("CLAUDE.md", PARTIAL_FILES)
+        self.assertIn(".github/copilot-instructions.md", PARTIAL_FILES)
+        self.assertEqual(classify("AGENTS.md"), "partial")
+        self.assertEqual(classify("CLAUDE.md"), "partial")
+        self.assertEqual(classify(".github/copilot-instructions.md"), "partial")
+        self.assertEqual(classify("docs/templates/adr-template.md"), "kit-tracked")
+
+
 if __name__ == "__main__":
     unittest.main()

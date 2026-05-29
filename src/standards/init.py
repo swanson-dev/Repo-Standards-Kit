@@ -5,7 +5,8 @@ import shutil
 from pathlib import Path
 
 from standards.__about__ import __version__
-from standards.manifest import PROFILE_TEMPLATED, SCAFFOLD_ONCE, is_excluded_from_tracked, iter_payload
+from standards.managed import block_hash
+from standards.manifest import PROFILE_TEMPLATED, SCAFFOLD_ONCE, classify, iter_payload
 from standards.marker import MARKER_NAME, read_marker, sha256_file, write_marker
 from standards.payload import payload_root
 
@@ -23,16 +24,53 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
             f"{target / MARKER_NAME} exists; pass force=True to re-init"
         )
 
+    if not force:
+        collisions: list[str] = []
+        for full, rel in iter_payload(payload_root()):
+            cls = classify(rel)
+            if cls == "scaffold-once-source":
+                continue
+            dest = target / rel
+            if not dest.exists():
+                continue
+            if cls == "partial":
+                differs = block_hash(dest.read_text(encoding="utf-8")) != \
+                    block_hash(full.read_text(encoding="utf-8"))
+            else:
+                differs = sha256_file(dest) != sha256_file(full)
+            if differs:
+                collisions.append(rel)
+        if collisions:
+            shown = ", ".join(sorted(collisions)[:5])
+            more = "" if len(collisions) <= 5 else f" (+{len(collisions) - 5} more)"
+            raise FileExistsError(
+                f"{len(collisions)} kit file(s) already exist with different content: "
+                f"{shown}{more}. Re-run with force=True to overwrite, or adopt into an empty repo."
+            )
+
     src_root = payload_root()
     tracked: dict[str, str] = {}
+    managed: dict[str, str] = {}
 
     for full, rel in iter_payload(src_root):
-        if is_excluded_from_tracked(rel):
-            continue  # scaffold-once sources handled below
+        cls = classify(rel)
+        if cls == "scaffold-once-source":
+            continue  # handled in the scaffold-once loop below
         dest = target / rel
+        if cls == "partial" and dest.exists() and not force:
+            # Preserve downstream content outside the managed block. The pre-flight
+            # guard already ensured the existing block matches the payload's, so we
+            # record the existing block's hash rather than overwriting the whole file.
+            existing_hash = block_hash(dest.read_text(encoding="utf-8"))
+            if existing_hash is not None:
+                managed[rel] = existing_hash
+                continue
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(full, dest)
-        tracked[rel] = sha256_file(dest)
+        if cls == "partial":
+            managed[rel] = block_hash(dest.read_text(encoding="utf-8"))
+        else:  # kit-tracked
+            tracked[rel] = sha256_file(dest)
 
     # Scaffold-once: copy source template -> target path only if absent.
     for src_rel, dest_rel in SCAFFOLD_ONCE.items():
@@ -46,5 +84,5 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
         dest.write_text(content, encoding="utf-8")
 
     write_marker(target, kit_version=__version__, profile=profile,
-                 adopted=adopted, tracked=tracked)
+                 adopted=adopted, tracked=tracked, managed=managed)
     return read_marker(target)

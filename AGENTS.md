@@ -1,13 +1,9 @@
 # AGENTS.md
 
+<!-- BEGIN kit-managed: agents-core (v0.6.0) -->
 Single source of truth for AI agents working in this repository. Tool-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) are thin pointers to this document.
 
-## What this repo is
-
-This is the **Team Repository Standards Kit** — a versioned set of documentation standards, templates, and (in later slices) AI Skills, Hooks, and CI checks that other repositories adopt.
-
-- Kit version: **0.5.0** (Slice 3: distribution — `standards` CLI + `init`, RFC-0001/ADR-0009)
-- Profile: **library** (this kit ships templates; it has no runtime, no deployment, no runbook)
+- Kit version: **0.6.0**
 
 ## Canonical reading order
 
@@ -41,17 +37,26 @@ Before you finish a session that produced meaningful change:
 - **Discovery items:** `docs/templates/discovery-meeting-notes.md` or `discovery-use-case.md`. Filename: `YYYY-MM-DD-source-topic.md`. Place in the right subfolder. Optional but encouraged frontmatter (`source`, `date_captured`, `topic`, `status`, `promoted_to`).
 - **Numbered docs:** see `docs/STANDARDS.md` for which docs are Required/Expected/Optional/N/A for this profile.
 
-## Local conventions for this kit
+## Standard conventions
 
 - Date format everywhere: ISO 8601 (`YYYY-MM-DD`).
 - Filename conventions: lowercase kebab-case for slugs.
 - Don't edit files in `docs/decisions/` whose status is `Accepted` — write a superseding ADR instead.
 - Don't create numbered docs marked **N/A** for this profile. If a doc is **Optional** and you skip it, no waiver is needed. If it's **Required** or **Expected** and you skip it, add a `**Waived:** <reason>` line in `docs/STANDARDS-CHECKLIST.md`.
-- This kit follows itself. Every Slice 1 decision (profile model, ADR format, RFC format, ai/ contract, AGENTS.md pattern) is also captured as an ADR in `docs/decisions/`.
+<!-- END kit-managed: agents-core -->
 
-## What's out of scope right now (queued slices)
+## About this repository
 
-- **Slice 3:** Distribution mechanism (template repo vs. Claude Code plugin vs. copy script).
+This is the **Team Repository Standards Kit** — a versioned set of documentation standards, templates, AI Skills + a `standards` CLI, and CI checks that other repositories adopt.
+
+- Profile: **library** (this kit ships templates; it has no runtime, no deployment, no runbook)
+
+### Local conventions
+
+- This kit follows itself. Every Slice 1 decision (profile model, ADR format, RFC format, `ai/` contract, AGENTS.md pattern) is captured as an ADR in `docs/decisions/`.
+
+### What's out of scope right now (queued slices)
+
 - **Slice 4:** Deeper CI enforcement (content linting, doc freshness, link checking).
 
-If you're tempted to add a deeper CI check while working on Slice 3 — don't. Open an RFC or an `ai/open-questions.md` entry instead.
+If you're tempted to add a deeper CI check before Slice 4 — don't. Open an RFC or an `ai/open-questions.md` entry instead.

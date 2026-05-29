@@ -34,6 +34,14 @@ PAYLOAD_FILES: tuple[str, ...] = (
     "CLAUDE.md",
 )
 
+# Files the kit partially owns: a single managed block is kit-owned, the rest is
+# downstream-owned. Handled by update via managed-region splice (ADR-0010).
+PARTIAL_FILES: frozenset[str] = frozenset({
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".github/copilot-instructions.md",
+})
+
 # Source template (relative to payload root) -> target path (relative to repo root).
 SCAFFOLD_ONCE: dict[str, str] = {
     "docs/templates/ai-starters/current-state.md": "ai/current-state.md",
@@ -57,9 +65,11 @@ def is_excluded_from_tracked(rel: str) -> bool:
 
 
 def classify(rel: str) -> str:
-    """Classify a payload-relative path. Plan 1: everything not excluded is kit-tracked."""
+    """Classify a payload-relative path: scaffold-once-source / partial / kit-tracked."""
     if rel in _TRACKED_EXCLUSIONS:
         return "scaffold-once-source"
+    if rel in PARTIAL_FILES:
+        return "partial"
     return "kit-tracked"
 
 
