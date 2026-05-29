@@ -88,6 +88,11 @@ def parse_frontmatter(text: str) -> dict[str, str]:
             continue
         if ":" in line:
             key, _, val = line.partition(":")
+            # Strip a trailing inline YAML comment: `#` counts as a comment only
+            # when preceded by whitespace (so literals like `C#` survive). Keeps
+            # the validator consistent with the inline guidance comments the
+            # ADR/RFC templates ship in their frontmatter.
+            val = re.sub(r"\s+#.*$", "", val)
             fm[key.strip()] = val.strip()
     return fm
 
