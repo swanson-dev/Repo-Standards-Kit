@@ -6,6 +6,22 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.3.0] - 2026-05-28
+
+### Added
+- `scripts/update-handoff/update_handoff.py` — stdlib script with write mode (generates draft `ai/handoff.md` from git state) and `--check` mode (advisory stderr line for Claude Code Stop hook).
+- `scripts/update-handoff/test_update_handoff.py` — 9 stdlib `unittest` cases.
+- `scripts/update-handoff/README.md` — script contract and invocation surfaces.
+- `.claude/settings.json` — Claude Code Stop hook config (kit's first hook artifact).
+- `.claude/skills/update-handoff/SKILL.md` — Claude Code slash command wrapper.
+- `.github/prompts/update-handoff.prompt.md` — GitHub Copilot Chat wrapper.
+- `.gitignore` — added `__pycache__/` and `*.pyc` entries (Slice 2.5 pre-flight).
+- `docs/decisions/0008-…md` — ADR-0008 recording the hook-invokes-script-in-check-mode pattern (companion to ADR-0007).
+
+### Changed
+- `AGENTS.md` — kit version 0.2.0 → 0.3.0; queued-slices section moves `promote-discovery` to Slice 2.6.
+- `ai/current-state.md` — Slice 2.5 in What works; Slice 2.6 in What's in progress.
+
 ## [0.2.0] - 2026-05-28
 
 ### Added
@@ -71,5 +87,6 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.3.0]: https://example.invalid/releases/tag/v0.3.0
 [0.2.0]: https://example.invalid/releases/tag/v0.2.0
 [0.1.0]: https://example.invalid/releases/tag/v0.1.0
