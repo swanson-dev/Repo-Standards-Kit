@@ -43,4 +43,4 @@ The hook calls `list --check` (advisory only); the slash commands call `list` or
 python scripts/promote-discovery/test_promote_discovery.py
 ```
 
-15 stdlib `unittest` cases against `tmp_path` git repos. No third-party deps.
+16 stdlib `unittest` cases against `tmp_path` git repos. No third-party deps.

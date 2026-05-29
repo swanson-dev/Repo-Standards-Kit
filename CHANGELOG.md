@@ -10,7 +10,7 @@ include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-po
 
 ### Added
 - `scripts/promote-discovery/promote_discovery.py` — stdlib script with `list` subcommand (default verbose / `--check` terse for hook mode) and `promote <path> --to <target>` subcommand (flips one discovery item's `status: raw` → `promoted` and sets `promoted_to: <target>`).
-- `scripts/promote-discovery/test_promote_discovery.py` — 15 stdlib `unittest` cases.
+- `scripts/promote-discovery/test_promote_discovery.py` — 16 stdlib `unittest` cases.
 - `scripts/promote-discovery/README.md` — script contract, exit codes, invocation surfaces.
 - `.claude/skills/promote-discovery/SKILL.md` — Claude Code slash command wrapper.
 - `.github/prompts/promote-discovery.prompt.md` — GitHub Copilot Chat wrapper.
