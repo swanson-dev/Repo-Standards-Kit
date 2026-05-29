@@ -1,6 +1,6 @@
 ---
-written: 2026-05-28T22:45:00-05:00
-written_by: josh (via claude-code-assistant)
+written: 2026-05-28T21:43:09-05:00
+written_by: swanson-dev (via claude-code-assistant)
 for: next-session
 ---
 
@@ -8,34 +8,34 @@ for: next-session
 
 ## TL;DR
 
-Slice 2 is **complete and green**. Two scaffolding skills shipped (`new-adr`, `new-rfc`) with dual Claude `SKILL.md` + Copilot `prompt.md` wrappers over stdlib-only Python scripts; Q-1 resolved; ADR-0007 records the form-factor decision (produced via the very first dogfooded run of `new-adr.py`). All 24 tests pass (14 helpers + 10 CLI); structural check exits `0 errors, 0 warnings`; `CHANGELOG.md` records v0.2.0.
+Slice 2.5 is complete and green. `update-handoff` ships as the kit's first dual-surface artifact (slash command + Stop hook), wired via `.claude/settings.json`. ADR-0008 records the hook-invokes-script-in-check-mode pattern as the hook-surface companion to ADR-0007. Two latent bugs surfaced during dogfooded verification and were fixed: `new-adr`/`new-rfc` were not stripping the template HTML preamble, and `update-handoff` now falls back to last 10 commits when the prior handoff's `written:` timestamp is in the future. All 36 tests pass (14 + 12 + 10 — two new tests per fix); standards-check exits clean; CHANGELOG records v0.3.0.
 
 ## Recently touched
 
-- `scripts/_doc_lib/helpers.py` and `scripts/_doc_lib/__init__.py` — four pure helpers (`repo_root`, `next_nnnn`, `slugify`, `fill_template`) and a `RepoRootNotFound` exception used by both CLIs.
-- `scripts/new-doc/new-adr.py`, `scripts/new-doc/new-rfc.py` — the two scaffolding CLIs (stdlib only).
-- `scripts/new-doc/test_helpers.py`, `scripts/new-doc/test_cli.py` — stdlib `unittest` coverage (14 + 10 tests).
-- `scripts/new-doc/README.md` — script directory contract: invocation, conventions, dogfooding rule.
-- `.claude/skills/new-adr/SKILL.md`, `.claude/skills/new-rfc/SKILL.md` — Claude Code wrappers.
-- `.github/prompts/new-adr.prompt.md`, `.github/prompts/new-rfc.prompt.md` — GitHub Copilot Chat wrappers (parity with SKILL.md).
-- `docs/decisions/0007-author-ai-tool-wrappers-as-thin-shells-over-stdlib-python-scripts.md` — ADR-0007, the form-factor decision (dogfooded smoke test produced this file).
-- `docs/decisions/README.md` — index row appended for ADR-0007.
-- `ai/open-questions.md` — Q-1 marked answered.
-- `ai/current-state.md` — Slice 2 in What works; Slice 2.5 next.
-- `AGENTS.md` — kit version bumped to 0.2.0; Slice 2.5 in queued slices.
-- `CHANGELOG.md` — v0.2.0 entry recording Slice 2.
+- docs(slice-2.5): write Slice 2.5 handoff via dogfooded update-handoff
+- fix(slice-2.5): update_handoff falls back to last 10 commits when prior since_ts is in the future
+- fix(slice-2): strip template HTML preamble in new-adr and new-rfc scripts
+
+Files changed:
+  - `ai/handoff.md`
+  - `scripts/update-handoff/test_update_handoff.py`
+  - `scripts/update-handoff/update_handoff.py`
+  - `scripts/new-doc/new-adr.py`
+  - `scripts/new-doc/new-rfc.py`
+  - `scripts/new-doc/test_cli.py`
 
 ## Open threads
 
-- **Tag v0.2.0** if the user wants to release on the existing remote (do not push or tag without explicit confirmation).
-- **Slice 2.5 design** queued — Hooks: `update-handoff` (Stop hook), `promote-discovery` (reminder).
-- **Slice 3 distribution** still queued at `ai/open-questions.md#q-2` — blocks `scaffold-new-repo`.
-- The earlier handoff's "push v0.1.0" item — re-evaluate; v0.1.0 may or may not have been pushed during the gap. Confirm with user before any tag/push.
+- Tag `v0.3.0` (do not push without explicit user confirmation; remote is `https://github.com/swanson-dev/Repo-Standards-Kit.git`).
+- Slice 2.6 (`promote-discovery`) queued — same form-factor pattern as `update-handoff`; design when ready.
+- Slice 3 distribution still queued at `ai/open-questions.md#q-2` — blocks `scaffold-new-repo`.
+- Wrapper-parity-lint follow-up from ADR-0007's "Bad" consequence still queued.
 
 ## Don't do
 
-- **Don't edit ADR-0007.** It is `Accepted`. Reversal = new ADR + flip 0007 to `Superseded by NNNN`. Same rule that applies to 0001–0006.
-- **Don't add a third doc-creation script (e.g., `new-discovery.py`) without lifting `next_folder_nnnn` into `scripts/_doc_lib/`.** Right now it's deliberately private to `new-rfc.py` per the YAGNI note in its docstring; a third script means the lift is justified.
-- **Don't bypass the wrapper-parity rule.** The two wrappers per Skill (`SKILL.md` + `prompt.md`) must convey the same when/how/after content. Any drift is a bug; either fix the drift or open a follow-up to single-source them.
-- **Don't extend `.gitignore` ad-hoc.** A pre-existing gap exists (`__pycache__/` is untracked) — log it as a follow-up if it bothers anyone; don't bundle it into a Slice 2.5 commit.
-- **Don't push without confirming with the user first.** The kit's prior handoff established this rule; it still applies.
+- Don't edit ADRs 0001–0008. All are `Accepted`. Reversal = new ADR + flip old to `Superseded by NNNN`.
+- Don't add a write-mode auto-trigger to the `update-handoff` hook. ADR-0008 explicitly chose advisory-only for the hook surface.
+- Don't bypass the wrapper-parity rule. `update-handoff`'s SKILL.md and prompt.md must convey the same when/how/after content; the only documented asymmetry is the Copilot-can't-auto-trigger note.
+- Don't commit `__pycache__/` or `*.pyc` files. They're in `.gitignore` as of Slice 2.5 pre-flight; a prior session committed some by accident — that was force-pushed away.
+- Don't add the template HTML preamble back to the ADR/RFC templates. The `new-adr`/`new-rfc` scripts now strip it; if a future template change reintroduces it, the regression tests in `test_cli.py` will catch it.
+- Don't push without confirming with the user first.
