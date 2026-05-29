@@ -86,19 +86,36 @@ def run_update(target: Path, *, dry_run: bool = False) -> dict[str, list[str]]:
                 continue
             cur_text = dest.read_text(encoding="utf-8")
             cur_block = block_hash(cur_text)
-            if cur_block is not None and cur_block == managed.get(rel):
-                # Block is untouched since last sync — apply kit update (idempotent if
+            src_fb = find_block(full.read_text(encoding="utf-8"))
+            if cur_block is None:
+                # No managed markers. Pre-0.6.0 adoptions tracked these files as
+                # kit-tracked and markerless; migrate to the partial format if the
+                # file is still untouched (matches the old recorded tracked hash).
+                if src_fb is not None and sha256_file(dest) == marker.get("tracked", {}).get(rel):
+                    if not dry_run:
+                        shutil.copyfile(full, dest)
+                        managed[rel] = block_hash(dest.read_text(encoding="utf-8"))
+                        tracked.pop(rel, None)
+                    report["updated"].append(rel)
+                else:                              # markers removed/edited → keep theirs
+                    _sidecar(target, rel, full, dry_run)
+                    report["conflicts"].append(rel)
+            elif cur_block == managed.get(rel):
+                # Block untouched since last sync — apply kit update (idempotent if
                 # content is identical, e.g. running from dev source).
-                if not dry_run:
-                    new_inner = find_block(full.read_text(encoding="utf-8")).inner
-                    dest.write_text(splice_block(cur_text, new_inner), encoding="utf-8")
-                    managed[rel] = block_hash(dest.read_text(encoding="utf-8"))
-                report["spliced"].append(rel)
-            elif cur_block == block_hash(full.read_text(encoding="utf-8")):
+                if src_fb is None:                 # payload block malformed (shouldn't happen)
+                    _sidecar(target, rel, full, dry_run)
+                    report["conflicts"].append(rel)
+                else:
+                    if not dry_run:
+                        dest.write_text(splice_block(cur_text, src_fb.inner), encoding="utf-8")
+                        managed[rel] = block_hash(dest.read_text(encoding="utf-8"))
+                    report["spliced"].append(rel)
+            elif src_fb is not None and cur_block == block_hash(full.read_text(encoding="utf-8")):
                 # Block matches source and is apparently fresh (not in managed table).
                 managed[rel] = cur_block
                 report["unchanged"].append(rel)
-            else:                                  # block edited, or markers gone
+            else:                                  # block edited downstream
                 _sidecar(target, rel, full, dry_run)
                 report["conflicts"].append(rel)
 

@@ -92,6 +92,47 @@ class UpdateTests(unittest.TestCase):
             self.assertEqual(before, after)
             self.assertEqual(edited.read_text(encoding="utf-8"), "LOCAL\n")
 
+    def _make_markerless_pre060(self, target):
+        """Simulate a 0.5.0 adoption: a partial file was kit-tracked and markerless."""
+        from standards.marker import MARKER_NAME, sha256_file
+        agents = target / "AGENTS.md"
+        agents.write_text("# AGENTS.md\n\nold markerless 0.5.0 contract\n", encoding="utf-8")
+        data = json.loads((target / MARKER_NAME).read_text(encoding="utf-8"))
+        data["managed"].pop("AGENTS.md", None)
+        data["tracked"]["AGENTS.md"] = sha256_file(agents)  # recorded as untouched kit-tracked
+        (target / MARKER_NAME).write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+        return agents
+
+    def test_migrates_untouched_markerless_partial_file(self):
+        from standards.update import run_update
+        from standards.managed import find_block
+        from standards.marker import read_marker
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            _adopt(target)
+            agents = self._make_markerless_pre060(target)
+            report = run_update(target)
+            self.assertNotIn("AGENTS.md", report["conflicts"])
+            self.assertIn("AGENTS.md", report["updated"])
+            self.assertIsNotNone(find_block(agents.read_text(encoding="utf-8")))  # now has markers
+            m = read_marker(target)
+            self.assertIn("AGENTS.md", m["managed"])
+            self.assertNotIn("AGENTS.md", m["tracked"])
+
+    def test_edited_markerless_partial_file_is_a_conflict(self):
+        from standards.update import run_update
+        from standards.__about__ import __version__
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            _adopt(target)
+            self._make_markerless_pre060(target)
+            # further hand-edit so it no longer matches the recorded tracked hash
+            (target / "AGENTS.md").write_text("# AGENTS.md\n\nUSER HAND-EDITED\n", encoding="utf-8")
+            report = run_update(target)
+            self.assertIn("AGENTS.md", report["conflicts"])
+            self.assertTrue((target / f"AGENTS.md.kit-{__version__}").is_file())
+            self.assertIn("USER HAND-EDITED", (target / "AGENTS.md").read_text(encoding="utf-8"))
+
     def test_no_marker_raises(self):
         from standards.update import run_update
         with tempfile.TemporaryDirectory() as d:
