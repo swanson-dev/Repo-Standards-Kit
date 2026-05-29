@@ -10,7 +10,7 @@ include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-po
 
 ### Added
 - `scripts/update-handoff/update_handoff.py` — stdlib script with write mode (generates draft `ai/handoff.md` from git state) and `--check` mode (advisory stderr line for Claude Code Stop hook).
-- `scripts/update-handoff/test_update_handoff.py` — 9 stdlib `unittest` cases.
+- `scripts/update-handoff/test_update_handoff.py` — 10 stdlib `unittest` cases.
 - `scripts/update-handoff/README.md` — script contract and invocation surfaces.
 - `.claude/settings.json` — Claude Code Stop hook config (kit's first hook artifact).
 - `.claude/skills/update-handoff/SKILL.md` — Claude Code slash command wrapper.

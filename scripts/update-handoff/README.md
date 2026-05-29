@@ -42,4 +42,4 @@ The hook calls `--check` (advisory only); the slash commands call write mode. Bo
 python scripts/update-handoff/test_update_handoff.py
 ```
 
-9 stdlib `unittest` cases against `tmp_path` git repos. No third-party deps.
+10 stdlib `unittest` cases against `tmp_path` git repos. No third-party deps.
