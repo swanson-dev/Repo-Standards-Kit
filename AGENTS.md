@@ -6,7 +6,7 @@ Single source of truth for AI agents working in this repository. Tool-specific f
 
 This is the **Team Repository Standards Kit** — a versioned set of documentation standards, templates, and (in later slices) AI Skills, Hooks, and CI checks that other repositories adopt.
 
-- Kit version: **0.1.0** (Slice 1: templates + standards content)
+- Kit version: **0.4.0** (Slice 2.6: `promote-discovery` hook + slash command)
 - Profile: **library** (this kit ships templates; it has no runtime, no deployment, no runbook)
 
 ## Canonical reading order
@@ -51,8 +51,7 @@ Before you finish a session that produced meaningful change:
 
 ## What's out of scope right now (queued slices)
 
-- **Slice 2:** AI Skills + Hooks (scaffolding skills, session-start hook to load `ai/handoff.md`, etc.).
 - **Slice 3:** Distribution mechanism (template repo vs. Claude Code plugin vs. copy script).
 - **Slice 4:** Deeper CI enforcement (content linting, doc freshness, link checking).
 
-If you're tempted to add a Skill, Hook, distribution mechanism, or deeper CI check while working on Slice 1 — don't. Open an RFC or an `ai/open-questions.md` entry instead.
+If you're tempted to add a deeper CI check while working on Slice 3 — don't. Open an RFC or an `ai/open-questions.md` entry instead.

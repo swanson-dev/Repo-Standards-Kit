@@ -6,9 +6,50 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
-## [Unreleased]
+## [0.4.0] - 2026-05-28
 
-_No unreleased changes yet._
+### Added
+- `scripts/promote-discovery/promote_discovery.py` — stdlib script with `list` subcommand (default verbose / `--check` terse for hook mode) and `promote <path> --to <target>` subcommand (flips one discovery item's `status: raw` → `promoted` and sets `promoted_to: <target>`).
+- `scripts/promote-discovery/test_promote_discovery.py` — 16 stdlib `unittest` cases.
+- `scripts/promote-discovery/README.md` — script contract, exit codes, invocation surfaces.
+- `.claude/skills/promote-discovery/SKILL.md` — Claude Code slash command wrapper.
+- `.github/prompts/promote-discovery.prompt.md` — GitHub Copilot Chat wrapper.
+
+### Changed
+- `.claude/settings.json` — added a `SessionStart` hook entry that invokes `promote-discovery list --check`. The existing `Stop` hook for `update-handoff` is unchanged.
+- `AGENTS.md` — kit version 0.3.0 → 0.4.0; queued-slices section drops the Slice 2.6 entry (it shipped); Slice 3 + Slice 4 unchanged.
+- `ai/current-state.md` — Slice 2.6 in What works; Slice 3 in What's in progress.
+
+## [0.3.0] - 2026-05-28
+
+### Added
+- `scripts/update-handoff/update_handoff.py` — stdlib script with write mode (generates draft `ai/handoff.md` from git state) and `--check` mode (advisory stderr line for Claude Code Stop hook).
+- `scripts/update-handoff/test_update_handoff.py` — 10 stdlib `unittest` cases.
+- `scripts/update-handoff/README.md` — script contract and invocation surfaces.
+- `.claude/settings.json` — Claude Code Stop hook config (kit's first hook artifact).
+- `.claude/skills/update-handoff/SKILL.md` — Claude Code slash command wrapper.
+- `.github/prompts/update-handoff.prompt.md` — GitHub Copilot Chat wrapper.
+- `.gitignore` — added `__pycache__/` and `*.pyc` entries (Slice 2.5 pre-flight).
+- `docs/decisions/0008-…md` — ADR-0008 recording the hook-invokes-script-in-check-mode pattern (companion to ADR-0007).
+
+### Changed
+- `AGENTS.md` — kit version 0.2.0 → 0.3.0; queued-slices section moves `promote-discovery` to Slice 2.6.
+- `ai/current-state.md` — Slice 2.5 in What works; Slice 2.6 in What's in progress.
+
+## [0.2.0] - 2026-05-28
+
+### Added
+- `scripts/_doc_lib/helpers.py` — internal helper functions (`repo_root`, `next_nnnn`, `slugify`, `fill_template`).
+- `scripts/new-doc/new-adr.py` — scaffolds a new MADR 3.0 ADR with next NNNN, today's date, and the title.
+- `scripts/new-doc/new-rfc.py` — scaffolds a new RFC folder with `rfc.md`, next NNNN, and today as `opened`.
+- `scripts/new-doc/test_helpers.py` and `scripts/new-doc/test_cli.py` — stdlib `unittest` coverage.
+- `.claude/skills/new-adr/SKILL.md` and `.claude/skills/new-rfc/SKILL.md` — Claude Code wrappers.
+- `.github/prompts/new-adr.prompt.md` and `.github/prompts/new-rfc.prompt.md` — GitHub Copilot Chat wrappers.
+- `docs/decisions/0007-…md` — ADR-0007 recording the wrapper-over-script form factor (produced as the dogfooded smoke test).
+
+### Changed
+- `AGENTS.md` — kit version bumped to 0.2.0; out-of-scope section moves Hooks to Slice 2.5.
+- `ai/open-questions.md` — Q-1 marked `answered`.
 
 ## [0.1.0] — 2026-05-28
 
@@ -60,5 +101,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
-[Unreleased]: https://example.invalid/compare/v0.1.0...HEAD
+[0.4.0]: https://example.invalid/releases/tag/v0.4.0
+[0.3.0]: https://example.invalid/releases/tag/v0.3.0
+[0.2.0]: https://example.invalid/releases/tag/v0.2.0
 [0.1.0]: https://example.invalid/releases/tag/v0.1.0
