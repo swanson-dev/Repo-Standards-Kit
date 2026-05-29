@@ -6,6 +6,19 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.5.0] - 2026-05-29
+
+### Added
+- `pyproject.toml` — the kit is now a `pip`/`pipx`/`uvx`-installable package (`repo-standards-kit`), runtime zero-dependency, hatchling build backend, console entry point `standards`.
+- `src/standards/` — distribution CLI: `payload`, `manifest`, `marker`, `init`, `cli` modules.
+- `standards init [--profile …] [target]` — adopts the kit into a repo: vendors kit-tracked files, scaffolds `ai/` starters + `docs/STANDARDS-CHECKLIST.md` (profile-filled, copy-if-absent), writes the `.standards-kit.json` version+hash marker.
+- `tests/` — distribution-package unit + CLI suite.
+- `docs/decisions/0009-…md` — ADR-0009 recording the PyPI standards-CLI distribution decision (RFC-0001).
+
+### Notes
+- Marker format is JSON, not the `.standards-kit.toml` named in RFC-0001 (stdlib has no TOML writer; JSON keeps the zero-dependency stance). Recorded in ADR-0009.
+- `standards update` and the partial / managed-region ownership class are deferred to Plan 2.
+
 ## [0.4.0] - 2026-05-28
 
 ### Added
