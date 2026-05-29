@@ -6,6 +6,20 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.4.0] - 2026-05-28
+
+### Added
+- `scripts/promote-discovery/promote_discovery.py` — stdlib script with `list` subcommand (default verbose / `--check` terse for hook mode) and `promote <path> --to <target>` subcommand (flips one discovery item's `status: raw` → `promoted` and sets `promoted_to: <target>`).
+- `scripts/promote-discovery/test_promote_discovery.py` — 15 stdlib `unittest` cases.
+- `scripts/promote-discovery/README.md` — script contract, exit codes, invocation surfaces.
+- `.claude/skills/promote-discovery/SKILL.md` — Claude Code slash command wrapper.
+- `.github/prompts/promote-discovery.prompt.md` — GitHub Copilot Chat wrapper.
+
+### Changed
+- `.claude/settings.json` — added a `SessionStart` hook entry that invokes `promote-discovery list --check`. The existing `Stop` hook for `update-handoff` is unchanged.
+- `AGENTS.md` — kit version 0.3.0 → 0.4.0; queued-slices section drops the Slice 2.6 entry (it shipped); Slice 3 + Slice 4 unchanged.
+- `ai/current-state.md` — Slice 2.6 in What works; Slice 3 in What's in progress.
+
 ## [0.3.0] - 2026-05-28
 
 ### Added
@@ -87,6 +101,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.4.0]: https://example.invalid/releases/tag/v0.4.0
 [0.3.0]: https://example.invalid/releases/tag/v0.3.0
 [0.2.0]: https://example.invalid/releases/tag/v0.2.0
 [0.1.0]: https://example.invalid/releases/tag/v0.1.0
