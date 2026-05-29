@@ -16,12 +16,13 @@ last_updated_by: josh
 - `.github/workflows/repo-standards.yml` invokes the check on push and pull_request.
 - `CHANGELOG.md` is started at v0.1.0 (Keep-a-Changelog), closing `ai/open-questions.md#q-3`.
 - `new-adr` and `new-rfc` scaffolding scripts with Claude/Copilot wrappers (Slice 2) — stdlib Python under `scripts/new-doc/`, dual SKILL.md + prompt.md surfaces, closing `ai/open-questions.md#q-1`.
+- `update-handoff` slash command + Stop hook for the AGENTS.md end-of-session contract (Slice 2.5).
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| Tag `v0.2.0` and open Slice 2.5 (Hooks: `update-handoff`, `promote-discovery`) | `ai-skills-implementation` | josh | next session |
+| Tag `v0.3.0` and open Slice 2.6 (Hook: `promote-discovery`) | `ai-skills-implementation` | josh | next session |
 
 ## What's blocked
 
