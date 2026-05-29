@@ -75,17 +75,28 @@ def collect_recent(cwd: Path, since_ts: str | None) -> tuple[list[str], list[str
     """Return (commit_subjects, changed_files) for the range since `since_ts`.
 
     If since_ts is None, fall back to last 10 commits.
+    Also falls back to last 10 commits if `since_ts` is set but returned zero commits
+    AND zero changed files — defensive against a prior handoff that was hand-written
+    with a future timestamp.
     """
-    since_args = [f"--since={since_ts}"] if since_ts else ["-n", "10"]
-    log_out = git(["log", *since_args, "--pretty=format:%s"], cwd=cwd)
-    commits = [line for line in log_out.splitlines() if line.strip()]
-    files_out = git(["log", *since_args, "--name-only", "--pretty=format:"], cwd=cwd)
-    files_seen: dict[str, None] = {}  # preserve order, dedupe
-    for raw in files_out.splitlines():
-        path = raw.strip()
-        if path:
-            files_seen[path] = None
-    return commits, list(files_seen.keys())
+    def _run(since_args: list[str]) -> tuple[list[str], list[str]]:
+        log_out = git(["log", *since_args, "--pretty=format:%s"], cwd=cwd)
+        commits = [line for line in log_out.splitlines() if line.strip()]
+        files_out = git(["log", *since_args, "--name-only", "--pretty=format:"], cwd=cwd)
+        files_seen: dict[str, None] = {}  # preserve order, dedupe
+        for raw in files_out.splitlines():
+            path = raw.strip()
+            if path:
+                files_seen[path] = None
+        return commits, list(files_seen.keys())
+
+    if since_ts is None:
+        return _run(["-n", "10"])
+    commits, files = _run([f"--since={since_ts}"])
+    if not commits and not files:
+        # since_ts may be in the future (hand-written handoff timestamp) — fall back.
+        return _run(["-n", "10"])
+    return commits, files
 
 
 def author_name(cwd: Path) -> str:

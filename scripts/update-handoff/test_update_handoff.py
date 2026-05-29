@@ -136,6 +136,21 @@ class WriteModeTests(unittest.TestCase):
             self.assertIn("feat: commit 10", body)
             self.assertNotIn("feat: commit 00", body)
 
+    def test_recently_touched_falls_back_when_prior_ts_is_in_the_future(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_git_repo(Path(d))  # initial commit at 2020-01-01
+            add_commit(tmp, "a.py", message="feat: add a", when="2021-01-01T00:00:00+00:00")
+            add_commit(tmp, "b.py", message="feat: add b", when="2021-01-02T00:00:00+00:00")
+            # Prior handoff with a future timestamp.
+            write_handoff(tmp, "2099-01-01T00:00:00+00:00")
+            result = run("--force", cwd=tmp)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            body = (tmp / "ai" / "handoff.md").read_text(encoding="utf-8")
+            # Should fall back to last-10 instead of returning empty.
+            self.assertIn("feat: add a", body)
+            self.assertIn("feat: add b", body)
+            self.assertNotIn("(no committed changes since last handoff)", body)
+
     def test_non_git_cwd_exits_2(self):
         with tempfile.TemporaryDirectory() as d:
             result = run(cwd=Path(d))
