@@ -103,6 +103,21 @@ class ListTests(unittest.TestCase):
             self.assertNotIn("README.md", result.stdout)
             self.assertNotIn("random.md", result.stdout)
 
+    def test_skips_templates_subtree(self):
+        # Even if someone drops a status: raw file under docs/discovery/templates/,
+        # the script should skip it — that subtree is for templates, not real discovery items.
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_git_repo(Path(d))
+            write_discovery(tmp, "docs/discovery/templates/example-raw.md", DISCOVERY_FILE_RAW)
+            write_discovery(tmp, "docs/discovery/meetings/real-raw.md", DISCOVERY_FILE_RAW)
+            result = run("list", cwd=tmp)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            # Only the real raw item should be listed; the templates subtree file is skipped.
+            self.assertIn("1 raw discovery items", result.stdout)
+            self.assertIn("real-raw.md", result.stdout)
+            self.assertNotIn("example-raw.md", result.stdout)
+            self.assertNotIn("templates", result.stdout)
+
     def test_non_git_cwd_exits_2(self):
         with tempfile.TemporaryDirectory() as d:
             result = run("list", cwd=Path(d))
