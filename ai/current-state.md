@@ -1,6 +1,6 @@
 ---
 last_updated: 2026-05-30
-last_updated_by: josh
+last_updated_by: swanson-dev
 ---
 
 # Current State
@@ -21,13 +21,18 @@ last_updated_by: josh
 - **Slice 3 distribution (v0.5.0 + v0.6.0).** The kit is a pip/`pipx`/`uvx`-installable, zero-dependency package (`repo-standards-kit`, hatchling) with a `standards` CLI under `src/standards/`:
   - `standards init [--profile …] [target]` — vendors kit content into a repo (three ownership classes: kit-tracked / scaffold-once / partial managed-region), scaffolds `ai/` starters + a profile-filled checklist, writes the `.standards-kit.json` version+hash marker, and refuses to overwrite differing pre-existing files without `--force`.
   - `standards update [target] [--dry-run]` — reconciles an adopted repo against the running version: hash-guarded overwrite of untouched kit-tracked files, managed-block splice for partial files, `<path>.kit-<version>` sidecars on conflict (never destructive), and a 0.5.0→0.6.0 markerless-migration path.
-  - Decisions: RFC-0001 (mechanism), ADR-0009 (PyPI CLI + sync model), ADR-0010 (managed-region sentinels). 97 tests green; standards-check 0/0.
+  - Decisions: RFC-0001 (mechanism), ADR-0009 (PyPI CLI + sync model), ADR-0010 (managed-region sentinels). standards-check 0/0.
+- **Slice 3 Plan 3 (release infrastructure, no version bump).** The package is now releasable to PyPI without ever having been published:
+  - `tools/run_tests.py` — portable stdlib test runner (subprocess per suite, zero-dependency), the canonical `python tools/run_tests.py` command. 14/14 suites green.
+  - `.github/workflows/repo-standards.yml` runs `check` + a `test` matrix (Python 3.9–3.12) + a `build-smoke` job that builds the wheel, installs it in a venv, runs `standards init`, and asserts the bundled `standards/_payload` shipped.
+  - `.github/workflows/release.yml` — tag-triggered (`v*`) PyPI **Trusted-Publishing (OIDC, tokenless)** release, gated on tests + build, scoped to a `pypi` GitHub Environment. Inert until the maintainer does the one-time PyPI setup and pushes a tag.
+  - Decisions/docs: ADR-0011 (publish via GitHub Actions Trusted Publishing), `docs/RELEASING.md` (one-time setup + release ritual).
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| Slice 3 Plan 3 (release): PyPI publish workflow + CI test wiring + tag v0.6.0/backfill v0.5.0 | _not started_ | josh | next session |
+| _Nothing in flight._ Slice 3 is fully shipped. Releasing v0.6.0 is a maintainer action (PyPI Trusted-Publisher setup per `docs/RELEASING.md`, then `git tag v0.6.0 && git push`), not open dev work. Slice 4 (deeper CI) is backlog. | — | josh | — |
 
 ## What's blocked
 
