@@ -189,6 +189,7 @@ def check_rfcs(root: Path, report: Report) -> None:
 
 def run(root: Path, ctx: Context) -> list:
     """Run all v1 structural checks; return Findings at their historical severities."""
+    # ctx is unused: structural (v1) checks emit fixed severities, bypassing resolve_severity.
     report = Report()
     check_universal_core(root, report)
     check_profile(root, report)
