@@ -17,6 +17,8 @@ class ResolveSeverityTests(unittest.TestCase):
     def test_kit_mode_uses_default_error(self):
         sev = resolve_severity("links", "error", self._ctx(adopter=False))
         self.assertEqual(sev, "error")
+        sev_warn = resolve_severity("links", "warn", self._ctx(adopter=False))
+        self.assertEqual(sev_warn, "warn")
 
     def test_adopter_mode_softens_to_warn(self):
         sev = resolve_severity("links", "error", self._ctx(adopter=True))
@@ -28,7 +30,7 @@ class ResolveSeverityTests(unittest.TestCase):
 
     def test_finding_is_frozen(self):
         f = Finding(check_id="links", severity="error", message="x")
-        with self.assertRaises(Exception):
+        with self.assertRaises((TypeError, AttributeError)):
             f.message = "y"  # type: ignore[misc]
 
 

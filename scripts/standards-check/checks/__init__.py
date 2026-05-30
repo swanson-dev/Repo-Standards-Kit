@@ -15,6 +15,7 @@ Severity = str
 
 @dataclass(frozen=True)
 class Finding:
+    """A single diagnostic result produced by a check module."""
     check_id: str
     severity: Severity
     message: str
