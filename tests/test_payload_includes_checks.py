@@ -20,6 +20,7 @@ class PayloadIncludesChecksTests(unittest.TestCase):
             "scripts/standards-check/checks/links.py",
             "scripts/standards-check/checks/content.py",
             "scripts/standards-check/checks/skills.py",
+            "scripts/standards-check/checks/_text.py",
         ):
             self.assertIn(expected, rels, f"{expected} missing from payload")
 
