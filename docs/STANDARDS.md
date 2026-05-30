@@ -326,7 +326,7 @@ Each repo records the kit version it adopted in its local `docs/STANDARDS.md`. U
 5. **ADR filename + status** — filenames match `NNNN-kebab-case.md`; status is `Proposed` | `Accepted` | `Deprecated` | `Superseded by NNNN`.
 6. **RFC structure + status** — `docs/rfcs/NNNN-slug/rfc.md` exists; status is `Open` | `Concluded` | `Abandoned`.
 
-Deeper checks (content linting, link checking, doc freshness reports) are deferred to Slice 4.
+Link checking, placeholder/content linting, and skill-format linting now ship as the v2 content checks (see below). Deeper checks still ahead — external-link liveness and richer doc-freshness reporting — remain future work.
 
 ## Content checks (v2)
 
