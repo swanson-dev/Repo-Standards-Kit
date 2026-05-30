@@ -50,7 +50,7 @@ def _strip_code_and_comments(text: str) -> str:
     return text
 
 
-def extract_links(text: str):
+def extract_links(text: str) -> list:
     """Return [(line_number, target)] for inline + reference links, skipping
     images, external schemes, and links inside code/comments."""
     cleaned = _strip_code_and_comments(text)
@@ -68,6 +68,7 @@ def extract_links(text: str):
 
 
 def _heading_slugs(text: str):
+    """Yield each ATX heading's GitHub slug, de-duplicating with -1/-2 suffixes."""
     cleaned = _strip_code_and_comments(text)
     slugs = {}
     for line in cleaned.splitlines():
@@ -106,10 +107,13 @@ def run(root: Path, ctx: Context) -> list:
             file_part = target
             if "#" in target:
                 file_part, _, frag = target.partition("#")
+            file_part = file_part.strip("<>")
             # Resolve the file part.
             if file_part == "":
                 target_path = path  # same-file anchor
             else:
+                # NOTE: .exists() is case-insensitive on Windows but case-sensitive on
+                # Linux CI — a wrong-case link can pass locally yet fail in CI.
                 target_path = (path.parent / file_part).resolve()
                 if not target_path.exists():
                     findings.append(Finding(

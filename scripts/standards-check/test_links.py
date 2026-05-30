@@ -115,6 +115,13 @@ class RunTests(unittest.TestCase):
             self._write(root, "a.md", "# A\n")
             self.assertEqual(run(root, _ctx(root)), [])
 
+    def test_angle_bracket_target_resolved(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            self._write(root, "a.md", "[b](<./b.md>)\n")
+            self._write(root, "b.md", "# B\n")
+            self.assertEqual(run(root, _ctx(root)), [])
+
 
 if __name__ == "__main__":
     unittest.main()
