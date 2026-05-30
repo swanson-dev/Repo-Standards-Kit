@@ -48,7 +48,7 @@ scripts/standards-check/
   test_skills.py      # new
 ```
 
-`check.py` keeps `find_repo_root`, the `Report`/severity types, the `main()` entry, and orchestration. Each `checks/*.py` module exposes a single `run(root, ctx) -> list[Finding]` so the orchestrator can call them uniformly. `structural.py` is the v1 logic relocated unchanged — pure move, asserted by the unchanged `test_check.py`.
+`check.py` keeps `find_repo_root`, `build_context`, the `main()` entry, and orchestration, and **re-exports `parse_frontmatter`** (`from checks.structural import parse_frontmatter`) so the unchanged `test_check.py` stays green. Each `checks/*.py` module exposes a single `run(root, ctx) -> list[Finding]` so the orchestrator can call them uniformly. `structural.py` is the v1 logic relocated unchanged — pure move, asserted by the unchanged `test_check.py`.
 
 ### Shared types
 
@@ -136,7 +136,7 @@ Reading this is additive and tolerant — a missing `"check"` key (every adopter
 | `scripts/standards-check/checks/content.py` | new | Placeholder + CHANGELOG-shape lint. |
 | `scripts/standards-check/checks/skills.py` | new | SKILL.md frontmatter + structure. |
 | `scripts/standards-check/test_{links,content,skills}.py` | new | Per-check TDD suites. |
-| `src/standards/manifest.py` | modify | Add `checks/` package to the payload (`PAYLOAD_DIRS`/`FILES`) so adopters receive it. |
+| `src/standards/manifest.py` | **verify (no change)** | `PAYLOAD_DIRS` already includes `"scripts"` wholesale, so `iter_payload` ships `scripts/standards-check/checks/` to adopters automatically. A test asserts this rather than editing the manifest. |
 | kit docs with broken links / residual placeholders | fix | Whatever the new checks surface at error severity. |
 | `docs/STANDARDS.md` | modify | Document the v2 checks + the adopter severity-override marker field. |
 | `CHANGELOG.md` | modify | New entry (version bump — see below). |
