@@ -19,13 +19,14 @@ The package is published to PyPI by `.github/workflows/release.yml`, which fires
    - `src/standards/__about__.py` (`__version__`)
    - the top `## [X.Y.Z]` entry in `CHANGELOG.md` (with a matching `[X.Y.Z]: …` reference link)
    - the `Kit version: **X.Y.Z**` line in the `AGENTS.md` managed block
-2. Run the local gates:
+2. Point the new CHANGELOG reference link at the real tag (the entries currently use an `https://example.invalid/…` placeholder): set `[X.Y.Z]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/vX.Y.Z`.
+3. Run the local gates:
    ```
    python tools/run_tests.py
    python scripts/standards-check/check.py
    python -m build
    ```
-3. Tag and push:
+4. Tag and push:
    ```
    git tag vX.Y.Z
    git push origin vX.Y.Z
