@@ -1,5 +1,5 @@
 ---
-written: 2026-05-28T23:49:19-05:00
+written: 2026-05-30T00:00:15-05:00
 written_by: swanson-dev (via claude-code-assistant)
 for: next-session
 ---
@@ -8,44 +8,34 @@ for: next-session
 
 ## TL;DR
 
-Slice 2.6 is complete and green. `promote-discovery` ships as the kit's second hook-backed Skill — same ADR-0008 pattern as `update-handoff`, applied to the SessionStart event. The script has two subcommands: `list` (verbose + `--check` for hook mode) and `promote <path> --to <target>` (monotonic flip from raw → promoted). No new ADR — Slice 2.6 is the proof that the pattern survives reuse. All 51 tests pass (14 + 12 + 10 + 15); standards-check exits clean; CHANGELOG records v0.4.0.
+Slice 3 (distribution) is two-thirds shipped and on `main`. RFC-0001 chose the mechanism: distribute the kit as a zero-dependency PyPI package (`repo-standards-kit`) run via `pipx`/`uvx`, exposing a `standards` CLI. **Plan 1 (v0.5.0, PRs #1–#2)** delivered packaging + `standards init`. **Plan 2 (v0.6.0, PR #3)** delivered `standards update` + the partial/managed-region ownership class + a non-destructive first-init guard. 97 tests green; standards-check 0/0. **Plan 3 (release) is the remaining piece** and is queued, not started.
 
 ## Recently touched
 
-- docs(slice-2.6): record v0.4.0 in CHANGELOG
-- docs(slice-2.6): record Slice 2.6 in current-state; bump AGENTS to 0.4.0; drop Slice 2.6 from queued
-- docs(slice-2.6): document scripts/promote-discovery/ contract and subcommands
-- feat(slice-2.6): add promote-discovery Claude Skill and Copilot prompt wrappers
-- feat(slice-2.6): wire promote-discovery SessionStart hook in .claude/settings.json
-- feat(slice-2.6): add promote-discovery script (list + promote subcommands) with tests
-- docs(slice-2.5): correct test count in CHANGELOG and update-handoff README (9 to 10)
-- docs(slice-2.5): write Slice 2.5 handoff via dogfooded update-handoff
+Slice 3 Plans 1 & 2 (≈40 commits across PRs #1–#3). Headlines:
 
-Files changed:
-  - `CHANGELOG.md`
-  - `AGENTS.md`
-  - `ai/current-state.md`
-  - `scripts/promote-discovery/README.md`
-  - `.claude/skills/promote-discovery/SKILL.md`
-  - `.github/prompts/promote-discovery.prompt.md`
-  - `.claude/settings.json`
-  - `scripts/promote-discovery/promote_discovery.py`
-  - `scripts/promote-discovery/test_promote_discovery.py`
-  - `scripts/update-handoff/README.md`
-  - `ai/handoff.md`
+- `feat(dist)`: `pyproject.toml` (hatchling, zero-dep, `standards` entry point) + `src/standards/` (`payload`/`manifest`/`marker`/`init`/`cli`/`managed`/`update`).
+- `standards init` (vendor kit + `.standards-kit.json` marker) and `standards update` (three-class reconciliation, sidecar conflicts, `--dry-run`).
+- Partial/managed-region class: `AGENTS.md`/`CLAUDE.md`/`.github/copilot-instructions.md` restructured with `<!-- BEGIN/END kit-managed -->` blocks.
+- ADR-0009 (PyPI CLI distribution), ADR-0010 (sentinel convention); RFC-0001; CHANGELOG v0.5.0 + v0.6.0.
+- `fix(standards-check)`: `parse_frontmatter` strips inline YAML comments.
+- Copilot PR-review fixes on both PRs (init clobber, markerless 0.5.0 migration, duplicate-END, doc reconciliations).
+
+Design docs live in `docs/superpowers/specs/` and `docs/superpowers/plans/` (Plans 1, 2, and the Plan 2 design spec).
 
 ## Open threads
 
-- Branch pushed to `origin/ai-skills-implementation`; tags `v0.2.0`, `v0.3.0`, `v0.4.0` pushed (closed the CHANGELOG↔git-tag gap that prior slices left). Remote is `https://github.com/swanson-dev/Repo-Standards-Kit.git`. Working tree clean; nothing pending to push.
-- **Slice 3 distribution** still queued at `ai/open-questions.md#q-2` — blocks `scaffold-new-repo`. Three credible options (template repo, plugin, copy script); next session likely starts here per user's stated direction.
-- Slice 4 (deeper CI: content linting, doc freshness, link checking, wrapper-parity lint, every-`promoted_to:`-resolves) still queued.
-- `strip_leading_html_comment` is now duplicated across `new-adr.py`, `new-rfc.py`, and `promote_discovery.py` — kit's "third caller = lift" rule fires. Worth lifting to `_doc_lib/helpers.py` as a chore commit before or alongside Slice 3.
-- Spec reviewer flagged the live `promote-discovery list` against a real raw discovery item was deferred (kit's own `docs/discovery/` is empty). First real discovery file someone creates will be the proper smoke test.
+- **Plan 3 (release) is next** — not yet planned. Scope: PyPI Trusted-Publishing (OIDC) workflow on tag-push; wire the 13 test suites (97 tests) into CI (`.github/workflows/repo-standards.yml` runs only `standards-check` today); a post-build smoke that installs the wheel and runs `standards init` (verifies the bundled `standards/_payload`, which dev/test exercise only via the repo-root fallback in `payload.py`); tag `v0.6.0` and backfill `v0.5.0`. Brainstorm → plan → execute like Plans 1 & 2.
+- **`pytest` basename collision** — `test_cli.py` exists in both `tests/` and `scripts/new-doc/` with no `__init__.py`/`conftest.py`, so `pytest tests/ scripts/` fails to *collect*. All suites pass run standalone (the project's model). Fix before Plan 3 wires a single `pytest` CI step (add `conftest.py` with `--import-mode=importlib`, or unique basenames).
+- **`AGENTS.md` queued-slices** now lists only Slice 4 (deeper CI). Slice 3 is no longer "out of scope" — it's shipping.
+- **Marker is JSON** (`.standards-kit.json`), not the `.standards-kit.toml` named in RFC-0001 (stdlib has no TOML writer). Recorded in ADR-0009.
+- The kit is **not yet git-tagged** for v0.5.0/v0.6.0 and **not published** — that's Plan 3. Tags v0.1.0–v0.4.0 exist from earlier slices.
 
 ## Don't do
 
-- Don't edit ADRs 0001–0008. All are `Accepted`. Reversal = new ADR + flip old to `Superseded by NNNN`.
-- Don't add a write-mode auto-trigger to the `promote-discovery` SessionStart hook. ADR-0008 explicitly chose advisory-only for hook surfaces.
-- Don't bypass the wrapper-parity rule. `promote-discovery`'s SKILL.md and prompt.md must convey the same content; documented asymmetry is the Copilot-can't-auto-trigger note.
-- Don't add `reviewed` → `promoted` transition to the `promote` subcommand without first asking whether `reviewed` is a real state in usage. The kit allows it in frontmatter but no script flips it yet.
-- Don't push without confirming with the user first.
+- Don't edit ADRs 0001–0010; all are `Accepted`. Reversal = new ADR + flip old to `Superseded by NNNN`.
+- Don't make `standards update` interactive or destructive. The contract (ADR-0009/0010) is: apply + report, conflicts go to `<path>.kit-<version>` sidecars, downstream edits (and content outside a managed block) are never clobbered. `--dry-run` must write nothing.
+- Don't change the partial-branch ordering in `update.py` back to "identical-check first" — the current order (untouched-since-adoption splice first) is deliberate so the dev-mode test exercises the real splice path. Documented; opus-verified safe.
+- Don't add multi-block managed regions or a `standards set-profile` command without an ADR — both are explicitly deferred to post-v1.
+- Don't introduce a runtime dependency. The package is pure-stdlib by design (ADR-0009); `pipx`/`uvx` is only the delivery vehicle.
+- Don't push directly to `main`; PR-and-merge per the established flow.
