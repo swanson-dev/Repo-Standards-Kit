@@ -14,11 +14,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from checks import Context  # noqa: E402
-from checks import structural, links, content  # noqa: E402
+from checks import structural, links, content, skills  # noqa: E402
 # Re-exported so the unchanged test_check.py keeps importing it from `check`.
 from checks.structural import parse_frontmatter  # noqa: E402,F401
 
-CHECKS = [structural.run, links.run, content.run]
+CHECKS = [structural.run, links.run, content.run, skills.run]
 
 
 def find_repo_root(start: Path) -> Path:
