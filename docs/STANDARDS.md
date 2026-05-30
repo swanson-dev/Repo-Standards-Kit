@@ -327,3 +327,17 @@ Each repo records the kit version it adopted in its local `docs/STANDARDS.md`. U
 6. **RFC structure + status** — `docs/rfcs/NNNN-slug/rfc.md` exists; status is `Open` | `Concluded` | `Abandoned`.
 
 Deeper checks (content linting, link checking, doc freshness reports) are deferred to Slice 4.
+
+## Content checks (v2)
+
+Beyond the structural checks, standards-check validates document bodies:
+
+- **Internal links** — every relative markdown link (and `#anchor`) must resolve to a real file/heading. External (`http(s)`/`mailto`) links are not checked.
+- **Placeholders** — committed ADRs/RFCs must not retain template scaffolding (`<...>` tokens, literal `YYYY-MM-DD`, bare `NNNN`).
+- **Skill format** — every `.claude/skills/*/SKILL.md` needs frontmatter `name` (matching its directory) and `description`.
+
+**Severity.** In the kit itself these are **errors**. In an adopting repo (one with a `.standards-kit.json` marker) they default to **warnings**. To escalate a check to an error in your repo, add a `"check"` map to `.standards-kit.json`:
+
+```json
+{ "check": { "links": "error", "placeholder": "error", "skill-format": "error" } }
+```

@@ -6,6 +6,12 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.7.0] - 2026-05-30
+
+### Added
+- `standards-check` v2 content checks: internal link + anchor resolution, residual-placeholder lint for ADRs/RFCs, and SKILL.md format lint. New checks are errors in the kit and warnings (escalatable via `.standards-kit.json` `"check"`) in adopters.
+- `scripts/standards-check/` split into a `checks/` package (structural/links/content/skills).
+
 ## [0.6.0] - 2026-05-29
 
 ### Added
@@ -129,6 +135,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.7.0]: https://example.invalid/releases/tag/v0.7.0
 [0.6.0]: https://example.invalid/releases/tag/v0.6.0
 [0.5.0]: https://example.invalid/releases/tag/v0.5.0
 [0.4.0]: https://example.invalid/releases/tag/v0.4.0
