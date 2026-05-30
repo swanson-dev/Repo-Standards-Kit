@@ -36,6 +36,15 @@ class FindPlaceholdersTests(unittest.TestCase):
     def test_real_date_is_not_a_placeholder(self):
         self.assertEqual(find_placeholders("date: 2026-05-30\n"), [])
 
+    def test_ignores_inline_code_span(self):
+        # Placeholders used as metasyntax inside backticks are legit prose, not unfilled tokens.
+        hits = find_placeholders("the sidecar is `<path>.kit-<version>` on conflict\n")
+        self.assertEqual(hits, [])
+
+    def test_ignores_fenced_code_block(self):
+        hits = find_placeholders("```\n--profile <library> NNNN YYYY-MM-DD\n```\n")
+        self.assertEqual(hits, [])
+
 
 class RunTests(unittest.TestCase):
     def _write(self, root: Path, rel: str, body: str) -> None:

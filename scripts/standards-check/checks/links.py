@@ -11,6 +11,7 @@ import re
 from pathlib import Path
 
 from . import Context, Finding, resolve_severity
+from ._text import strip_code_and_comments
 
 CHECK_ID = "links"
 DEFAULT_SEVERITY = "error"
@@ -35,25 +36,10 @@ def slugify(heading: str) -> str:
     return s
 
 
-def _strip_code_and_comments(text: str) -> str:
-    """Blank out fenced code blocks, inline code spans, and HTML comments.
-
-    Replaces them with same-length-ish blanks so links inside them are not
-    scanned. Newlines are preserved so line numbers stay correct.
-    """
-    # HTML comments (may span lines).
-    text = re.sub(r"<!--.*?-->", lambda m: re.sub(r"[^\n]", " ", m.group(0)), text, flags=re.DOTALL)
-    # Fenced code blocks ``` ... ``` (preserve newlines).
-    text = re.sub(r"```.*?```", lambda m: re.sub(r"[^\n]", " ", m.group(0)), text, flags=re.DOTALL)
-    # Inline code spans `...` (single line).
-    text = re.sub(r"`[^`\n]*`", lambda m: " " * len(m.group(0)), text)
-    return text
-
-
 def extract_links(text: str) -> list:
     """Return [(line_number, target)] for inline + reference links, skipping
     images, external schemes, and links inside code/comments."""
-    cleaned = _strip_code_and_comments(text)
+    cleaned = strip_code_and_comments(text)
     out = []
     for i, line in enumerate(cleaned.splitlines(), 1):
         for m in _INLINE_RE.finditer(line):
@@ -69,7 +55,7 @@ def extract_links(text: str) -> list:
 
 def _heading_slugs(text: str):
     """Yield each ATX heading's GitHub slug, de-duplicating with -1/-2 suffixes."""
-    cleaned = _strip_code_and_comments(text)
+    cleaned = strip_code_and_comments(text)
     slugs = {}
     for line in cleaned.splitlines():
         m = _HEADING_RE.match(line)

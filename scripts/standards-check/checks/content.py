@@ -7,6 +7,7 @@ import re
 from pathlib import Path
 
 from . import Context, Finding, resolve_severity
+from ._text import strip_code_and_comments
 
 PLACEHOLDER_ID = "placeholder"
 CHANGELOG_ID = "changelog"
@@ -17,20 +18,15 @@ DEFAULT_SEVERITY = "error"
 _ANGLE_RE = re.compile(r"<[A-Za-z][^<>\n/!]*?>")
 _DATE_PLACEHOLDER_RE = re.compile(r"\bYYYY-MM-DD\b")
 _BARE_NNNN_RE = re.compile(r"\bNNNN\b")
-_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 _VERSION_SECTION_RE = re.compile(r"(?m)^##\s+\[[^\]]+\]")
 
 _ADR_FILE_RE = re.compile(r"^\d{4}-[a-z0-9-]+\.md$")
 
 
-def _blank_comments(text: str) -> str:
-    return _COMMENT_RE.sub(lambda m: re.sub(r"[^\n]", " ", m.group(0)), text)
-
-
-def find_placeholders(text: str):
+def find_placeholders(text: str) -> list:
     """Return [(line_number, token)] for residual template placeholders, ignoring
     anything inside <!-- --> comment blocks."""
-    cleaned = _blank_comments(text)
+    cleaned = strip_code_and_comments(text)
     out = []
     for i, line in enumerate(cleaned.splitlines(), 1):
         for m in _ANGLE_RE.finditer(line):
