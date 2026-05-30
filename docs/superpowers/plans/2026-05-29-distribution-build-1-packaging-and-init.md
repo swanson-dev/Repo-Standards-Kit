@@ -57,7 +57,7 @@ Expected: `Created docs/decisions/0009-distribute-the-kit-as-a-pypi-standards-cl
 
 - [ ] **Step 2: Fill the ADR body**
 
-Set `status: Accepted`, `date: 2026-05-29`, `deciders: swanson-dev`. In **Context** reference [RFC-0001](../rfcs/0001-what-is-the-kit-s-distribution-and-upgrade-mechanism/rfc.md). In **Decision** record: PyPI package `repo-standards-kit`, console `standards`, `init`/`update` subcommands, three-class vendored sync (kit-tracked / scaffold-once / partial managed-region), `.standards-kit.json` version+hash marker, non-destructive sidecar conflicts, `pipx run`/`uvx` execution. In **Consequences** note the JSON-not-TOML correction and that `update` + the partial class land in Plan 2.
+Set `status: Accepted`, `date: 2026-05-29`, `deciders: swanson-dev`. In **Context** reference [RFC-0001](../../rfcs/0001-what-is-the-kit-s-distribution-and-upgrade-mechanism/rfc.md). In **Decision** record: PyPI package `repo-standards-kit`, console `standards`, `init`/`update` subcommands, three-class vendored sync (kit-tracked / scaffold-once / partial managed-region), `.standards-kit.json` version+hash marker, non-destructive sidecar conflicts, `pipx run`/`uvx` execution. In **Consequences** note the JSON-not-TOML correction and that `update` + the partial class land in Plan 2.
 
 - [ ] **Step 3: Verify frontmatter parses and standards-check passes**
 

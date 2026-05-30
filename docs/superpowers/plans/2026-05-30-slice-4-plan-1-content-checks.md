@@ -577,7 +577,8 @@ class ExtractLinksTests(unittest.TestCase):
         self.assertEqual(links, [])
 
     def test_ignores_fenced_code(self):
-        text = "```\n[x](./nope.md)\n```\nreal [y](./yes.md)\n"
+        fence = "`" * 3
+        text = fence + "\n[x](./nope.md)\n" + fence + "\nreal [y](./yes.md)\n"
         targets = [t for _, t in extract_links(text)]
         self.assertEqual(targets, ["./yes.md"])
 
