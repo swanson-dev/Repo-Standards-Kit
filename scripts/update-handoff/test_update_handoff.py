@@ -1,4 +1,6 @@
 """End-to-end tests for update_handoff.py — invokes via subprocess against tmp git repos."""
+from __future__ import annotations
+
 import os
 import subprocess
 import sys

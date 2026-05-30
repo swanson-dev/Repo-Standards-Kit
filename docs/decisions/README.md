@@ -37,5 +37,8 @@ If a decision is the result of an RFC, the RFC's `Follow-ups → ADR to write` f
 | [0006](./0006-adopt-agents-md-pattern.md) | Adopt the AGENTS.md pattern with thin tool-specific pointers |
 | [0007](./0007-author-ai-tool-wrappers-as-thin-shells-over-stdlib-python-scripts.md) | Author AI-tool wrappers as thin shells over stdlib Python scripts |
 | [0008](./0008-hooks-invoke-script-in-check-mode-behavior-writes-via-slash-command.md) | Hooks invoke script in check mode; behavior writes via slash command |
+| [0009](./0009-distribute-the-kit-as-a-pypi-standards-cli-with-vendored-copy-sync.md) | Distribute the kit as a PyPI `standards` CLI with vendored-copy sync |
+| [0010](./0010-managed-region-sentinels-for-partially-kit-owned-files.md) | Managed-region sentinels for partially kit-owned files |
+| [0011](./0011-publish-to-pypi-via-github-actions-trusted-publishing.md) | Publish to PyPI via GitHub Actions Trusted Publishing |
 
 (Index is maintained manually for now; Slice 4 may automate it.)

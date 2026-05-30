@@ -14,10 +14,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-
       - name: Run standards check
         run: python scripts/standards-check/check.py
+
+  test:
+    name: Tests (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run all test suites
+        run: python tools/run_tests.py
+
+  build-smoke:
+    name: Build wheel + init smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Build the wheel
+        run: |
+          python -m pip install --upgrade build
+          python -m build
+      - name: Install wheel into a clean venv and adopt a temp repo
+        run: |
+          python -m venv /tmp/venv
+          /tmp/venv/bin/pip install dist/*.whl
+          /tmp/venv/bin/standards init --profile library /tmp/adopted
+          test -f /tmp/adopted/docs/STANDARDS.md
+          test -f /tmp/adopted/.standards-kit.json
+          test -f /tmp/adopted/AGENTS.md
