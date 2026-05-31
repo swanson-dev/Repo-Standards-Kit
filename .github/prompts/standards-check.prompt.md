@@ -1,0 +1,21 @@
+---
+mode: agent
+description: Run the repo's standards checks and fix any findings before pushing or ending a session.
+---
+
+# standards-check
+
+When finishing a session that touched docs, before pushing, or when CI's structural
+lint is red, run this from the repo root:
+
+`python scripts/standards-check/check.py`
+
+Exit `1` with `ERROR` lines means there is work to fix; `WARN` lines are advisory.
+Each finding is `[<check_id>] <file>:<line> <message>`.
+
+Fix by check_id: `links` → correct the relative path / `#anchor`; `placeholder` → fill
+`<…>`/`YYYY-MM-DD`/`NNNN` in the committed ADR/RFC; `changelog` → add a `## [x.y.z]`
+section; `discovery` → fix the `promoted_to:` path; `skill-format` → add the missing
+frontmatter / `.github/prompts/<n>.prompt.md` twin / `AGENTS.md` index entry;
+`structural` → add the missing file or a `**Waived:**` reason; `ai` freshness → run
+the update-handoff prompt. Re-run until `0 error(s)`.
