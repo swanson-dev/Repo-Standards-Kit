@@ -146,7 +146,7 @@ Sections:
 - **Open threads** — thread → status → where to resume.
 - **Don't do** — recent dead-ends or rejected approaches the next session shouldn't re-walk.
 
-Stale threshold: **7 days** (if older, treat as "no handoff written").
+Stale threshold: **5 days** (if older, treat as "no handoff written").
 
 ### Ownership and update cadence
 
@@ -155,7 +155,7 @@ Stale threshold: **7 days** (if older, treat as "no handoff written").
 | `current-state.md` | Whoever last shipped | After any state-changing PR | 14 days |
 | `next-actions.md` | Tech lead / on-deck dev | When priorities shift | 14 days |
 | `open-questions.md` | Author of the question | When opens/closes | None |
-| `handoff.md` | End of session | Every meaningful session | 7 days |
+| `handoff.md` | End of session | Every meaningful session | 5 days |
 
 ## ADRs — MADR 3.0
 
@@ -328,6 +328,8 @@ Each repo records the kit version it adopted in its local `docs/STANDARDS.md`. U
 
 Link checking, placeholder/content linting, and skill-format linting now ship as the v2 content checks (see below). Deeper checks still ahead — external-link liveness and richer doc-freshness reporting — remain future work.
 
+The kit's own release is guarded by `tools/check_version_coherence.py` (run in `kit-guards.yml` and `release.yml`): `src/standards/__about__.py`, the CHANGELOG top entry, and the `AGENTS.md` Kit-version must agree, and a release tag must match the version. This guard is kit-internal and is not shipped to adopters.
+
 ## Content checks (v2)
 
 Beyond the structural checks, standards-check validates document bodies:
@@ -335,6 +337,7 @@ Beyond the structural checks, standards-check validates document bodies:
 - **Internal links** — every relative markdown link (and `#anchor`) must resolve to a real file/heading. External (`http(s)`/`mailto`) links are not checked.
 - **Placeholders** — committed ADRs/RFCs must not retain template scaffolding (`<...>` tokens, literal `YYYY-MM-DD`, bare `NNNN`).
 - **Skill format** — every `.claude/skills/*/SKILL.md` needs frontmatter `name` (matching its directory) and `description`.
+- **Discovery** — every `status: promoted` item under `docs/discovery/` must have a `promoted_to:` path that exists.
 
 **Severity.** In the kit itself these are **errors**. In an adopting repo (one with a `.standards-kit.json` marker) they default to **warnings**. To escalate a check to an error in your repo, add a `"check"` map to `.standards-kit.json`:
 
