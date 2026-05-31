@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from datetime import date, timedelta
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -195,6 +196,27 @@ class CheckModeTests(unittest.TestCase):
             self.assertIn("update-handoff:", result.stderr.lower())
             self.assertIn("1 modified", result.stderr)
             self.assertIn("0 commits", result.stderr)
+
+    def test_advisory_when_handoff_is_stale_even_without_new_work(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_git_repo(Path(d))  # initial commit dated 2020-01-01
+            # Handoff written 10 days ago (older than the 5-day threshold); no commits since.
+            stale = (date.today() - timedelta(days=10)).isoformat() + "T00:00:00+00:00"
+            write_handoff(tmp, stale)
+            result = run("--check", cwd=tmp)
+            self.assertEqual(result.returncode, 0)
+            self.assertIn("update-handoff:", result.stderr.lower())
+            self.assertIn("days old", result.stderr.lower())
+
+    def test_fresh_handoff_with_no_work_is_silent(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_git_repo(Path(d))
+            fresh = (date.today() - timedelta(days=1)).isoformat() + "T00:00:00+00:00"
+            write_handoff(tmp, fresh)
+            result = run("--check", cwd=tmp)
+            self.assertEqual(result.returncode, 0)
+            self.assertEqual(result.stderr, "")
+            self.assertEqual(result.stdout, "")
 
     def test_check_silent_exit_0_in_non_git_cwd(self):
         with tempfile.TemporaryDirectory() as d:
