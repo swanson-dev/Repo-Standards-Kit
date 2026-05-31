@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-30
+last_updated: 2026-05-31
 last_updated_by: swanson-dev
 ---
 
@@ -27,12 +27,18 @@ last_updated_by: swanson-dev
   - `.github/workflows/repo-standards.yml` runs `check` + a `test` matrix (Python 3.9–3.12) + a `build-smoke` job that builds the wheel, installs it in a venv, runs `standards init`, and asserts the bundled `standards/_payload` shipped.
   - `.github/workflows/release.yml` — tag-triggered (`v*`) PyPI **Trusted-Publishing (OIDC, tokenless)** release, gated on tests + build, scoped to a `pypi` GitHub Environment. Inert until the maintainer does the one-time PyPI setup and pushes a tag.
   - Decisions/docs: ADR-0011 (publish via GitHub Actions Trusted Publishing), `docs/RELEASING.md` (one-time setup + release ritual).
+- **Slice 4 deeper CI enforcement (v0.7.0 → v0.9.0).** `standards-check` grew from structural to content-level, plus release/process guardrails and a guarded skill surface:
+  - `scripts/standards-check/checks/` package (orchestrator + `structural`/`links`/`content`/`skills`/`discovery`/`_text`). Content checks: internal link+anchor resolution, ADR/RFC placeholder + CHANGELOG-shape lint, SKILL.md format + SKILL.md⟺prompt.md parity + skills-index-drift, discovery `promoted_to`-existence. **Severity model:** error in the kit, warn-default in adopters, escalatable per-check via a `"check"` map in `.standards-kit.json`.
+  - `tools/check_version_coherence.py` (kit-only) — `__about__` ↔ CHANGELOG ↔ `AGENTS.md` Kit-version must agree; run by `.github/workflows/kit-guards.yml` (PR) + a `release.yml` tag-gate.
+  - Handoff freshness tightened 7→5 days (warning); louder Stop-hook nudge with a staleness trigger.
+  - New `/standards-check` skill (Claude + Copilot), skill templates, and an `## Available skills` index in `AGENTS.md`.
+  - 23/23 test suites green; standards-check 0/0; version coherence OK at 0.9.0.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| _Nothing in flight._ Slice 3 is fully shipped. Releasing v0.6.0 is a maintainer action (PyPI Trusted-Publisher setup per `docs/RELEASING.md`, then `git tag v0.6.0 && git push`), not open dev work. Slice 4 (deeper CI) is backlog. | — | josh | — |
+| _Nothing in flight._ Slices 1–4 are shipped (kit at **v0.9.0**). Releasing is a maintainer action (PyPI Trusted-Publisher setup per `docs/RELEASING.md`, then `git tag v0.9.0 && git push`), not open dev work. Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | josh | — |
 
 ## What's blocked
 
