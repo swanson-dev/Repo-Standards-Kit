@@ -20,6 +20,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+      - name: Verify version coherence + tag
+        run: python tools/check_version_coherence.py --tag "${{ github.ref_name }}"
       - name: Gate on the full test suite
         run: python tools/run_tests.py
       - name: Build sdist + wheel
