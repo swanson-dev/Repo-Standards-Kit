@@ -17,7 +17,7 @@ import argparse
 import re
 import subprocess
 import sys
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 # Reuse Slice 2's repo_root helper.
@@ -27,6 +27,8 @@ from _doc_lib.helpers import RepoRootNotFound, repo_root  # noqa: E402
 
 HANDOFF_REL = Path("ai") / "handoff.md"
 WRITTEN_RE = re.compile(r"^written:\s*(.+?)\s*$", re.MULTILINE)
+# Mirrors standards-check HANDOFF_STALE_DAYS — keep in sync.
+HANDOFF_STALE_DAYS = 5
 
 
 def die(msg: str) -> None:
@@ -177,6 +179,16 @@ def _porcelain_path(line: str) -> str:
 HANDOFF_POSIX = HANDOFF_REL.as_posix()
 
 
+def _is_stale(written_ts: str, max_days: int) -> bool:
+    """True if the handoff `written:` date is older than max_days. Tolerant of bad input."""
+    date_part = written_ts.split("T")[0]
+    try:
+        parsed = date.fromisoformat(date_part)
+    except ValueError:
+        return False
+    return date.today() - parsed > timedelta(days=max_days)
+
+
 def cmd_check(args: argparse.Namespace) -> None:
     # Hook mode: silent + exit 0 on ANY trouble; never break the session.
     try:
@@ -202,12 +214,16 @@ def cmd_check(args: argparse.Namespace) -> None:
             # that would be circular advice.
             continue
         file_count += 1
-    if commit_count == 0 and file_count == 0:
+    stale = bool(prior_ts) and _is_stale(prior_ts, HANDOFF_STALE_DAYS)
+    if commit_count == 0 and file_count == 0 and not stale:
         return
-    msg = (
-        f"update-handoff: {commit_count} commits + {file_count} modified files "
-        f"since last handoff — consider /update-handoff before ending the session"
-    )
+    clauses = []
+    if commit_count or file_count:
+        clauses.append(f"{commit_count} commits + {file_count} modified files since last handoff")
+    if stale:
+        clauses.append(f"handoff is >{HANDOFF_STALE_DAYS} days old")
+    detail = "; ".join(clauses)
+    msg = f"update-handoff: {detail} — run /update-handoff before ending the session"
     print(msg, file=sys.stderr)
 
 
