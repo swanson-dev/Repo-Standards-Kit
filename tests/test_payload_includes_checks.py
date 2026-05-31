@@ -21,12 +21,19 @@ class PayloadIncludesChecksTests(unittest.TestCase):
             "scripts/standards-check/checks/content.py",
             "scripts/standards-check/checks/skills.py",
             "scripts/standards-check/checks/_text.py",
+            "scripts/standards-check/checks/discovery.py",
         ):
             self.assertIn(expected, rels, f"{expected} missing from payload")
 
     def test_pycache_not_in_payload(self):
         rels = {rel for _, rel in iter_payload(REPO_ROOT)}
         self.assertFalse(any("__pycache__" in r or r.endswith(".pyc") for r in rels))
+
+    def test_kit_only_workflow_not_in_payload(self):
+        rels = {rel for _, rel in iter_payload(REPO_ROOT)}
+        self.assertNotIn(".github/workflows/kit-guards.yml", rels)
+        # The shipped CI workflow IS in the payload (sanity check on the assertion).
+        self.assertIn(".github/workflows/repo-standards.yml", rels)
 
 
 if __name__ == "__main__":
