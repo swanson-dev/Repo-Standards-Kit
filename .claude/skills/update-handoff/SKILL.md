@@ -8,9 +8,9 @@ description: Generate a draft ai/handoff.md from git state — frontmatter and "
 ## When to invoke
 
 Use when the user is about to end a session that produced meaningful change —
-typically because the `AGENTS.md` end-of-session contract requires `ai/handoff.md`,
-or because the `update-handoff` Stop hook surfaced a reminder ("N commits + M
-modified files since last handoff").
+typically to satisfy the `AGENTS.md` end-of-session contract item "Write `ai/handoff.md`
+for the next session", or because the `update-handoff` Stop hook surfaced a reminder
+("N commits + M modified files since last handoff").
 
 ## How to invoke
 

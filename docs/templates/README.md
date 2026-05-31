@@ -38,6 +38,10 @@ A future Skill (Slice 2) will automate the copy + parametrize step.
 - [`ai-starters/open-questions.md`](./ai-starters/open-questions.md)
 - [`ai-starters/handoff.md`](./ai-starters/handoff.md)
 
+### Skill skeletons
+- [`skill-template.md`](./skill-template.md) — Claude `SKILL.md` skeleton.
+- [`skill-prompt-template.md`](./skill-prompt-template.md) — Copilot `.prompt.md` skeleton.
+
 ### Per-repo governance
 - [`STANDARDS.md.template`](./STANDARDS.md.template) → `docs/STANDARDS.md`
 - [`STANDARDS-CHECKLIST.md.template`](./STANDARDS-CHECKLIST.md.template) → `docs/STANDARDS-CHECKLIST.md`

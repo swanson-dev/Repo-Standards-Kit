@@ -6,6 +6,17 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.9.0] - 2026-05-31
+
+### Added
+- `/standards-check` skill (Claude + Copilot) — run the checks and fix findings before pushing.
+- SKILL.md <-> prompt.md parity and skills-index-drift guards in `standards-check`.
+- Canonical `docs/templates/skill-template.md` + `skill-prompt-template.md`.
+- An `## Available skills` index in `AGENTS.md` and an end-of-session `/standards-check` step.
+
+### Changed
+- The four existing skill wrappers polished to one consistent shape.
+
 ## [0.8.0] - 2026-05-31
 
 ### Added
@@ -144,6 +155,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.9.0]: https://example.invalid/releases/tag/v0.9.0
 [0.8.0]: https://example.invalid/releases/tag/v0.8.0
 [0.7.0]: https://example.invalid/releases/tag/v0.7.0
 [0.6.0]: https://example.invalid/releases/tag/v0.6.0

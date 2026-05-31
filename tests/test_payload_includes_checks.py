@@ -35,6 +35,16 @@ class PayloadIncludesChecksTests(unittest.TestCase):
         # The shipped CI workflow IS in the payload (sanity check on the assertion).
         self.assertIn(".github/workflows/repo-standards.yml", rels)
 
+    def test_skills_and_templates_are_payload(self):
+        rels = {rel for _, rel in iter_payload(REPO_ROOT)}
+        for expected in (
+            ".claude/skills/standards-check/SKILL.md",
+            ".github/prompts/standards-check.prompt.md",
+            "docs/templates/skill-template.md",
+            "docs/templates/skill-prompt-template.md",
+        ):
+            self.assertIn(expected, rels, f"{expected} missing from payload")
+
 
 if __name__ == "__main__":
     unittest.main()
