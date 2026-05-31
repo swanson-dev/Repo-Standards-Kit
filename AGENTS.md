@@ -29,12 +29,14 @@ Before you finish a session that produced meaningful change:
 - [ ] If you made a material technical decision, write an ADR in `docs/decisions/` (MADR 3.0 format — see `docs/templates/adr-template.md`).
 - [ ] If you ran a time-boxed investigation, write or conclude an RFC in `docs/rfcs/<NNNN-slug>/rfc.md`.
 - [ ] If you used content from `docs/discovery/`, flip its `status: raw` → `promoted` and set `promoted_to:`.
+- [ ] Run `/standards-check` (or `python scripts/standards-check/check.py`) and fix any findings before ending a session that touched docs.
 
 ## How to author each artifact type
 
 - **ADRs:** `docs/templates/adr-template.md`. Immutable once `Accepted`. Reversal = new ADR + flip old to `Superseded by NNNN`.
 - **RFCs:** `docs/templates/rfc-template.md`. One folder per RFC under `docs/rfcs/NNNN-slug/`. Every RFC must either spawn an ADR, be `Abandoned` with reason, or its question must be tracked in `ai/open-questions.md`.
 - **Discovery items:** `docs/templates/discovery-meeting-notes.md` or `discovery-use-case.md`. Filename: `YYYY-MM-DD-source-topic.md`. Place in the right subfolder. Optional but encouraged frontmatter (`source`, `date_captured`, `topic`, `status`, `promoted_to`).
+- **Skills:** `docs/templates/skill-template.md` (Claude) + `docs/templates/skill-prompt-template.md` (Copilot). Name must equal the skill's directory; add a row to the `## Available skills` index.
 - **Numbered docs:** see `docs/STANDARDS.md` for which docs are Required/Expected/Optional/N/A for this profile.
 
 ## Standard conventions
@@ -44,6 +46,16 @@ Before you finish a session that produced meaningful change:
 - Don't edit files in `docs/decisions/` whose status is `Accepted` — write a superseding ADR instead.
 - Don't create numbered docs marked **N/A** for this profile. If a doc is **Optional** and you skip it, no waiver is needed. If it's **Required** or **Expected** and you skip it, add a `**Waived:** <reason>` line in `docs/STANDARDS-CHECKLIST.md`.
 <!-- END kit-managed: agents-core -->
+
+## Available skills
+
+| Skill | When to use |
+|---|---|
+| `new-adr` | Recording a material architecture decision |
+| `new-rfc` | Starting a time-boxed investigation |
+| `promote-discovery` | Marking a discovery item promoted |
+| `update-handoff` | Writing the end-of-session handoff |
+| `standards-check` | Running the standards checks + fixing findings before pushing |
 
 ## About this repository
 
@@ -57,6 +69,6 @@ This is the **Team Repository Standards Kit** — a versioned set of documentati
 
 ### What's out of scope right now (queued slices)
 
-- **Slice 4:** Deeper CI enforcement (content linting, doc freshness, link checking).
+- **Slice 4 (delivered):** Deeper CI enforcement — content/link/placeholder linting, SKILL.md format + parity + index guards, version-coherence, discovery checks.
 
-If you're tempted to add a deeper CI check before Slice 4 — don't. Open an RFC or an `ai/open-questions.md` entry instead.
+Genuinely-future work (open an RFC or `ai/open-questions.md` entry before starting): external-link liveness, richer doc-freshness reporting, a `new-skill` scaffolder.
