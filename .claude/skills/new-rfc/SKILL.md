@@ -8,8 +8,10 @@ description: Scaffold a new RFC folder with rfc.md, the next NNNN, and today as 
 ## When to invoke
 
 Use when the user is about to open a time-boxed investigation that needs a written
-record — typically because a question can't be resolved inside a single conversation
-and the team wants to track its approach, findings, and recommendation.
+record — typically to satisfy the `AGENTS.md` end-of-session contract item "If you ran
+a time-boxed investigation, write or conclude an RFC", because a question can't be
+resolved inside a single conversation and the team wants to track its approach,
+findings, and recommendation.
 
 ## How to invoke
 

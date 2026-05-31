@@ -10,7 +10,8 @@ description: List raw items in docs/discovery/, or flip a specific item from sta
 Use when:
 - The SessionStart hook surfaced a "N raw items" reminder and you want to see the inventory.
 - You just synthesized a discovery item's content into a PRD, ADR, RFC, or other structured
-  doc and want to flip its status so the audit trail stays accurate.
+  doc — to satisfy the `AGENTS.md` end-of-session contract item "If you used content from
+  `docs/discovery/`, flip its `status: raw` → `promoted`" so the audit trail stays accurate.
 
 ## How to invoke
 
