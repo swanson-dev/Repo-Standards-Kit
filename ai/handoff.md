@@ -1,5 +1,5 @@
 ---
-written: 2026-06-01T20:00:00-05:00
+written: 2026-06-01T21:30:00-05:00
 written_by: swanson-dev (via claude-code-assistant)
 for: next-session
 ---
@@ -8,65 +8,64 @@ for: next-session
 
 ## TL;DR
 
-**Slice 5 (hardening) is implemented on `feat/slice-5-hardening`, not yet merged**, at v0.10.0.
-It came out of a gap review comparing the kit against `voyager-projen`. Three threads:
+**Branch `feat/slice-5-hardening` now carries Slices 5 AND 6, at v0.11.0, not yet merged.**
+(The branch keeps its Slice-5 name; it grew to include Slice 6.)
 
-1. **`standards check [target]` subcommand** — the check is now runnable from the installed
-   CLI (previously only `python scripts/standards-check/check.py`). It locates the bundled
-   `check.py` via `payload_root()` and subprocesses it; `check.py` gained an optional `target`
-   arg + a reusable `run_checks()`. Decision recorded in **ADR-0012** (subprocess vs. refactor).
-2. **Multi-profile dogfooding gate** (`tests/test_profiles_scaffold.py`) — proved
-   `standards init` produced a repo failing `standards check` with ~26 errors. Fixed: `init`
-   now seeds `docs/00-overview.md`, `docs/10-glossary.md`, the three folder READMEs, ticks the
-   checklist core boxes + fills metadata, and stamps/strips the `ai/` starters. All four
-   profiles now scaffold **0 errors, 0 warnings** (the test asserts both).
-3. **RFC-0002 (Open)** — investigation into adopting onto existing non-blank repos (the
-   greenfield-only `init` guard is the blocker; the `update.py` reconcile engine already solves
-   most of it). Design only.
+- **Slice 5 (hardening):** `standards check [target]` subcommand (ADR-0012, subprocesses the
+  bundled check); multi-profile dogfooding gate (`tests/test_profiles_scaffold.py`) — `init`
+  now scaffolds a repo that passes the check with **0 errors, 0 warnings** for all four
+  profiles.
+- **Slice 6 (`standards adopt`):** non-destructive adoption onto an **existing** non-blank
+  repo (RFC-0002 **Concluded**, ADR-0013). Keeps adopter files; a differing kit-tracked file
+  is kept and the kit copy written as `<rel>.kit-<version>`; a partial file with no managed
+  block gets the kit block **appended** (their content preserved); one with a block is
+  spliced; scaffold-once seeds only when absent. Marker is written so the repo is
+  `update`-ready. `init`'s collision error now points at `adopt`.
 
-Full suite green via `python tools/run_tests.py`; `standards-check` 0/0; version coherence OK
-at 0.10.0. Three commits on the branch; **no PR opened yet**.
+**New repos and existing repos both work now.** 25/25 suites green via
+`python tools/run_tests.py`; `standards-check` 0/0; version coherence OK at 0.11.0.
+No PR opened, nothing pushed.
 
 ## Recently touched
 
-- `src/standards/cli.py` — `check` subparser + handler (subprocess the bundled `check.py`).
-- `scripts/standards-check/check.py` — optional `target` arg; extracted `run_checks(root, ctx)`
-  (main behavior unchanged when run with no arg).
-- `src/standards/init.py` — `_stamp_ai_starter` + `_fill_checklist` helpers; scaffold-once loop
-  now seeds a CI-green repo.
-- `src/standards/manifest.py` — five new `SCAFFOLD_ONCE` entries (overview, glossary, three
-  folder READMEs).
-- `pyproject.toml` — force-include the discovery/rfcs folder READMEs into the wheel payload.
-- `docs/templates/decisions-readme-template.md` (new, link-safe) + `docs/templates/README.md`
-  (scaffold-source templates presented as auto-seeded, clearing broken-link warnings).
-- `tests/test_cli.py` (+2 check tests), `tests/test_profiles_scaffold.py` (new).
-- `docs/decisions/0012-…md` (ADR), `docs/rfcs/0002-…/rfc.md` (RFC), CHANGELOG/AGENTS/__about__
-  bumped to 0.10.0.
+- `src/standards/init.py` — `run_adopt` (per-class non-destructive reconcile) + shared
+  `_seed_scaffold_once` (used by `init` and `adopt`); collision error points at `adopt`.
+- `src/standards/managed.py` — `extract_block()` (full block incl. sentinels, for appending)
+  + `has_begin_marker()`.
+- `src/standards/cli.py` — `adopt` subparser + handler (prints added/spliced/unchanged/
+  conflicts/scaffolded; lists sidecars on stderr).
+- `tests/test_adopt.py` (new), `tests/test_cli.py` (+adopt test).
+- `docs/decisions/0013-…md` (ADR, Accepted) + index; `docs/rfcs/0002-…/rfc.md` flipped to
+  **Concluded** with findings + ADR link.
+- `__about__`/CHANGELOG/AGENTS bumped to 0.11.0 (sentinel + Kit-version + Slice 6 roadmap).
+- (Slice 5, earlier this session) `standards check` subcommand, `check.py` `target`+`run_checks`,
+  CI-green `init` scaffolding, `docs/templates/decisions-readme-template.md`, ADR-0012.
 
 ## Open threads
 
-- **Open the PR for `feat/slice-5-hardening` → `main`.** Three commits (check subcommand+ADR,
-  init CI-green fix, RFC-0002). Not pushed yet.
-- **RFC-0002 is Open** — it leans toward a `standards adopt` "first-run update" reusing
-  `run_update`. Concluding it spawns an ADR + a Slice 6 plan. Don't implement retrofit before
-  the RFC concludes.
-- **Releasing remains a maintainer action** (unchanged from 0.9.0): PyPI Trusted-Publisher
-  setup per `docs/RELEASING.md`, then tag + push. v0.10.0 supersedes 0.9.0 as the publish target.
-- **Untracked file:** `repo-standards-kit-vs-voyager-projen.md` at the repo root is the
-  comparison that prompted this work — left untracked deliberately; decide whether to keep/move it.
+- **Open the PR for `feat/slice-5-hardening` → `main`.** It now contains 6 commits spanning
+  Slices 5 + 6. Not pushed yet. Consider noting in the PR title that it covers both.
+- **`adopt` does not guarantee a check-clean repo for arbitrary existing content** — by
+  design. It guarantees non-destructiveness + a valid marker. A repo with conflicting files
+  ends up with `.kit-<version>` sidecars the adopter merges; their kept content may still have
+  its own check findings. (A blank repo adopted via `adopt` *is* check-clean — asserted.)
+- **Releasing remains a maintainer action.** v0.11.0 is the publish target now (per
+  `docs/RELEASING.md`). Earlier versions intentionally not back-published.
+- **Untracked:** `repo-standards-kit-vs-voyager-projen.md` at the root — left untracked per
+  the user's call.
 
 ## Don't do
 
-- Don't change `is_excluded_from_tracked` / the scaffold-source exclusion to "fix" the
-  templates-README links — that's tested design (test_manifest). The README was edited instead
-  to present scaffold-source templates as auto-seeded (code, not links).
+- Don't route existing-repo adoption through `init --force` — that overwrites. `adopt` is the
+  non-destructive path (ADR-0013).
+- Don't make `adopt` clobber: differing kit-tracked → keep + sidecar; partial-with-block →
+  splice the block only; partial-no-block → append the block (chosen over sidecar so adoption
+  installs the contract). Don't change the blockless behavior without revisiting ADR-0013.
 - Don't refactor the `checks/` package into `src/standards/` to make `standards check` import
-  in-process — ADR-0012 deliberately chose subprocess to preserve the vendored zero-install
-  path; the wheel ships checks as payload data, not importable code.
-- Don't make the dogfood test seed the *whole* repo — it seeds only README + CHANGELOG (the
-  adopter-supplied minimum); `init` must produce everything else. It uses `date.today()` so the
-  freshness assertion stays robust over time; don't hardcode a date back in.
-- Don't git-tag/push a release yourself (maintainer's call); don't push to `main`; don't add a
-  runtime dependency; don't edit Accepted ADRs (now 0001–0012).
-- Don't run a single `pytest` over everything — `python tools/run_tests.py` (subprocess-per-suite)
-  is canonical because of duplicate `test_cli.py` basenames.
+  in-process (ADR-0012 chose subprocess to preserve the vendored zero-install path).
+- Don't change `is_excluded_from_tracked` / scaffold-source exclusion (tested design); the
+  templates-README was edited instead to present scaffold-source templates as auto-seeded.
+- Don't run a single `pytest` over everything — `python tools/run_tests.py` is canonical
+  (duplicate `test_cli.py` basenames). Keep `from __future__ import annotations` (3.9 matrix).
+- Don't git-tag/push a release yourself; don't push to `main`; no runtime deps; don't edit
+  Accepted ADRs (now 0001–0013).

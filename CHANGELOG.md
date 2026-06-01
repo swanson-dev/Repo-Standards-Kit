@@ -6,6 +6,20 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.11.0] - 2026-06-01
+
+### Added
+- `standards adopt [--profile …] [target]` — non-destructive adoption onto an **existing**, non-blank repo (ADR-0013, concluding RFC-0002). Keeps adopter files: a differing kit-tracked file is kept and the kit copy is written as a `<rel>.kit-<version>` sidecar; a partial file with no managed block gets the kit block appended (content preserved); one with a block is spliced to the current contract; scaffold-once seeds only when absent. Writes the marker so the repo is `update`-ready.
+- `managed.extract_block()` / `managed.has_begin_marker()` helpers.
+- `tests/test_adopt.py` — adopt behavior (blank→clean, conflict→sidecar, blockless AGENTS.md→append, refuse-if-adopted, adopt→update round-trip).
+
+### Changed
+- `standards init`'s collision error now points at `standards adopt` (non-destructive) instead of only offering `--force`.
+- `src/standards/init.py` — shared `_seed_scaffold_once` helper used by both `init` and `adopt`.
+
+### Notes
+- RFC-0002 is **Concluded**; the blockless-partial-file case appends the kit managed block (vs. a sidecar) so adoption actually installs the contract — see ADR-0013.
+
 ## [0.10.0] - 2026-06-01
 
 ### Added
