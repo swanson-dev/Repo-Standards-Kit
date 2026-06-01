@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-05-31
+last_updated: 2026-06-01
 last_updated_by: swanson-dev
 ---
 
@@ -38,7 +38,8 @@ last_updated_by: swanson-dev
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| _Nothing in flight._ Slices 1–4 are shipped (kit at **v0.9.0**). Releasing is a maintainer action (PyPI Trusted-Publisher setup per `docs/RELEASING.md`, then `git tag v0.9.0 && git push`), not open dev work. Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | josh | — |
+| **Slice 5 (hardening), v0.10.0** — on branch, not yet merged. Adds the `standards check [target]` CLI subcommand (ADR-0012) and a multi-profile dogfooding gate; `standards init` now scaffolds a CI-green repo (0 errors, 0 warnings) for all four profiles. RFC-0002 (Open) investigates adopting onto existing non-blank repos. | `feat/slice-5-hardening` | josh | PR → main |
+| _Otherwise idle._ Slices 1–4 shipped (kit at **v0.9.0** on `main`). Releasing is a maintainer action (PyPI Trusted-Publisher setup per `docs/RELEASING.md`, then `git tag && git push`). Backlog: RFC-0002 retrofit, external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | josh | — |
 
 ## What's blocked
 

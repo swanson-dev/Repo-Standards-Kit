@@ -6,6 +6,23 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.10.0] - 2026-06-01
+
+### Added
+- `standards check [target]` CLI subcommand — run the standards check from the installed CLI; it locates the bundled `check.py` and runs it against the target (ADR-0012).
+- `tests/test_profiles_scaffold.py` — multi-profile dogfooding gate: `standards init --profile X` must yield a repo that passes `standards check` with zero errors **and** zero warnings, for all four profiles.
+- `docs/decisions/0012-…md` — ADR-0012 recording the subprocess-the-bundled-check decision.
+- `docs/rfcs/0002-…/rfc.md` — RFC-0002 (Open) investigating adoption onto existing non-blank repos.
+- `docs/templates/decisions-readme-template.md` — generic, link-safe decisions README seeded into adopters.
+
+### Changed
+- `standards init` now scaffolds a complete, CI-clean repo for every profile: it seeds `docs/00-overview.md`, `docs/10-glossary.md`, and the `docs/{decisions,discovery,rfcs}/README.md` folder explainers; ticks the checklist universal-core boxes and fills its metadata; and strips the leading comment + stamps the adopted date into the `ai/` starters so the freshness check passes on day one.
+- `scripts/standards-check/check.py` accepts an optional `target` and exposes `run_checks()` (behavior unchanged when run with no argument).
+- `docs/templates/README.md` presents scaffold-source templates as auto-seeded (clearing broken-link warnings in adopters).
+
+### Notes
+- `standards check` is implemented by subprocessing the bundled check rather than refactoring the checks into the importable package (ADR-0012); the vendored `python scripts/standards-check/check.py` path is unchanged.
+
 ## [0.9.0] - 2026-05-31
 
 ### Added

@@ -1,5 +1,5 @@
 ---
-written: 2026-05-31T18:30:00-05:00
+written: 2026-06-01T20:00:00-05:00
 written_by: swanson-dev (via claude-code-assistant)
 for: next-session
 ---
@@ -8,40 +8,65 @@ for: next-session
 
 ## TL;DR
 
-**Slice 4 (deeper CI enforcement) is fully shipped and on `main` at v0.9.0**, across three sequential PRs:
-- **Plan 1 (v0.7.0, PR #7)** — `standards-check` v2: split `check.py` into a `checks/` package and added body-level checks (internal link+anchor resolution, ADR/RFC placeholder + CHANGELOG-shape lint, SKILL.md format lint). Introduced the **kit-vs-adopter severity model** (error in the kit / warn-default in adopters, escalatable per-check via a `"check"` map in `.standards-kit.json`).
-- **Plan 2 (v0.8.0, PR #8)** — guardrails: a kit-only **version-coherence** tool (`tools/check_version_coherence.py`) wired into a non-shipped `kit-guards.yml` + a `release.yml` tag-gate; **handoff freshness tightened 7→5 days** + a louder Stop-hook nudge with a staleness trigger; a shipped **discovery `promoted_to`-existence** check.
-- **Plan 3 (v0.9.0, PR #9)** — skills surface: a new `/standards-check` skill (Claude + Copilot), polished the four existing wrappers, added **SKILL.md⟺prompt.md parity + skills-index-drift** guards, skill templates, and an `## Available skills` index in `AGENTS.md`.
+**Slice 5 (hardening) is implemented on `feat/slice-5-hardening`, not yet merged**, at v0.10.0.
+It came out of a gap review comparing the kit against `voyager-projen`. Three threads:
 
-23/23 test suites green; `standards-check` 0/0; version coherence OK at 0.9.0. The package is at `0.9.0`, **not yet git-tagged or published** — a deliberate maintainer action (see Open threads).
+1. **`standards check [target]` subcommand** — the check is now runnable from the installed
+   CLI (previously only `python scripts/standards-check/check.py`). It locates the bundled
+   `check.py` via `payload_root()` and subprocesses it; `check.py` gained an optional `target`
+   arg + a reusable `run_checks()`. Decision recorded in **ADR-0012** (subprocess vs. refactor).
+2. **Multi-profile dogfooding gate** (`tests/test_profiles_scaffold.py`) — proved
+   `standards init` produced a repo failing `standards check` with ~26 errors. Fixed: `init`
+   now seeds `docs/00-overview.md`, `docs/10-glossary.md`, the three folder READMEs, ticks the
+   checklist core boxes + fills metadata, and stamps/strips the `ai/` starters. All four
+   profiles now scaffold **0 errors, 0 warnings** (the test asserts both).
+3. **RFC-0002 (Open)** — investigation into adopting onto existing non-blank repos (the
+   greenfield-only `init` guard is the blocker; the `update.py` reconcile engine already solves
+   most of it). Design only.
+
+Full suite green via `python tools/run_tests.py`; `standards-check` 0/0; version coherence OK
+at 0.10.0. Three commits on the branch; **no PR opened yet**.
 
 ## Recently touched
 
-Slice 4 (PRs #7/#8/#9, merges through `79fa0ee`). Headlines:
-
-- `scripts/standards-check/checks/` package — `__init__` (`Finding`/`Context`/`resolve_severity`), `structural` (v1 logic moved verbatim), `links`, `content`, `skills`, `discovery`, `_text` (shared code-span/comment stripper used by `links` + `content`). `check.py` is now a thin orchestrator that builds one `Context` and runs each module's `run(root, ctx) -> list[Finding]`.
-- `tools/check_version_coherence.py` (kit-only, NOT shipped) — `find_incoherences(root, tag=None)`; verifies `src/standards/__about__.py` ↔ CHANGELOG top ↔ `AGENTS.md` Kit-version + sentinel, and (with `--tag`) the release tag. Run by `.github/workflows/kit-guards.yml` (PR-time) and a `release.yml` step (tag-time). `tests/test_version.py` was refactored to assert coherence instead of a hardcoded literal.
-- `scripts/standards-check/checks/structural.py` — `HANDOFF_STALE_DAYS = 5` (current-state stays 14). `scripts/update-handoff/update_handoff.py` `--check` — louder imperative nudge + fires on a stale handoff even with no pending work (a second `HANDOFF_STALE_DAYS = 5` constant, kept in sync by comment).
-- `.claude/skills/standards-check/` + `.github/prompts/standards-check.prompt.md` — the new skill. `docs/templates/skill-template.md` + `skill-prompt-template.md`. `AGENTS.md` gained an `## Available skills` index (adopter-owned region) + a `/standards-check` end-of-session checkbox (managed block).
-- `src/standards/__about__.py` at `0.9.0`; CHANGELOG entries for 0.7.0/0.8.0/0.9.0.
-
-Design/plan docs for each are under `docs/superpowers/specs/` and `docs/superpowers/plans/` (the three `2026-05-3x-slice-4-plan-*` files).
+- `src/standards/cli.py` — `check` subparser + handler (subprocess the bundled `check.py`).
+- `scripts/standards-check/check.py` — optional `target` arg; extracted `run_checks(root, ctx)`
+  (main behavior unchanged when run with no arg).
+- `src/standards/init.py` — `_stamp_ai_starter` + `_fill_checklist` helpers; scaffold-once loop
+  now seeds a CI-green repo.
+- `src/standards/manifest.py` — five new `SCAFFOLD_ONCE` entries (overview, glossary, three
+  folder READMEs).
+- `pyproject.toml` — force-include the discovery/rfcs folder READMEs into the wheel payload.
+- `docs/templates/decisions-readme-template.md` (new, link-safe) + `docs/templates/README.md`
+  (scaffold-source templates presented as auto-seeded, clearing broken-link warnings).
+- `tests/test_cli.py` (+2 check tests), `tests/test_profiles_scaffold.py` (new).
+- `docs/decisions/0012-…md` (ADR), `docs/rfcs/0002-…/rfc.md` (RFC), CHANGELOG/AGENTS/__about__
+  bumped to 0.10.0.
 
 ## Open threads
 
-- **Releasing is a maintainer action, not a code task.** To publish v0.9.0: (1) one-time PyPI Trusted-Publisher setup per `docs/RELEASING.md` (pending-publisher flow for the first release), (2) create the `pypi` GitHub Environment, (3) `git tag v0.9.0 && git push origin v0.9.0`. The tag fires `release.yml`, which now runs the coherence+tag gate before building. Only the maintainer can do this. (Earlier versions 0.5.0–0.8.0 are intentionally not back-published; PyPI only needs the current version.)
-- **Slice 4 backlog (genuinely future, not started):** external-link liveness (HTTP), richer doc-freshness *reporting*, and a `new-skill` scaffolder script (`scripts/new-doc/new-skill.py`, deferred from Plan 3 — would generate the SKILL.md+prompt.md pair from the templates). The `AGENTS.md` "queued slices" note now reflects Slice 4 as delivered.
-- **ADO home (deferred):** PyPI Trusted Publishing can't be used from Azure DevOps; that home would publish with a stored PyPI API token. The portable `tools/run_tests.py` + `standards-check` are shared by design (ADR-0011).
-- **`pypa/gh-action-pypi-publish` is still floating `@release/v1`** (SHA-pin was de-selected during Slice 4 scoping). Revisit if supply-chain pinning becomes a requirement.
+- **Open the PR for `feat/slice-5-hardening` → `main`.** Three commits (check subcommand+ADR,
+  init CI-green fix, RFC-0002). Not pushed yet.
+- **RFC-0002 is Open** — it leans toward a `standards adopt` "first-run update" reusing
+  `run_update`. Concluding it spawns an ADR + a Slice 6 plan. Don't implement retrofit before
+  the RFC concludes.
+- **Releasing remains a maintainer action** (unchanged from 0.9.0): PyPI Trusted-Publisher
+  setup per `docs/RELEASING.md`, then tag + push. v0.10.0 supersedes 0.9.0 as the publish target.
+- **Untracked file:** `repo-standards-kit-vs-voyager-projen.md` at the repo root is the
+  comparison that prompted this work — left untracked deliberately; decide whether to keep/move it.
 
 ## Don't do
 
-- Don't `git tag`/push a release tag yourself — publishing triggers a real PyPI publish; it's the maintainer's call. Surface `docs/RELEASING.md`.
-- Don't put kit-only checks in the shipped `repo-standards.yml` or the `checks/` package — `repo-standards.yml` ships to adopters (who lack `__about__.py`). Kit-only guards go in `kit-guards.yml` (not in the payload manifest) and `release.yml`.
-- Don't put the `AGENTS.md` `## Available skills` index *inside* the `kit-managed: agents-core` block — it lives in the adopter-owned region so an adopter's own skills survive `standards update`. The `/standards-check` checkbox and Skills authoring line DO belong inside the managed block (kit contract).
-- Don't interpolate `${{ github.* }}` directly into a workflow `run:` — pass via an `env:` var (Actions shell-injection; this bit the first cut of the release gate).
-- Don't make freshness a CI *error* — it stays a warning; calendar time must never fail an unrelated PR.
-- Don't drop `from __future__ import annotations` from any module/test using PEP 604/585 annotations — the CI matrix runs Python 3.9.
-- Don't reintroduce a single `pytest` CI step — `tools/run_tests.py` (subprocess-per-suite) is canonical because of the duplicate `test_cli.py` basenames.
-- Don't edit ADRs 0001–0011 (all `Accepted`) or make `standards update` interactive/destructive (ADR-0009/0010). Don't introduce a runtime dependency (pure-stdlib by design).
-- Don't push directly to `main`; PR-and-merge per the established flow.
+- Don't change `is_excluded_from_tracked` / the scaffold-source exclusion to "fix" the
+  templates-README links — that's tested design (test_manifest). The README was edited instead
+  to present scaffold-source templates as auto-seeded (code, not links).
+- Don't refactor the `checks/` package into `src/standards/` to make `standards check` import
+  in-process — ADR-0012 deliberately chose subprocess to preserve the vendored zero-install
+  path; the wheel ships checks as payload data, not importable code.
+- Don't make the dogfood test seed the *whole* repo — it seeds only README + CHANGELOG (the
+  adopter-supplied minimum); `init` must produce everything else. It uses `date.today()` so the
+  freshness assertion stays robust over time; don't hardcode a date back in.
+- Don't git-tag/push a release yourself (maintainer's call); don't push to `main`; don't add a
+  runtime dependency; don't edit Accepted ADRs (now 0001–0012).
+- Don't run a single `pytest` over everything — `python tools/run_tests.py` (subprocess-per-suite)
+  is canonical because of duplicate `test_cli.py` basenames.

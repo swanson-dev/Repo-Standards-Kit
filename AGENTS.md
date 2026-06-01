@@ -1,9 +1,9 @@
 # AGENTS.md
 
-<!-- BEGIN kit-managed: agents-core (v0.9.0) -->
+<!-- BEGIN kit-managed: agents-core (v0.10.0) -->
 Single source of truth for AI agents working in this repository. Tool-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) are thin pointers to this document.
 
-- Kit version: **0.9.0**
+- Kit version: **0.10.0**
 
 ## Canonical reading order
 
@@ -70,5 +70,6 @@ This is the **Team Repository Standards Kit** — a versioned set of documentati
 ### What's out of scope right now (queued slices)
 
 - **Slice 4 (delivered):** Deeper CI enforcement — content/link/placeholder linting, SKILL.md format + parity + index guards, version-coherence, discovery checks.
+- **Slice 5 (delivered):** Hardening — `standards check` subcommand; multi-profile dogfooding gate (`standards init` now scaffolds a CI-green repo for every profile).
 
-Genuinely-future work (open an RFC or `ai/open-questions.md` entry before starting): external-link liveness, richer doc-freshness reporting, a `new-skill` scaffolder.
+Genuinely-future work (open an RFC or `ai/open-questions.md` entry before starting): adopting onto existing non-blank repos (**RFC-0002, Open**), external-link liveness, richer doc-freshness reporting, a `new-skill` scaffolder.
