@@ -1,7 +1,7 @@
 ---
-status: Open
+status: Concluded
 opened: 2026-06-01
-closed:
+closed: 2026-06-01
 owner: swanson-dev
 time_box: 2 days
 ---
@@ -45,34 +45,33 @@ repository. Slice 5 hardened the greenfield path (the multi-profile dogfood gate
 
 ## Findings
 
-To be completed by the investigation. Initial framing only:
-
-- The reconcile engine already does the hard part. `run_update` already handles "file exists,
-  hash differs → write `.kit-<version>` sidecar, keep adopter's copy" and "managed block
-  matches → splice". A retrofit is conceptually an update applied from a baseline of "no
-  marker / version none".
-- The blocking piece is purely the init pre-flight guard, which treats any differing
-  pre-existing kit file as a hard stop rather than a reconcile input.
-- `scaffold-once` already does the right thing for retrofit (it only seeds when absent), so
-  an adopter's existing `ai/` or `docs/00-overview.md` would be preserved automatically.
+- The reconcile primitives already do the hard part. The sidecar-on-conflict and managed-block
+  splice logic from `run_update` (and the scaffold-once "seed only when absent" rule) are
+  exactly what retrofit needs. The blocking piece was purely `init`'s pre-flight guard, which
+  treated any differing pre-existing kit file as a hard stop rather than a reconcile input.
+- A retrofit does NOT need a marker to reconcile. `run_update` reads the marker to distinguish
+  "untouched since last sync" from "edited downstream"; on a first-run adopt there is no prior
+  baseline, so every differing file is simply adopter-owned → keep it + sidecar. That makes
+  `adopt` simpler than `update`, not a special case of it.
+- The one real decision was the blockless partial file (an existing hand-written `AGENTS.md`
+  with no kit-managed block). There is nothing to splice into, so the choice was append the
+  kit block (installs the contract, non-destructive) vs. sidecar (conservative, leaves the
+  file untouched). Appending was chosen: it is the designed purpose of managed regions and
+  removes nothing.
 
 ## Recommendation
 
-Leaning toward **Option A — `standards adopt` as a "first-run update"**: introduce an adopt
-mode that reuses `run_update`'s reconcile engine instead of the blunt init guard. For each
-kit-tracked file already present and differing, write a sidecar and keep the adopter's copy
-(never clobber); for partial files, splice the managed block into the existing file; for
-scaffold-once, seed only when absent; then write the marker. This maximizes reuse of tested
-code and makes adoption non-destructive by construction. Two alternatives remain on the
-table for the investigation to rule out: **Option B** — extend `init` with a `--merge` flag
-rather than a new subcommand; **Option C** — ship a read-only `standards diff` that reports
-the gap and lets a human adopt incrementally. Explicitly out of scope: auto-rewriting an
-adopter's existing README/doc prose — the kit reconciles ownership, it does not edit content
-it does not own.
+**Concluded → Option A.** Implemented `standards adopt` as a dedicated non-destructive
+subcommand (not `init --merge`), reconciling each file by ownership class: copy-if-absent;
+keep-and-sidecar a differing kit-tracked file; splice an existing managed block or append the
+kit block to a blockless partial file; seed scaffold-once only when absent; then write the
+marker so the repo is `update`-ready. `init`'s collision error now points at `adopt`. The
+decision and per-class behavior are recorded in **ADR-0013**. Out of scope (unchanged): the
+kit never rewrites prose it does not own.
 
 ## Follow-ups
 
-- **ADR to write:** yes (expected) — record the chosen retrofit mechanism once concluded.
-- **Implementation plan changes:** a future Slice 6 plan implements the chosen option; none yet.
-- **New open questions:** none yet; any unresolved sub-question moves to `ai/open-questions.md` on conclusion.
+- **ADR to write:** yes — [`docs/decisions/0013-standards-adopt-for-non-destructive-adoption-onto-existing-repos.md`](../../decisions/0013-standards-adopt-for-non-destructive-adoption-onto-existing-repos.md).
+- **Implementation plan changes:** shipped in v0.11.0 (`run_adopt` + `adopt` subcommand + `tests/test_adopt.py`); no separate plan doc.
+- **New open questions:** none.
 - **Discovery to promote:** none.

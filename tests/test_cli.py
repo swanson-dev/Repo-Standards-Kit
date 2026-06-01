@@ -53,6 +53,17 @@ class CliTests(unittest.TestCase):
             res = self._run("update", d, cwd=REPO)
             self.assertNotEqual(res.returncode, 0)
 
+    def test_adopt_subcommand_is_nondestructive(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / "docs").mkdir()
+            (target / "docs" / "STANDARDS.md").write_text("MINE\n", encoding="utf-8")
+            res = self._run("adopt", "--profile", "library", str(target), cwd=REPO)
+            self.assertEqual(res.returncode, 0, res.stderr)
+            self.assertEqual((target / "docs" / "STANDARDS.md").read_text(encoding="utf-8"), "MINE\n")
+            self.assertTrue((target / ".standards-kit.json").is_file())
+            self.assertIn("conflicts", (res.stdout + res.stderr).lower())
+
     def test_check_clean_repo_exits_zero(self):
         # The kit repo itself is self-clean (0 errors); `standards check` on it passes.
         res = self._run("check", str(REPO), cwd=REPO)
