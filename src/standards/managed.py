@@ -46,6 +46,27 @@ def find_block(text: str) -> Block | None:
                  start=b.end(), end=end_match.start())
 
 
+def extract_block(text: str) -> str | None:
+    """Return the full managed block substring (BEGIN + inner + END), or None.
+
+    Used by `standards adopt` to append the kit's block to an existing file that
+    has no managed region yet. None unless exactly one well-formed block exists.
+    """
+    begins = list(_BEGIN.finditer(text))
+    if len(begins) != 1:
+        return None
+    b = begins[0]
+    ends = list(_end_pattern(b.group("id")).finditer(text, b.end()))
+    if len(ends) != 1:
+        return None
+    return text[b.start():ends[0].end()]
+
+
+def has_begin_marker(text: str) -> bool:
+    """True if the text contains any kit-managed BEGIN marker (well-formed or not)."""
+    return _BEGIN.search(text) is not None
+
+
 def splice_block(text: str, new_inner: str) -> str:
     """Return `text` with the managed block's inner content replaced. Raises if none."""
     block = find_block(text)

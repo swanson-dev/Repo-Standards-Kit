@@ -6,6 +6,37 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.11.0] - 2026-06-01
+
+### Added
+- `standards adopt [--profile …] [target]` — non-destructive adoption onto an **existing**, non-blank repo (ADR-0013, concluding RFC-0002). Keeps adopter files: a differing kit-tracked file is kept and the kit copy is written as a `<rel>.kit-<version>` sidecar; a partial file with no managed block gets the kit block appended (content preserved); one with a block is spliced to the current contract; scaffold-once seeds only when absent. Writes the marker so the repo is `update`-ready.
+- `managed.extract_block()` / `managed.has_begin_marker()` helpers.
+- `tests/test_adopt.py` — adopt behavior (blank→clean, conflict→sidecar, blockless AGENTS.md→append, refuse-if-adopted, adopt→update round-trip).
+
+### Changed
+- `standards init`'s collision error now points at `standards adopt` (non-destructive) instead of only offering `--force`.
+- `src/standards/init.py` — shared `_seed_scaffold_once` helper used by both `init` and `adopt`.
+
+### Notes
+- RFC-0002 is **Concluded**; the blockless-partial-file case appends the kit managed block (vs. a sidecar) so adoption actually installs the contract — see ADR-0013.
+
+## [0.10.0] - 2026-06-01
+
+### Added
+- `standards check [target]` CLI subcommand — run the standards check from the installed CLI; it locates the bundled `check.py` and runs it against the target (ADR-0012).
+- `tests/test_profiles_scaffold.py` — multi-profile dogfooding gate: `standards init --profile X` must yield a repo that passes `standards check` with zero errors **and** zero warnings, for all four profiles.
+- `docs/decisions/0012-…md` — ADR-0012 recording the subprocess-the-bundled-check decision.
+- `docs/rfcs/0002-…/rfc.md` — RFC-0002 (Open) investigating adoption onto existing non-blank repos.
+- `docs/templates/decisions-readme-template.md` — generic, link-safe decisions README seeded into adopters.
+
+### Changed
+- `standards init` now scaffolds a complete, CI-clean repo for every profile: it seeds `docs/00-overview.md`, `docs/10-glossary.md`, and the `docs/{decisions,discovery,rfcs}/README.md` folder explainers; ticks the checklist universal-core boxes and fills its metadata; and strips the leading comment + stamps the adopted date into the `ai/` starters so the freshness check passes on day one.
+- `scripts/standards-check/check.py` accepts an optional `target` and exposes `run_checks()` (behavior unchanged when run with no argument).
+- `docs/templates/README.md` presents scaffold-source templates as auto-seeded (clearing broken-link warnings in adopters).
+
+### Notes
+- `standards check` is implemented by subprocessing the bundled check rather than refactoring the checks into the importable package (ADR-0012); the vendored `python scripts/standards-check/check.py` path is unchanged.
+
 ## [0.9.0] - 2026-05-31
 
 ### Added
@@ -155,6 +186,8 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.11.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.11.0
+[0.10.0]: https://example.invalid/releases/tag/v0.10.0
 [0.9.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.9.0
 [0.8.0]: https://example.invalid/releases/tag/v0.8.0
 [0.7.0]: https://example.invalid/releases/tag/v0.7.0

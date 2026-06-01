@@ -53,6 +53,33 @@ class CliTests(unittest.TestCase):
             res = self._run("update", d, cwd=REPO)
             self.assertNotEqual(res.returncode, 0)
 
+    def test_adopt_subcommand_is_nondestructive(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / "docs").mkdir()
+            (target / "docs" / "STANDARDS.md").write_text("MINE\n", encoding="utf-8")
+            res = self._run("adopt", "--profile", "library", str(target), cwd=REPO)
+            self.assertEqual(res.returncode, 0, res.stderr)
+            self.assertEqual((target / "docs" / "STANDARDS.md").read_text(encoding="utf-8"), "MINE\n")
+            self.assertTrue((target / ".standards-kit.json").is_file())
+            self.assertIn("conflicts", (res.stdout + res.stderr).lower())
+
+    def test_check_clean_repo_exits_zero(self):
+        # The kit repo itself is self-clean (0 errors); `standards check` on it passes.
+        res = self._run("check", str(REPO), cwd=REPO)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("standards check", (res.stdout + res.stderr).lower())
+
+    def test_check_reports_violations_nonzero(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            init = self._run("init", "--profile", "library", str(target), cwd=REPO)
+            self.assertEqual(init.returncode, 0, init.stderr)
+            # Remove a universal-core file -> structural check must error -> exit 1.
+            (target / "AGENTS.md").unlink()
+            res = self._run("check", str(target), cwd=REPO)
+            self.assertEqual(res.returncode, 1, res.stdout + res.stderr)
+
 
 if __name__ == "__main__":
     unittest.main()

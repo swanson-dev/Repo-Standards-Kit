@@ -15,7 +15,7 @@ A future Skill (Slice 2) will automate the copy + parametrize step.
 - [`discovery-use-case.md`](./discovery-use-case.md)
 
 ### Numbered-doc skeletons (`docs/00–10`)
-- [`overview-template.md`](./overview-template.md) → `docs/00-overview.md`
+- `overview-template.md` → `docs/00-overview.md` (seeded automatically at adoption).
 - [`prd-template.md`](./prd-template.md) → `docs/01-prd.md`
 - [`architecture-template.md`](./architecture-template.md) → `docs/02-architecture.md`
 - [`data-model-template.md`](./data-model-template.md) → `docs/03-data-model.md`
@@ -25,18 +25,18 @@ A future Skill (Slice 2) will automate the copy + parametrize step.
 - [`testing-template.md`](./testing-template.md) → `docs/07-testing.md`
 - [`security-template.md`](./security-template.md) → `docs/08-security-and-compliance.md`
 - [`deployment-template.md`](./deployment-template.md) → `docs/09-deployment.md`
-- [`glossary-template.md`](./glossary-template.md) → `docs/10-glossary.md`
+- `glossary-template.md` → `docs/10-glossary.md` (seeded automatically at adoption).
 
 ### Profile-specific extras
 - [`versioning-policy-template.md`](./versioning-policy-template.md) — library profile.
 - [`environments-template.md`](./environments-template.md) — infra profile.
 - [`data-contract-template.md`](./data-contract-template.md) — data profile (one per dataset).
 
-### `ai/` starters
-- [`ai-starters/current-state.md`](./ai-starters/current-state.md)
-- [`ai-starters/next-actions.md`](./ai-starters/next-actions.md)
-- [`ai-starters/open-questions.md`](./ai-starters/open-questions.md)
-- [`ai-starters/handoff.md`](./ai-starters/handoff.md)
+### `ai/` starters (seeded automatically at adoption)
+- `ai-starters/current-state.md` → `ai/current-state.md`
+- `ai-starters/next-actions.md` → `ai/next-actions.md`
+- `ai-starters/open-questions.md` → `ai/open-questions.md`
+- `ai-starters/handoff.md` → `ai/handoff.md`
 
 ### Skill skeletons
 - [`skill-template.md`](./skill-template.md) — Claude `SKILL.md` skeleton.
@@ -44,7 +44,7 @@ A future Skill (Slice 2) will automate the copy + parametrize step.
 
 ### Per-repo governance
 - [`STANDARDS.md.template`](./STANDARDS.md.template) → `docs/STANDARDS.md`
-- [`STANDARDS-CHECKLIST.md.template`](./STANDARDS-CHECKLIST.md.template) → `docs/STANDARDS-CHECKLIST.md`
+- `STANDARDS-CHECKLIST.md.template` → `docs/STANDARDS-CHECKLIST.md` (seeded automatically at adoption).
 
 ## Convention
 

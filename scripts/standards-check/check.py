@@ -48,12 +48,27 @@ def build_context(root: Path) -> Context:
     return Context(root=root, adopter_mode=True, overrides=overrides)
 
 
-def main() -> int:
-    root = find_repo_root(Path(__file__).resolve().parent)
-    ctx = build_context(root)
+def run_checks(root: Path, ctx: Context) -> list:
+    """Run every check module against `root` and return all findings.
+
+    Importable by the multi-profile dogfood test so it can assert a freshly
+    scaffolded repo is error-clean without shelling out.
+    """
     findings: list = []
     for run in CHECKS:
         findings.extend(run(root, ctx))
+    return findings
+
+
+def main(argv: list | None = None) -> int:
+    args = argv if argv is not None else sys.argv[1:]
+    # Optional target: detect the repo root by walking up from it. Absent, keep
+    # the historical behavior (walk up from this script) so the vendored
+    # `python scripts/standards-check/check.py` invocation is unaffected.
+    start = Path(args[0]).resolve() if args else Path(__file__).resolve().parent
+    root = find_repo_root(start)
+    ctx = build_context(root)
+    findings = run_checks(root, ctx)
     errors = [f for f in findings if f.severity == "error"]
     warnings = [f for f in findings if f.severity == "warn"]
     print(f"Standards check: {len(errors)} error(s), {len(warnings)} warning(s)")
