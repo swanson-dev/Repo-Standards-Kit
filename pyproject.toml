@@ -8,6 +8,7 @@ dynamic = ["version"]
 description = "Team Repository Standards Kit — adopt and stay current with the standards via a single CLI."
 readme = "README.md"
 license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.9"
 authors = [{ name = "swanson-dev" }]
 keywords = ["standards", "scaffold", "adr", "rfc", "governance"]

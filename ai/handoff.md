@@ -1,5 +1,5 @@
 ---
-written: 2026-06-01T22:30:00-05:00
+written: 2026-06-01T23:30:00-05:00
 written_by: swanson-dev (via claude-code-assistant)
 for: next-session
 ---
@@ -8,18 +8,18 @@ for: next-session
 
 ## TL;DR
 
-**v0.11.0 is shipped and published to PyPI** (Slices 5 + 6: `standards check` subcommand,
-multi-profile CI-green `init`, and `standards adopt` for existing repos). New repos *and*
-existing repos can both adopt the kit.
+**Published to PyPI through v0.12.0.** Slices 5 + 6 shipped (`standards check`, multi-profile
+CI-green `init`, `standards adopt` for existing repos); v0.12.0 added README Installation +
+CLI Quickstart (the README is the PyPI long-description).
 
-**In flight: a v0.12.0 docs release** on `docs/readme-install-and-cli` (**PR #13**, not yet
-merged). The README had no install instructions and was frozen at v0.1.0; it now has
-Installation (`pipx`/`uvx`/`pip`) + a CLI Quickstart (`init`/`adopt`/`check`/`update`), with
-the stale header/roadmap refreshed. Because the README is the PyPI long-description, cutting
-0.12.0 refreshes the package page (0.11.0's page keeps the old README until then). The version
-bump (0.11.0 → 0.12.0 across `__about__`/CHANGELOG/AGENTS) is folded into PR #13.
+**In flight: v0.13.0 — add LICENSE** on `chore/add-license` (not yet merged). The package
+declared `license = "MIT"` but shipped no license text; added a top-level MIT `LICENSE`
+(© 2026 Swanson Creative Studios) and `license-files = ["LICENSE"]` in pyproject so the wheel
+bundles it (`.dist-info/licenses/LICENSE`, METADATA `License-File`) and GitHub recognizes it.
+Prep for **making the repo public**. Version bump 0.12.0 → 0.13.0 folded into the same branch.
 
-`standards check` 0/0; 25/25 suites; version coherence OK at 0.12.0.
+`standards check` 0/0; 25/25 suites; version coherence OK at 0.13.0; wheel build confirmed the
+LICENSE is bundled.
 
 ## Recently touched
 
@@ -32,11 +32,14 @@ bump (0.11.0 → 0.12.0 across `__about__`/CHANGELOG/AGENTS) is folded into PR #
 
 ## Open threads
 
-- **Finish the 0.12.0 release:** merge PR #13 → `main`, then `git tag v0.12.0 && git push
-  origin v0.12.0` on the merge commit. The tag fires `release.yml` (coherence+tag gate →
-  tests → build → Trusted-Publishing publish). Verify PyPI serves 0.12.0 + the new README.
-- **Two unmerged branches exist on origin:** `feat/slice-5-hardening` (already merged via
-  PR #12 — safe to delete) and `docs/readme-install-and-cli` (PR #13, in flight).
+- **Finish the 0.13.0 release:** merge the `chore/add-license` PR → `main`, then
+  `git tag v0.13.0 && git push origin v0.13.0` on the merge commit. The tag fires
+  `release.yml`. Verify PyPI serves 0.13.0 and the wheel bundles the LICENSE.
+- **Making the repo public** (the reason for the LICENSE): before flipping visibility, sanity-
+  check git history for secrets — there are none expected (stdlib-only, no tokens; PyPI uses
+  tokenless Trusted Publishing), but confirm. The `.standards-kit.json`/CI carry no secrets.
+- **Stale merged branches on origin** safe to delete: `feat/slice-5-hardening` (PR #12),
+  `docs/readme-install-and-cli` (PR #13).
 - Releasing pattern (proven for v0.9.0/v0.11.0): release on the PR merge commit; RELEASING.md
   step 2 (CHANGELOG reflink → real tag) is folded into the PR before tagging.
 
