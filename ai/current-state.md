@@ -38,8 +38,8 @@ last_updated_by: swanson-dev
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| **Slices 5 + 6, v0.11.0** — on branch, not yet merged. Slice 5: `standards check [target]` subcommand (ADR-0012) + multi-profile dogfooding gate (`init` scaffolds a CI-green repo for all four profiles). Slice 6: `standards adopt` — non-destructive adoption onto existing non-blank repos (RFC-0002 **Concluded**, ADR-0013): keeps adopter files, sidecars differing kit-tracked files, appends/splices the managed block, seeds scaffold-once when absent. | `feat/slice-5-hardening` | josh | PR → main |
-| _Otherwise idle._ Slices 1–4 shipped (kit at **v0.9.0** on `main`). Releasing is a maintainer action (PyPI Trusted-Publisher setup per `docs/RELEASING.md`, then `git tag && git push`). Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | josh | — |
+| **v0.12.0 docs release** — on branch, not yet merged. README gains Installation + CLI Quickstart; stale header/roadmap refreshed. README is the PyPI long-description, so this release refreshes the package page. | `docs/readme-install-and-cli` | josh | PR #13 → main |
+| _Otherwise idle._ Slices 1–6 shipped and **published to PyPI at v0.11.0** (`standards init`/`adopt`/`check`/`update`). Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | josh | — |
 
 ## What's blocked
 

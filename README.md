@@ -2,10 +2,53 @@
 
 A versioned, opinionated set of documentation standards and templates that any repository on the team can adopt. The kit's goal is to keep documentation lean, durable, and useful for both humans and AI-assisted development workflows.
 
-- **Status:** Slice 1 — Templates + Standards Content
-- **Version:** 0.1.0
+- **Distributed as:** the [`repo-standards-kit`](https://pypi.org/project/repo-standards-kit/) package on PyPI — a zero-dependency `standards` CLI.
 - **Authoritative spec:** [`docs/STANDARDS.md`](./docs/STANDARDS.md)
 - **Agent contract:** [`AGENTS.md`](./AGENTS.md)
+- **Version history:** [`CHANGELOG.md`](./CHANGELOG.md)
+
+## Installation
+
+The kit installs as a command-line tool. Use whichever installer you prefer:
+
+```sh
+pipx install repo-standards-kit     # recommended (isolated install)
+# or
+uvx repo-standards-kit standards --version   # run without installing
+# or
+pip install repo-standards-kit
+```
+
+This puts a `standards` command on your PATH. Verify it:
+
+```sh
+standards --version
+```
+
+The runtime is **stdlib-only** (Python 3.9+) — no third-party dependencies.
+
+## Quickstart
+
+```sh
+# Adopt the kit into a NEW or empty repo (greenfield):
+standards init --profile library .
+
+# Adopt into an EXISTING repo (non-destructive — keeps your files,
+# writes <file>.kit-<version> sidecars on conflict):
+standards adopt --profile application .
+
+# Verify a repo against the standards (use in CI):
+standards check .
+
+# Pull in a newer kit version later (non-destructive reconcile):
+standards update .
+```
+
+Pick the profile that fits the repo: `application` | `library` | `infra` | `data`. Each profile has its own Required / Expected / Optional / N/A doc matrix — see [`docs/STANDARDS.md`](./docs/STANDARDS.md).
+
+- **`init`** is for blank/clean repos; it refuses if kit-owned files already exist with different content (it points you at `adopt`).
+- **`adopt`** is for repos that already have their own README, docs, or CI; it never clobbers — it keeps your files, sidecars true conflicts, and appends/splices the kit's managed block into an existing `AGENTS.md`.
+- Both write a `.standards-kit.json` marker so `standards update` can keep you current.
 
 ## What this kit gives you
 
@@ -17,7 +60,8 @@ A versioned, opinionated set of documentation standards and templates that any r
 6. Lightweight conventions for **`docs/discovery/`** — meeting notes, requirement drafts, use cases — with a traceability flow to durable docs.
 7. A **PR template** that asks the right questions about documentation, ADRs, AI context, and operational impact.
 8. A **`STANDARDS-CHECKLIST.md`** with a waiver mechanism so absences are explicit, not silent.
-9. A v1 CI check that enforces the structural minimum.
+9. A **CI check** (`standards check`) that enforces the structural minimum plus content-level lints.
+10. **AI Skills + hooks** (Claude Code + Copilot) for ADRs, RFCs, discovery promotion, handoffs, and running the check.
 
 ## The information flow
 
@@ -28,19 +72,9 @@ meetings, reqs,         time-boxed,             MADR 3.0 ADRs,          PRD, arc
 use case drafts         spawn-or-abandon        immutable               runbook, etc.
 ```
 
-## How to adopt the kit in a new repo
+## Adopting without the CLI
 
-This is documented in [`docs/STANDARDS.md`](./docs/STANDARDS.md). Short version:
-
-1. Copy `docs/templates/` into your repo.
-2. Pick a profile (`application` | `library` | `infra` | `data`).
-3. Fill in `docs/STANDARDS.md` (declare profile + any deviations).
-4. Fill in `docs/STANDARDS-CHECKLIST.md` (check off what exists, waive what doesn't).
-5. Seed `ai/*.md` from `docs/templates/ai-starters/`.
-6. Adopt `.github/pull_request_template.md` and `.github/workflows/repo-standards.yml`.
-7. Point your AI tools at `AGENTS.md`, `CLAUDE.md`, and `.github/copilot-instructions.md`.
-
-A Skill that automates this is queued in Slice 2.
+If you'd rather adopt by hand (or want the full detail of what the CLI does), the manual process is documented in [`docs/STANDARDS.md`](./docs/STANDARDS.md): copy `docs/templates/`, pick a profile, fill in `docs/STANDARDS.md` + `docs/STANDARDS-CHECKLIST.md`, seed `ai/*.md` from `docs/templates/ai-starters/`, adopt the `.github/` workflow + PR template, and point your AI tools at `AGENTS.md`.
 
 ## Documentation philosophy
 
@@ -50,9 +84,11 @@ Keep documentation lean but scalable. Add durable docs when they improve onboard
 
 | Slice | Scope | Status |
 |---|---|---|
-| 1 | Templates + standards content (this slice) | In progress |
-| 2 | AI Skills + Hooks (Claude Code, Copilot) | Designed only |
-| 3 | Distribution mechanism (template repo vs. plugin vs. copy script) | Not started |
-| 4 | Deeper CI enforcement (linting, freshness, link checking) | Not started |
+| 1 | Templates + standards content | Shipped |
+| 2 | AI Skills + Hooks (Claude Code, Copilot) | Shipped |
+| 3 | Distribution — the `standards` CLI (`init` / `update`), PyPI, 3-class sync | Shipped |
+| 4 | Deeper CI enforcement (content/link/placeholder lint, parity + coherence guards) | Shipped |
+| 5 | Hardening — `standards check` subcommand + multi-profile CI-green `init` | Shipped |
+| 6 | `standards adopt` — non-destructive adoption onto existing repos | Shipped |
 
-The full design rationale for Slice 1 is captured in ADRs `0001`–`0006` under [`docs/decisions/`](./docs/decisions/).
+The design rationale is captured as ADRs under [`docs/decisions/`](./docs/decisions/) and investigations under [`docs/rfcs/`](./docs/rfcs/).
