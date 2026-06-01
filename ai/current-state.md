@@ -38,8 +38,8 @@ last_updated_by: swanson-dev
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| **v0.12.0 docs release** — on branch, not yet merged. README gains Installation + CLI Quickstart; stale header/roadmap refreshed. README is the PyPI long-description, so this release refreshes the package page. | `docs/readme-install-and-cli` | josh | PR #13 → main |
-| _Otherwise idle._ Slices 1–6 shipped and **published to PyPI at v0.11.0** (`standards init`/`adopt`/`check`/`update`). Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | josh | — |
+| **v0.13.0 — add LICENSE** — on branch, not yet merged. Adds an MIT `LICENSE` (© 2026 Swanson Creative Studios) + `license-files` so the wheel bundles it and GitHub recognizes it; prep for making the repo public. | `chore/add-license` | josh | PR → main |
+| _Otherwise idle._ Slices 1–6 shipped; **published to PyPI through v0.12.0** (`standards init`/`adopt`/`check`/`update`; README has install + quickstart). Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | josh | — |
 
 ## What's blocked
 
