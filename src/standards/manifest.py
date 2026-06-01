@@ -49,6 +49,13 @@ SCAFFOLD_ONCE: dict[str, str] = {
     "docs/templates/ai-starters/next-actions.md": "ai/next-actions.md",
     "docs/templates/ai-starters/open-questions.md": "ai/open-questions.md",
     "docs/templates/STANDARDS-CHECKLIST.md.template": "docs/STANDARDS-CHECKLIST.md",
+    # Universal-core docs the adopter owns after seeding (templates carry author
+    # guidance; the folder READMEs orient the decisions/discovery/rfcs trees).
+    "docs/templates/overview-template.md": "docs/00-overview.md",
+    "docs/templates/glossary-template.md": "docs/10-glossary.md",
+    "docs/templates/decisions-readme-template.md": "docs/decisions/README.md",
+    "docs/discovery/README.md": "docs/discovery/README.md",
+    "docs/rfcs/README.md": "docs/rfcs/README.md",
 }
 
 # Scaffold-once destinations whose PROFILE_PLACEHOLDER must be substituted at init.

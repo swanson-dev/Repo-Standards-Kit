@@ -38,6 +38,8 @@ packages = ["src/standards"]
 [tool.hatch.build.targets.wheel.force-include]
 "docs/templates" = "standards/_payload/docs/templates"
 "docs/STANDARDS.md" = "standards/_payload/docs/STANDARDS.md"
+"docs/discovery/README.md" = "standards/_payload/docs/discovery/README.md"
+"docs/rfcs/README.md" = "standards/_payload/docs/rfcs/README.md"
 "scripts" = "standards/_payload/scripts"
 ".github/workflows/repo-standards.yml" = "standards/_payload/.github/workflows/repo-standards.yml"
 ".github/prompts" = "standards/_payload/.github/prompts"

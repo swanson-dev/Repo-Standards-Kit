@@ -1,6 +1,7 @@
 """`standards init` — vendor the kit into a target repo and write the marker."""
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
 
@@ -11,6 +12,47 @@ from standards.marker import MARKER_NAME, read_marker, sha256_file, write_marker
 from standards.payload import payload_root
 
 PROFILE_PLACEHOLDER = "<application | library | infra | data>"
+
+_LEADING_COMMENT_RE = re.compile(r"\A\s*<!--.*?-->\s*", re.DOTALL)
+
+
+def _stamp_ai_starter(content: str, adopted: str) -> str:
+    """Make a scaffolded ai/ file pass the freshness check on day one.
+
+    The starters lead with an HTML comment, which hides the frontmatter from the
+    `^---` parser, and carry placeholder dates. Strip the comment and stamp the
+    adopted date so `last_updated:` / `written:` are real, parseable, and fresh.
+    """
+    content = _LEADING_COMMENT_RE.sub("", content, count=1)
+    content = content.replace("last_updated: YYYY-MM-DD", f"last_updated: {adopted}")
+    content = content.replace(
+        "written: YYYY-MM-DDTHH:MM:SS-05:00", f"written: {adopted}"
+    )
+    return content
+
+
+def _fill_checklist(content: str, *, profile: str, adopted: str, repo_name: str) -> str:
+    """Seed the checklist so a freshly adopted repo is CI-green.
+
+    Tick the universal-core boxes (init provides those files) and fill the header
+    metadata. Profile-required/expected rows stay `<placeholder>` (the waiver check
+    skips them) for the adopter to fill from docs/STANDARDS.md.
+    """
+    content = content.replace(PROFILE_PLACEHOLDER, profile)
+    content = content.replace("# Standards Checklist — <repo-name>",
+                              f"# Standards Checklist — {repo_name}")
+    content = content.replace("**Kit version adopted:** <e.g. 0.1.0>",
+                              f"**Kit version adopted:** {__version__}")
+    content = content.replace("**Last reviewed:** YYYY-MM-DD by <name>",
+                              f"**Last reviewed:** {adopted} by standards init")
+    out, in_core = [], False
+    for line in content.splitlines(keepends=True):
+        if line.lstrip().startswith("## "):
+            in_core = line.lstrip()[3:].strip().lower().startswith("universal core")
+        if in_core:
+            line = line.replace("- [ ] ", "- [x] ", 1)
+        out.append(line)
+    return "".join(out)
 
 
 def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -> dict:
@@ -72,14 +114,20 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
         else:  # kit-tracked
             tracked[rel] = sha256_file(dest)
 
-    # Scaffold-once: copy source template -> target path only if absent.
+    # Scaffold-once: copy source template -> target path only if absent. Seed each
+    # so a freshly adopted repo is CI-green (ADR-0012 / Slice 5): tick the checklist
+    # core boxes, stamp the ai/ dates.
+    repo_name = target.resolve().name
     for src_rel, dest_rel in SCAFFOLD_ONCE.items():
         dest = target / dest_rel
         if dest.exists():
             continue
         content = (src_root / src_rel).read_text(encoding="utf-8")
         if dest_rel in PROFILE_TEMPLATED:
-            content = content.replace(PROFILE_PLACEHOLDER, profile)
+            content = _fill_checklist(content, profile=profile, adopted=adopted,
+                                      repo_name=repo_name)
+        elif dest_rel.startswith("ai/"):
+            content = _stamp_ai_starter(content, adopted)
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(content, encoding="utf-8")
 
