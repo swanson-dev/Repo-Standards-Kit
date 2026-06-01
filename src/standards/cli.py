@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import argparse
+import subprocess
 import sys
 from datetime import date
 from pathlib import Path
 
 from standards.__about__ import __version__
 from standards.init import run_init
+from standards.payload import payload_root
 from standards.update import run_update
 
 PROFILES = ["application", "library", "infra", "data"]
@@ -28,6 +30,9 @@ def main(argv: list[str] | None = None) -> int:
     p_update.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
     p_update.add_argument("--dry-run", action="store_true",
                           help="Preview changes without writing anything.")
+
+    p_check = sub.add_parser("check", help="Run the standards check against a repo.")
+    p_check.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
 
     args = parser.parse_args(argv)
 
@@ -56,6 +61,17 @@ def main(argv: list[str] | None = None) -> int:
                   f"{__version__}): " + ", ".join(report["conflicts"]), file=sys.stderr)
         print("Run `python scripts/standards-check/check.py` to re-verify.")
         return 0
+
+    if args.command == "check":
+        # The check modules ship as payload data (not importable from the wheel),
+        # so locate the bundled check.py and run it against the target. It detects
+        # the repo root from the target and honors the target's severity overrides
+        # (ADR-0011).
+        check_py = payload_root() / "scripts" / "standards-check" / "check.py"
+        if not check_py.is_file():
+            print(f"error: bundled check not found at {check_py}", file=sys.stderr)
+            return 2
+        return subprocess.run([sys.executable, str(check_py), str(args.target)]).returncode
 
     return 1
 

@@ -40,5 +40,6 @@ If a decision is the result of an RFC, the RFC's `Follow-ups → ADR to write` f
 | [0009](./0009-distribute-the-kit-as-a-pypi-standards-cli-with-vendored-copy-sync.md) | Distribute the kit as a PyPI `standards` CLI with vendored-copy sync |
 | [0010](./0010-managed-region-sentinels-for-partially-kit-owned-files.md) | Managed-region sentinels for partially kit-owned files |
 | [0011](./0011-publish-to-pypi-via-github-actions-trusted-publishing.md) | Publish to PyPI via GitHub Actions Trusted Publishing |
+| [0012](./0012-expose-standards-check-by-subprocessing-the-bundled-check.md) | Expose standards check by subprocessing the bundled check |
 
 (Index is maintained manually for now; Slice 4 may automate it.)
