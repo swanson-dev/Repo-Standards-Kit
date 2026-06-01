@@ -6,6 +6,14 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.12.0] - 2026-06-01
+
+### Changed
+- `README.md` — added Installation (`pipx`/`uvx`/`pip`) and a CLI Quickstart
+  (`init`/`adopt`/`check`/`update`); replaced the manual-only adoption section with
+  the CLI flow; refreshed the stale header and roadmap (Slices 1–6 shipped). The
+  README is the PyPI long-description, so this release refreshes the package page.
+
 ## [0.11.0] - 2026-06-01
 
 ### Added
@@ -186,6 +194,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.12.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.12.0
 [0.11.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.11.0
 [0.10.0]: https://example.invalid/releases/tag/v0.10.0
 [0.9.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.9.0
