@@ -33,13 +33,14 @@ last_updated_by: swanson-dev
   - Handoff freshness tightened 7→5 days (warning); louder Stop-hook nudge with a staleness trigger.
   - New `/standards-check` skill (Claude + Copilot), skill templates, and an `## Available skills` index in `AGENTS.md`.
   - 23/23 test suites green; standards-check 0/0; version coherence OK at 0.9.0.
+- **Discovery capture (v0.14.0).** `/capture-discovery` turns raw intake (PDFs/JSON/drafts dropped in the gitignored `docs/discovery/{meetings,requirements,use-cases,notes}/` folders) into tracked markdown notes under `docs/discovery/captured/`. `init`/`adopt` now scaffold the intake folders (tracked via `.gitkeep`, contents ignored) + `captured/` + a `docs/discovery/.gitignore`; `promote-discovery` `list` and the `discovery` check now scope to tracked notes and exclude intake. New stdlib `scripts/capture-discovery/`, Claude SKILL + Copilot prompt, SessionStart `--check` hook. ADR-0014 (extends 0005). 26/26 suites; check 0/0; coherence OK at 0.14.0; wheel bundles the new payload.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| **v0.13.0 — add LICENSE** — on branch, not yet merged. Adds an MIT `LICENSE` (© 2026 Swanson Creative Studios) + `license-files` so the wheel bundles it and GitHub recognizes it; prep for making the repo public. | `chore/add-license` | josh | PR → main |
-| _Otherwise idle._ Slices 1–6 shipped; **published to PyPI through v0.12.0** (`standards init`/`adopt`/`check`/`update`; README has install + quickstart). Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | josh | — |
+| **v0.14.0 — discovery capture** — on branch, PR open. New `/capture-discovery` command, intake/`captured/` scaffolding, and gitignore strategy so raw non-markdown intake (PDFs/JSON) becomes tracked markdown notes (ADR-0014). | `feat/discovery-capture` | josh | PR → main |
+| _Otherwise idle._ Slices 1–6 shipped; **published to PyPI through v0.13.0** (now bundles an MIT LICENSE). Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | josh | — |
 
 ## What's blocked
 

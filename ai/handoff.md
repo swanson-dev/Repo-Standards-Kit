@@ -1,5 +1,5 @@
 ---
-written: 2026-06-01T23:30:00-05:00
+written: 2026-06-01T22:30:00-05:00
 written_by: swanson-dev (via claude-code-assistant)
 for: next-session
 ---
@@ -8,48 +8,43 @@ for: next-session
 
 ## TL;DR
 
-**Published to PyPI through v0.12.0.** Slices 5 + 6 shipped (`standards check`, multi-profile
-CI-green `init`, `standards adopt` for existing repos); v0.12.0 added README Installation +
-CLI Quickstart (the README is the PyPI long-description).
+**v0.14.0 — discovery capture** is built and verified on `feat/discovery-capture` (PR open,
+not yet merged). It closes the gap where dropping a PDF/JSON into `docs/discovery/` and running
+`/promote-discovery` reported zero items: there was no *capture* stage and the intake subfolders
+were never scaffolded.
 
-**In flight: v0.13.0 — add LICENSE** on `chore/add-license` (not yet merged). The package
-declared `license = "MIT"` but shipped no license text; added a top-level MIT `LICENSE`
-(© 2026 Swanson Creative Studios) and `license-files = ["LICENSE"]` in pyproject so the wheel
-bundles it (`.dist-info/licenses/LICENSE`, METADATA `License-File`) and GitHub recognizes it.
-Prep for **making the repo public**. Version bump 0.12.0 → 0.13.0 folded into the same branch.
+New flow (ADR-0014): drop raw source into the **gitignored** intake folders
+(`docs/discovery/{meetings,requirements,use-cases,notes}/`) → `/capture-discovery` synthesizes it
+into **tracked** markdown notes under `docs/discovery/captured/` → `/promote-discovery` promotes
+those. "Markdown only" became "markdown only **in version control**": binaries stay local, only
+synthesized markdown is committed.
 
-`standards check` 0/0; 25/25 suites; version coherence OK at 0.13.0; wheel build confirmed the
-LICENSE is bundled.
+`standards check` 0/0; 26/26 suites; version coherence OK at 0.14.0; wheel build confirms the new
+payload (`.gitignore`, `captured/README.md`, 4 `.gitkeep`, `capture-discovery` script) is bundled.
 
 ## Recently touched
 
-- `README.md` — Installation + Quickstart + adoption-via-CLI + refreshed roadmap.
-- `src/standards/__about__.py`, `CHANGELOG.md` (+[0.12.0] section + reflink), `AGENTS.md`
-  (sentinel + Kit-version) → 0.12.0.
-- (v0.11.0, earlier) `standards adopt` in `src/standards/init.py` (`run_adopt`,
-  `_seed_scaffold_once`), `managed.extract_block`/`has_begin_marker`, `cli.py` adopt
-  subcommand, `tests/test_adopt.py`, ADR-0013, RFC-0002 (Concluded).
+- **New:** `scripts/capture-discovery/` (`capture_discovery.py` + tests), `.claude/skills/capture-discovery/SKILL.md`, `.github/prompts/capture-discovery.prompt.md`, ADR-0014, `docs/discovery/.gitignore`, `docs/discovery/captured/README.md`, 4 intake `.gitkeep`.
+- **Scaffolding:** `src/standards/manifest.py` (`SCAFFOLD_ONCE`) + `pyproject.toml` force-include + `tests/test_init.py`/`test_adopt.py`.
+- **Scoped:** `scripts/promote-discovery/promote_discovery.py` + test + README, `scripts/standards-check/checks/discovery.py` + test (both exclude intake folders).
+- **Hook:** `.claude/settings.json` SessionStart now also runs `capture-discovery list --check`.
+- **Docs:** `docs/discovery/README.md`, `02-architecture.md`, `STANDARDS.md`, `AGENTS.md` (skills index + end-of-session contract + version), `10-glossary.md`, `00-overview.md`, `templates/README.md` + both discovery templates (now point at `captured/`), root `README.md`, `CHANGELOG.md`.
 
 ## Open threads
 
-- **Finish the 0.13.0 release:** merge the `chore/add-license` PR → `main`, then
-  `git tag v0.13.0 && git push origin v0.13.0` on the merge commit. The tag fires
-  `release.yml`. Verify PyPI serves 0.13.0 and the wheel bundles the LICENSE.
-- **Making the repo public** (the reason for the LICENSE): before flipping visibility, sanity-
-  check git history for secrets — there are none expected (stdlib-only, no tokens; PyPI uses
-  tokenless Trusted Publishing), but confirm. The `.standards-kit.json`/CI carry no secrets.
-- **Stale merged branches on origin** safe to delete: `feat/slice-5-hardening` (PR #12),
-  `docs/readme-install-and-cli` (PR #13).
-- Releasing pattern (proven for v0.9.0/v0.11.0): release on the PR merge commit; RELEASING.md
-  step 2 (CHANGELOG reflink → real tag) is folded into the PR before tagging.
+- **Finish the 0.14.0 release:** merge the `feat/discovery-capture` PR → `main`, then
+  `git tag v0.14.0 && git push origin v0.14.0` on the merge commit. The tag fires `release.yml`.
+  Verify PyPI serves 0.14.0 and the wheel bundles the discovery payload.
+- The CHANGELOG `[0.14.0]` reflink already points at the real release-tag URL (folded into the PR,
+  per the proven v0.9.0/v0.11.0/v0.13.0 pattern).
+- Stale merged branches on origin safe to delete: `chore/add-license` (PR #14, v0.13.0).
 
 ## Don't do
 
-- Don't forget the CHANGELOG reflink for a new version (RELEASING.md step 2) — it's folded
-  into the release PR, not a separate one.
-- Don't tag off a feature branch — tag the `main` merge commit (matches v0.9.0/v0.11.0).
-- Don't route existing-repo adoption through `init --force` — `adopt` is the non-destructive
-  path (ADR-0013). Don't refactor `checks/` into the package (ADR-0012 chose subprocess).
+- Don't commit raw discovery intake — the `docs/discovery/.gitignore` keeps the folders
+  (`.gitkeep`) but ignores their contents on purpose. Hand-authored notes go in `captured/`, not the intake folders.
+- Don't tag off a feature branch — tag the `main` merge commit (matches v0.9.0/v0.11.0/v0.13.0).
 - Don't run a single `pytest` — `python tools/run_tests.py` is canonical (duplicate
   `test_cli.py` basenames). Keep `from __future__ import annotations` (3.9 matrix).
-- Don't push to `main` directly; don't add runtime deps; don't edit Accepted ADRs (0001–0013).
+- Don't push to `main` directly; don't add runtime deps; don't edit Accepted ADRs (0001–0014).
+- Don't route existing-repo adoption through `init --force` — `adopt` is non-destructive (ADR-0013).
