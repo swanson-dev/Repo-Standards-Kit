@@ -6,6 +6,15 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [Unreleased]
+
+### Changed
+- CI workflows bumped to the Node 24 GitHub Actions majors — `actions/checkout@v6` and
+  `actions/setup-python@v6` (from v4/v5, which run the now-deprecated Node 20) across
+  `repo-standards.yml`, `release.yml`, and `kit-guards.yml`. The bundled `repo-standards.yml`
+  ships to adopters, so `standards update` propagates the fix. `pypa/gh-action-pypi-publish`
+  is a Docker action and unaffected.
+
 ## [0.15.0] - 2026-06-02
 
 ### Changed
