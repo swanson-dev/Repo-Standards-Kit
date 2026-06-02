@@ -6,6 +6,16 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [Unreleased]
+
+### Changed
+- **`/promote-discovery` now defaults to interactive decision-shaping (ADR-0015).** Via an AI agent,
+  promoting a captured note proposes candidate ADR(s)/RFC(s), interviews you for the rationale a
+  template needs (context, drivers, options, the *why*), drafts the Proposed doc(s) via
+  `new-adr`/`new-rfc`, then flips `status: raw → promoted`. The CLI (`promote_discovery.py`) is
+  unchanged — the plain monotonic flip remains the fallback and the hook-safe standard. SKILL +
+  Copilot prompt rewritten; no new code (composes existing scripts).
+
 ## [0.14.1] - 2026-06-01
 
 ### Added

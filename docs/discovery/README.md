@@ -21,8 +21,10 @@ docs/discovery/
    binaries and drafts never enter version control — the "markdown only" constraint holds.
 2. **Run `/capture-discovery`.** The AI reads each source and writes a synthesized markdown note
    into `captured/` with frontmatter (`status: raw`). The raw original stays local.
-3. **Run `/promote-discovery`** when a captured note's content is synthesized into a structured
-   doc — it flips `status: raw → promoted` and sets `promoted_to:`.
+3. **Run `/promote-discovery`** when a captured note holds a decision or open question. Via an AI
+   agent it defaults to *interviewing* you for the rationale an ADR/RFC needs, **drafting** the
+   Proposed doc(s), and then flipping `status: raw → promoted` with `promoted_to:` set (ADR-0015).
+   The plain CLI flip (`promote <note> --to <doc>`) is the fallback for just recording a link.
 
 ## What goes where
 
