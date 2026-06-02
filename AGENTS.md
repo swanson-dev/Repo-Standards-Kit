@@ -72,6 +72,6 @@ This is the **Team Repository Standards Kit** — a versioned set of documentati
 ### Roadmap
 
 The active milestone and forward plan live in
-[`docs/05-implementation-plan.md`](./docs/05-implementation-plan.md). Genuinely-future work
+`docs/05-implementation-plan.md`. Genuinely-future work
 (open an RFC or `ai/open-questions.md` entry before starting): external-link liveness, richer
 doc-freshness reporting, a `new-skill` scaffolder.
