@@ -6,7 +6,7 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
-## [Unreleased]
+## [0.15.0] - 2026-06-02
 
 ### Changed
 - **`/promote-discovery` now defaults to interactive decision-shaping (ADR-0015).** Via an AI agent,
@@ -248,6 +248,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.15.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.15.0
 [0.14.1]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.14.1
 [0.14.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.14.0
 [0.13.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.13.0
