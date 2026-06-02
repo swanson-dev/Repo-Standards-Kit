@@ -8,6 +8,11 @@ include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-po
 
 ## [Unreleased]
 
+### Added
+- `capture-discovery` SKILL + Copilot prompt now document a **PDF fallback** for agents/environments
+  that can't read PDFs directly (Copilot, scripted use): extract text with `pip install pypdf`
+  first, then synthesize. The kit still ships no PDF dependency (ADR-0007) — it's caller's choice.
+
 ### Fixed
 - `standards update` now delivers the discovery intake structure to repos that adopted
   before v0.14.0. The structure (`docs/discovery/.gitignore`, the four intake `.gitkeep`

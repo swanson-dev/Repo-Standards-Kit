@@ -22,6 +22,17 @@ The note lands at `docs/discovery/captured/YYYY-MM-DD-<slug>.md` with `status: r
 **3. Fill the body** of the created note with a faithful synthesis of the source. The script
 does not parse the source — that synthesis is your job.
 
+**Reading PDFs (Copilot / non-Claude agents):** if your agent can't open the source file
+directly, extract its text first, then synthesize from that. The kit ships no PDF dependency by
+design (ADR-0007) — install one only when needed:
+
+```sh
+python -m pip install pypdf
+python -c "from pypdf import PdfReader; print(chr(10).join(p.extract_text() for p in PdfReader(r'<path-to.pdf>').pages))"
+```
+
+Scanned/image PDFs return empty text — those need OCR.
+
 Capture is the stage before promote (ADR-0014). The raw source stays gitignored and local;
 commit only the synthesized `captured/*.md` notes. Later, run `/promote-discovery` to flip a
 note `status: raw → promoted` once its content feeds a structured doc.
