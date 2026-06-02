@@ -36,6 +36,20 @@ recorded in the note's `source:` frontmatter for provenance. The note lands at
 synthesis of the source: key points, decisions, requirements, open questions — in the team's
 engineering language. The script does NOT parse the source; that synthesis is your job.
 
+## Reading binary sources (PDF fallback)
+
+Claude reads PDFs and most documents directly via its file tools — no extra tooling needed. The
+kit ships **no** PDF dependency by design (ADR-0007, stdlib-only); extraction tooling is the
+caller's choice, used only when direct reading isn't possible (a scanned/image-only PDF, an
+unsupported format, or a non-Claude agent like Copilot). To dump text first, then synthesize:
+
+```sh
+python -m pip install pypdf
+python -c "from pypdf import PdfReader; print(chr(10).join(p.extract_text() for p in PdfReader(r'<path-to.pdf>').pages))"
+```
+
+Scanned/image PDFs return empty text from `extract_text()` — those need OCR (or just let Claude read the file).
+
 ## After scaffolding
 
 - The raw source stays where it is (gitignored). Do not commit it.

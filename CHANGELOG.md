@@ -6,6 +6,21 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.14.1] - 2026-06-01
+
+### Added
+- `capture-discovery` SKILL + Copilot prompt now document a **PDF fallback** for agents/environments
+  that can't read PDFs directly (Copilot, scripted use): extract text with `pip install pypdf`
+  first, then synthesize. The kit still ships no PDF dependency (ADR-0007) — it's caller's choice.
+
+### Fixed
+- `standards update` now delivers the discovery intake structure to repos that adopted
+  before v0.14.0. The structure (`docs/discovery/.gitignore`, the four intake `.gitkeep`
+  anchors, and `captured/README.md`) is reclassified from scaffold-once to **kit-tracked**,
+  so `update` creates it when absent (scaffold-once files are intentionally never delivered
+  on update). The top-level `docs/discovery/README.md` stays scaffold-once. Existing local
+  edits to these files are preserved (conflict → `.kit-<version>` sidecar), per ADR-0010.
+
 ## [0.14.0] - 2026-06-01
 
 ### Added
@@ -223,6 +238,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.14.1]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.14.1
 [0.14.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.14.0
 [0.13.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.13.0
 [0.12.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.12.0

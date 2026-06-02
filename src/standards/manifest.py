@@ -32,6 +32,16 @@ PAYLOAD_FILES: tuple[str, ...] = (
     ".github/pull_request_template.md",
     "AGENTS.md",
     "CLAUDE.md",
+    # Discovery intake structure (ADR-0014). Kit-tracked, NOT scaffold-once: it is
+    # kit-owned structure (a gitignore + .gitkeep folder anchors + the captured/ output
+    # folder), so `update` delivers it to repos that adopted before it existed. The
+    # top-level docs/discovery/README.md stays scaffold-once (adopter-owned prose).
+    "docs/discovery/.gitignore",
+    "docs/discovery/captured/README.md",
+    "docs/discovery/meetings/.gitkeep",
+    "docs/discovery/requirements/.gitkeep",
+    "docs/discovery/use-cases/.gitkeep",
+    "docs/discovery/notes/.gitkeep",
 )
 
 # Files the kit partially owns: a single managed block is kit-owned, the rest is
@@ -56,15 +66,6 @@ SCAFFOLD_ONCE: dict[str, str] = {
     "docs/templates/decisions-readme-template.md": "docs/decisions/README.md",
     "docs/discovery/README.md": "docs/discovery/README.md",
     "docs/rfcs/README.md": "docs/rfcs/README.md",
-    # Discovery intake scaffold (ADR-0014): gitignore keeps the intake folders but
-    # ignores their contents; .gitkeep makes the (otherwise empty) folders trackable;
-    # captured/ holds the synthesized markdown that /capture-discovery produces.
-    "docs/discovery/.gitignore": "docs/discovery/.gitignore",
-    "docs/discovery/captured/README.md": "docs/discovery/captured/README.md",
-    "docs/discovery/meetings/.gitkeep": "docs/discovery/meetings/.gitkeep",
-    "docs/discovery/requirements/.gitkeep": "docs/discovery/requirements/.gitkeep",
-    "docs/discovery/use-cases/.gitkeep": "docs/discovery/use-cases/.gitkeep",
-    "docs/discovery/notes/.gitkeep": "docs/discovery/notes/.gitkeep",
 }
 
 # Scaffold-once destinations whose PROFILE_PLACEHOLDER must be substituted at init.
