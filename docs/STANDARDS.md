@@ -1,7 +1,7 @@
 # Team Repository Standards
 
-**Kit version:** 0.1.0
-**Slice:** 1 (Templates + standards content)
+**Kit version:** 0.16.0
+**Status:** Slices 1–6 shipped; roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
 ## Purpose and precedence

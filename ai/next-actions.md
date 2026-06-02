@@ -1,14 +1,17 @@
 ---
-last_updated: 2026-06-01
+last_updated: 2026-06-02
 ---
 
 # Next Actions
 
-1. **Land v0.14.0 (discovery capture)** — merge the `feat/discovery-capture` PR → `main`, then
-   `git tag v0.14.0 && git push origin v0.14.0` on the merge commit (fires `release.yml`). Verify
-   PyPI serves 0.14.0 and the wheel bundles the discovery payload.
-2. **Walk a downstream repo through capture** — drop a real PDF/JSON into a freshly adopted repo's
-   discovery intake, run `/capture-discovery` → `/promote-discovery`, and capture any friction as
-   template/ADR adjustments.
+1. **Review + merge PR #18 (milestone roadmap)** — `feat/roadmap-milestones` → `main`. Adds the
+   template `## Roadmap` section + dogfood `docs/05-implementation-plan.md` (RFC-0003, ADR-0016).
+   It bundles the unrelated Node 24 CI chore (`6497ffd`); split it onto its own branch first if a
+   clean, atomic PR is wanted.
+2. **Cut v0.16.0** — after merge: bump `src/standards/__about__.py` → `0.16.0`, promote CHANGELOG
+   `[Unreleased]` → `[0.16.0]`, bump the `AGENTS.md` Kit-version line + agents-core sentinel, and
+   also bump the (coherence-unguarded) `docs/STANDARDS.md` + `docs/STANDARDS-CHECKLIST.md` version
+   strings. Run `python tools/check_version_coherence.py`, then `git tag v0.16.0` on the merge
+   commit (fires `release.yml`); verify PyPI serves 0.16.0.
 3. **Backlog (unscheduled):** external-link liveness check, doc-freshness reporting, a `new-skill`
    scaffolder. Pick one when starting the next slice.

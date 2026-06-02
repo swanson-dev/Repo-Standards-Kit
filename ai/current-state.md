@@ -1,6 +1,6 @@
 ---
-last_updated: 2026-06-01
-last_updated_by: swanson-dev
+last_updated: 2026-06-02
+last_updated_by: swanson-dev (via claude-code-assistant)
 ---
 
 # Current State
@@ -34,13 +34,15 @@ last_updated_by: swanson-dev
   - New `/standards-check` skill (Claude + Copilot), skill templates, and an `## Available skills` index in `AGENTS.md`.
   - 23/23 test suites green; standards-check 0/0; version coherence OK at 0.9.0.
 - **Discovery capture (v0.14.0).** `/capture-discovery` turns raw intake (PDFs/JSON/drafts dropped in the gitignored `docs/discovery/{meetings,requirements,use-cases,notes}/` folders) into tracked markdown notes under `docs/discovery/captured/`. `init`/`adopt` now scaffold the intake folders (tracked via `.gitkeep`, contents ignored) + `captured/` + a `docs/discovery/.gitignore`; `promote-discovery` `list` and the `discovery` check now scope to tracked notes and exclude intake. New stdlib `scripts/capture-discovery/`, Claude SKILL + Copilot prompt, SessionStart `--check` hook. ADR-0014 (extends 0005). 26/26 suites; check 0/0; coherence OK at 0.14.0; wheel bundles the new payload.
+- **PDF fallback doc (v0.14.1).** `capture-discovery` SKILL + Copilot prompt document a `pypdf` extraction fallback for agents that can't read PDFs directly; the kit still ships no PDF dependency (ADR-0007).
+- **Interactive promote (v0.15.0).** `/promote-discovery` defaults to interactive decision-shaping — proposes candidate ADR(s)/RFC(s), interviews for rationale, drafts the Proposed doc(s), then flips `status: raw → promoted`; the CLI stays a plain monotonic flip (ADR-0015). Published to PyPI through **v0.15.0**.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| **v0.14.0 — discovery capture** — on branch, PR open. New `/capture-discovery` command, intake/`captured/` scaffolding, and gitignore strategy so raw non-markdown intake (PDFs/JSON) becomes tracked markdown notes (ADR-0014). | `feat/discovery-capture` | josh | PR → main |
-| _Otherwise idle._ Slices 1–6 shipped; **published to PyPI through v0.13.0** (now bundles an MIT LICENSE). Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | josh | — |
+| **Milestone roadmap** — built + verified, PR open. Adds a `## Roadmap` section to the `05-implementation-plan` template (status vocab + exactly-one-`active` invariant) and dogfoods it in `docs/05-implementation-plan.md`; README/AGENTS point at it (RFC-0003, ADR-0016). Bundles the Node 24 CI chore. v0.16.0 release cut deferred. | `feat/roadmap-milestones` (PR #18) | swanson-dev | PR → main → cut v0.16.0 |
+| _Otherwise idle._ Slices 1–6 shipped; **published to PyPI through v0.15.0**. Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | swanson-dev | — |
 
 ## What's blocked
 

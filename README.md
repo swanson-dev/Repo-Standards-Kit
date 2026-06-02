@@ -82,13 +82,8 @@ Keep documentation lean but scalable. Add durable docs when they improve onboard
 
 ## Roadmap
 
-| Slice | Scope | Status |
-|---|---|---|
-| 1 | Templates + standards content | Shipped |
-| 2 | AI Skills + Hooks (Claude Code, Copilot) | Shipped |
-| 3 | Distribution — the `standards` CLI (`init` / `update`), PyPI, 3-class sync | Shipped |
-| 4 | Deeper CI enforcement (content/link/placeholder lint, parity + coherence guards) | Shipped |
-| 5 | Hardening — `standards check` subcommand + multi-profile CI-green `init` | Shipped |
-| 6 | `standards adopt` — non-destructive adoption onto existing repos | Shipped |
-
-The design rationale is captured as ADRs under [`docs/decisions/`](./docs/decisions/) and investigations under [`docs/rfcs/`](./docs/rfcs/).
+All six foundational slices are **shipped** (through v0.15.0). The living roadmap — the active
+milestone and what's planned next — and the full shipped-slice history now live in
+[`docs/05-implementation-plan.md`](./docs/05-implementation-plan.md). Design rationale is
+captured as ADRs under [`docs/decisions/`](./docs/decisions/) and investigations under
+[`docs/rfcs/`](./docs/rfcs/).
