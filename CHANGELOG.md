@@ -8,6 +8,8 @@ include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-po
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-06-02
+
 ### Added
 - **Milestone roadmap in `docs/05-implementation-plan.md` (RFC-0003, ADR-0016).** The
   implementation-plan template gains a `## Roadmap` table (status `planned | active | shipped |

@@ -1,7 +1,7 @@
 # Standards Checklist — Repo Standards Kit
 
 **Profile:** library
-**Kit version adopted:** 0.15.0
+**Kit version adopted:** 0.16.0
 **Last reviewed:** 2026-06-02 by swanson-dev
 
 ## Universal core (Required for all profiles)
