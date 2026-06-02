@@ -1,6 +1,9 @@
 <!--
 Discovery: use case (soft-landing template, NOT required structure)
-Filename: docs/discovery/use-cases/YYYY-MM-DD-source-topic.md
+Filename: docs/discovery/captured/YYYY-MM-DD-source-topic.md
+A hand-authored note is already-synthesized markdown, so it lives in captured/ (tracked).
+Raw stakeholder docs go in the gitignored docs/discovery/use-cases/ intake folder and are
+turned into a captured/ note by /capture-discovery. See ADR-0014.
 Use cases are often stakeholder-authored; preserve their language even when it doesn't
 match engineering terms. The glossary (docs/10-glossary.md) is the place to reconcile.
 -->

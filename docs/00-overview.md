@@ -26,7 +26,7 @@ Slice 1 (in progress, version 0.1.0) covers templates and standards content. Sli
 | [`versioning-policy.md`](./versioning-policy.md) | You're pinning a kit version in your repo and want the deprecation policy. |
 | [`templates/`](./templates/) | You're authoring a new artifact (ADR, RFC, numbered doc) and need a starter. |
 | [`decisions/`](./decisions/) | You want to know **why** the kit is shaped this way (ADRs 0001–0006). |
-| [`discovery/`](./discovery/) | Raw stakeholder material (none in the kit yet; the folder exists for downstream repos to model). |
+| [`discovery/`](./discovery/) | Raw stakeholder material: gitignored intake folders + `captured/` synthesized notes. Captured via `/capture-discovery` (ADR-0014). |
 | [`rfcs/`](./rfcs/) | Open or concluded technical investigations (none in the kit yet). |
 
 For the AI session contract, read [`../AGENTS.md`](../AGENTS.md) first.

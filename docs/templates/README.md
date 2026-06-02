@@ -14,6 +14,8 @@ A future Skill (Slice 2) will automate the copy + parametrize step.
 - [`discovery-meeting-notes.md`](./discovery-meeting-notes.md)
 - [`discovery-use-case.md`](./discovery-use-case.md)
 
+Hand-authored discovery notes from these templates are tracked markdown, so they live in `docs/discovery/captured/`. Raw source drops (PDFs, JSON) go in the gitignored intake folders and are synthesized into `captured/` by `/capture-discovery` (ADR-0014).
+
 ### Numbered-doc skeletons (`docs/00–10`)
 - `overview-template.md` → `docs/00-overview.md` (seeded automatically at adoption).
 - [`prd-template.md`](./prd-template.md) → `docs/01-prd.md`

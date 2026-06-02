@@ -57,11 +57,11 @@ Pick the profile that fits the repo: `application` | `library` | `infra` | `data
 3. A defined contract for the **`ai/` directory** — four files that carry session-to-session context.
 4. **MADR 3.0 ADRs** with a defined lifecycle.
 5. **RFCs** for time-boxed technical investigations (separate from raw discovery intake).
-6. Lightweight conventions for **`docs/discovery/`** — meeting notes, requirement drafts, use cases — with a traceability flow to durable docs.
+6. Lightweight conventions for **`docs/discovery/`** — drop raw stakeholder material (incl. PDFs/JSON) into gitignored intake folders, **capture** it into tracked markdown notes, then promote to durable docs.
 7. A **PR template** that asks the right questions about documentation, ADRs, AI context, and operational impact.
 8. A **`STANDARDS-CHECKLIST.md`** with a waiver mechanism so absences are explicit, not silent.
 9. A **CI check** (`standards check`) that enforces the structural minimum plus content-level lints.
-10. **AI Skills + hooks** (Claude Code + Copilot) for ADRs, RFCs, discovery promotion, handoffs, and running the check.
+10. **AI Skills + hooks** (Claude Code + Copilot) for ADRs, RFCs, discovery capture + promotion, handoffs, and running the check.
 
 ## The information flow
 

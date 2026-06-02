@@ -6,6 +6,7 @@ Kit-specific terms. A term belongs here if its meaning is non-obvious to a smart
 |---|---|---|
 | **ADR** | Architecture Decision Record. Immutable record of a material technical decision, MADR 3.0 format. | `docs/STANDARDS.md` § "ADRs — MADR 3.0" |
 | **AGENTS.md pattern** | Single root `AGENTS.md` as canonical agent contract; thin tool-specific pointers (`CLAUDE.md`, `.github/copilot-instructions.md`) reference it. | ADR [0006](./decisions/0006-adopt-agents-md-pattern.md) |
+| **Capture** | Turning raw discovery source material (PDFs, JSON, drafts) in the gitignored intake folders into a tracked markdown note under `docs/discovery/captured/`. Done by `/capture-discovery`. The step before promotion. | ADR [0014](./decisions/0014-capture-stage-for-discovery-gitignore-raw-intake-track-synthesized-markdown.md) |
 | **Expected** | Tier in the profile matrix: doc present by default; absence requires an explicit waiver in `STANDARDS-CHECKLIST.md`. | `docs/STANDARDS.md` § "Tier semantics" |
 | **Handoff** | The most ephemeral `ai/` file. Written at end of session, read first by the next session. Stale after 7 days. | `docs/STANDARDS.md` § "The ai/ directory contract" |
 | **Kit version** | SemVer-tagged release of this kit. Each downstream repo pins one in its local `docs/STANDARDS.md`. | [`versioning-policy.md`](./versioning-policy.md) |
