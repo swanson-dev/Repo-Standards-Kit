@@ -39,10 +39,10 @@
 - [x] `docs/02-architecture.md` — describes the kit's conceptual architecture (information flow, artifact lifecycles).
 - [x] `docs/08-security-and-compliance.md` — minimal but present (kit has no runtime, no secrets, no PII; documents the threat model boundary).
 
-### Optional (not created)
+### Optional
 
 - [ ] `docs/01-prd.md` — Optional for library profile; the kit's "PRD" is the README + STANDARDS.md.
-- [ ] `docs/05-implementation-plan.md` — Optional for library profile; the slice plans live in `C:\Users\CodeAssassin\.claude\plans\` and `docs/rfcs/`.
+- [x] `docs/05-implementation-plan.md` — present: holds the kit's milestone roadmap + active-milestone slices (ADR-0016). Detailed working plans still live in `docs/rfcs/` and the local plans dir.
 
 ### N/A for library profile (not created)
 
