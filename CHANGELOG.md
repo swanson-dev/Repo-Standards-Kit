@@ -8,6 +8,14 @@ include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-po
 
 ## [Unreleased]
 
+### Added
+- **Milestone roadmap in `docs/05-implementation-plan.md` (RFC-0003, ADR-0016).** The
+  implementation-plan template gains a `## Roadmap` table (status `planned | active | shipped |
+  dropped`, exactly-one-`active` invariant) above `## Approach`, and the existing `## Slices`
+  section is scoped to the active milestone. It ships to adopters via the bundled template
+  (`standards update` propagates it). The kit now dogfoods its own roadmap in
+  `docs/05-implementation-plan.md`; the README table is condensed to a pointer.
+
 ### Changed
 - CI workflows bumped to the Node 24 GitHub Actions majors — `actions/checkout@v6` and
   `actions/setup-python@v6` (from v4/v5, which run the now-deprecated Node 20) across
