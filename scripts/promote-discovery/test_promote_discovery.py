@@ -52,6 +52,7 @@ def make_git_repo(tmp: Path) -> Path:
     subprocess.run(["git", "config", "user.name", "Test User"], cwd=str(tmp), check=True)
     (tmp / "docs" / "discovery" / "meetings").mkdir(parents=True)
     (tmp / "docs" / "discovery" / "use-cases").mkdir(parents=True)
+    (tmp / "docs" / "discovery" / "captured").mkdir(parents=True)
     (tmp / "docs" / "discovery" / "README.md").write_text("# discovery\n", encoding="utf-8")
     return tmp
 
@@ -81,8 +82,8 @@ class ListTests(unittest.TestCase):
     def test_lists_only_raw_items(self):
         with tempfile.TemporaryDirectory() as d:
             tmp = make_git_repo(Path(d))
-            write_discovery(tmp, "docs/discovery/meetings/2026-05-12-kickoff.md", DISCOVERY_FILE_RAW)
-            write_discovery(tmp, "docs/discovery/meetings/2026-05-13-review.md", DISCOVERY_FILE_PROMOTED)
+            write_discovery(tmp, "docs/discovery/captured/2026-05-12-kickoff.md", DISCOVERY_FILE_RAW)
+            write_discovery(tmp, "docs/discovery/captured/2026-05-13-review.md", DISCOVERY_FILE_PROMOTED)
             result = run("list", cwd=tmp)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("1 raw discovery items", result.stdout)
@@ -95,8 +96,8 @@ class ListTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             tmp = make_git_repo(Path(d))
             # README.md created by make_git_repo
-            write_discovery(tmp, "docs/discovery/notes/random.md", DISCOVERY_FILE_NO_FRONTMATTER)
-            write_discovery(tmp, "docs/discovery/meetings/real-raw.md", DISCOVERY_FILE_RAW)
+            write_discovery(tmp, "docs/discovery/captured/random.md", DISCOVERY_FILE_NO_FRONTMATTER)
+            write_discovery(tmp, "docs/discovery/captured/real-raw.md", DISCOVERY_FILE_RAW)
             result = run("list", cwd=tmp)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("1 raw discovery items", result.stdout)
@@ -109,7 +110,7 @@ class ListTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             tmp = make_git_repo(Path(d))
             write_discovery(tmp, "docs/discovery/templates/example-raw.md", DISCOVERY_FILE_RAW)
-            write_discovery(tmp, "docs/discovery/meetings/real-raw.md", DISCOVERY_FILE_RAW)
+            write_discovery(tmp, "docs/discovery/captured/real-raw.md", DISCOVERY_FILE_RAW)
             result = run("list", cwd=tmp)
             self.assertEqual(result.returncode, 0, result.stderr)
             # Only the real raw item should be listed; the templates subtree file is skipped.
@@ -117,6 +118,19 @@ class ListTests(unittest.TestCase):
             self.assertIn("real-raw.md", result.stdout)
             self.assertNotIn("example-raw.md", result.stdout)
             self.assertNotIn("templates", result.stdout)
+
+    def test_skips_intake_subfolders(self):
+        # ADR-0014: raw intake folders are gitignored source. list operates on tracked
+        # notes (captured/), not on un-captured intake drafts.
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_git_repo(Path(d))
+            write_discovery(tmp, "docs/discovery/meetings/draft.md", DISCOVERY_FILE_RAW)
+            write_discovery(tmp, "docs/discovery/captured/real.md", DISCOVERY_FILE_RAW)
+            result = run("list", cwd=tmp)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("1 raw discovery items", result.stdout)
+            self.assertIn("real.md", result.stdout)
+            self.assertNotIn("draft.md", result.stdout)
 
     def test_non_git_cwd_exits_2(self):
         with tempfile.TemporaryDirectory() as d:
@@ -137,8 +151,8 @@ class CheckTests(unittest.TestCase):
     def test_advisory_when_raw_items_present(self):
         with tempfile.TemporaryDirectory() as d:
             tmp = make_git_repo(Path(d))
-            write_discovery(tmp, "docs/discovery/meetings/a.md", DISCOVERY_FILE_RAW)
-            write_discovery(tmp, "docs/discovery/meetings/b.md", DISCOVERY_FILE_RAW)
+            write_discovery(tmp, "docs/discovery/captured/a.md", DISCOVERY_FILE_RAW)
+            write_discovery(tmp, "docs/discovery/captured/b.md", DISCOVERY_FILE_RAW)
             result = run("list", "--check", cwd=tmp)
             self.assertEqual(result.returncode, 0)
             self.assertIn("promote-discovery:", result.stderr.lower())

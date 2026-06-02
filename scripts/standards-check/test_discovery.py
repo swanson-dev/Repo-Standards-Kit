@@ -65,6 +65,24 @@ class DiscoveryCheckTests(unittest.TestCase):
             _disc(root, "2026-05-01-acme.md", "raw")
             self.assertEqual(run(root, _ctx(root)), [])
 
+    def test_intake_subfolder_items_are_ignored(self):
+        # ADR-0014: raw intake folders are gitignored source, not tracked promoted notes,
+        # so the promoted_to integrity check must skip them.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            for kind in ("meetings", "requirements", "use-cases", "notes"):
+                _disc(root, f"{kind}/2026-05-01-acme.md", "promoted", "docs/nope.md")
+            self.assertEqual(run(root, _ctx(root)), [])
+
+    def test_captured_subfolder_items_are_checked(self):
+        # Notes under captured/ ARE tracked and subject to the integrity check.
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            _disc(root, "captured/2026-05-01-acme.md", "promoted", "docs/nope.md")
+            findings = run(root, _ctx(root))
+            self.assertEqual(len(findings), 1)
+            self.assertIn("does not exist", findings[0].message)
+
     def test_readme_and_missing_dir_are_silent(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)

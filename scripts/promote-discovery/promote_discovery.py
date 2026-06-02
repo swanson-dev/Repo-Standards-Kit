@@ -25,6 +25,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from _doc_lib.helpers import RepoRootNotFound, repo_root  # noqa: E402
 
 DISCOVERY_REL = Path("docs") / "discovery"
+# Raw intake folders (ADR-0014) hold gitignored source material, not tracked discovery
+# notes. `list` operates on the tracked notes (captured/ + any top-level item), so these
+# are excluded from the raw-item inventory.
+INTAKE_KINDS = ("meetings", "requirements", "use-cases", "notes")
 LEADING_HTML_COMMENT_RE = re.compile(r"\A\s*<!--.*?-->\s*", re.DOTALL)
 FRONTMATTER_OPEN_RE = re.compile(r"\A---\n(.*?)\n---\n", re.DOTALL)
 STATUS_LINE_RE = re.compile(r"(?m)^(status:\s+)(\S+)(.*?)$")
@@ -64,7 +68,8 @@ def parse_frontmatter(text: str) -> dict[str, str] | None:
 
 
 def iter_discovery_files(root: Path) -> list[Path]:
-    """Walk docs/discovery/**/*.md, excluding README.md and any templates subtree."""
+    """Walk docs/discovery/**/*.md tracked notes, excluding README.md, the templates
+    subtree, and the gitignored raw-intake folders (ADR-0014)."""
     base = root / DISCOVERY_REL
     if not base.exists():
         return []
@@ -73,6 +78,9 @@ def iter_discovery_files(root: Path) -> list[Path]:
         if path.name == "README.md":
             continue
         if "templates" in path.parts:
+            continue
+        rel_parts = path.relative_to(base).parts
+        if rel_parts and rel_parts[0] in INTAKE_KINDS:
             continue
         files.append(path)
     return files
