@@ -43,5 +43,6 @@ If a decision is the result of an RFC, the RFC's `Follow-ups → ADR to write` f
 | [0012](./0012-expose-standards-check-by-subprocessing-the-bundled-check.md) | Expose standards check by subprocessing the bundled check |
 | [0013](./0013-standards-adopt-for-non-destructive-adoption-onto-existing-repos.md) | standards adopt for non-destructive adoption onto existing repos |
 | [0014](./0014-capture-stage-for-discovery-gitignore-raw-intake-track-synthesized-markdown.md) | Capture stage for discovery: gitignore raw intake, track synthesized markdown |
+| [0015](./0015-promote-discovery-defaults-to-interactive-decision-shaping-the-cli-stays-a-plain-flip.md) | promote-discovery defaults to interactive decision-shaping; the CLI stays a plain flip |
 
 (Index is maintained manually for now; Slice 4 may automate it.)

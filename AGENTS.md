@@ -1,9 +1,9 @@
 # AGENTS.md
 
-<!-- BEGIN kit-managed: agents-core (v0.14.1) -->
+<!-- BEGIN kit-managed: agents-core (v0.15.0) -->
 Single source of truth for AI agents working in this repository. Tool-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) are thin pointers to this document.
 
-- Kit version: **0.14.1**
+- Kit version: **0.15.0**
 
 ## Canonical reading order
 
@@ -29,7 +29,7 @@ Before you finish a session that produced meaningful change:
 - [ ] If you made a material technical decision, write an ADR in `docs/decisions/` (MADR 3.0 format — see `docs/templates/adr-template.md`).
 - [ ] If you ran a time-boxed investigation, write or conclude an RFC in `docs/rfcs/<NNNN-slug>/rfc.md`.
 - [ ] If raw source material (PDFs, JSON, drafts) landed in the `docs/discovery/` intake folders, run `/capture-discovery` to synthesize it into tracked `docs/discovery/captured/` notes (the raw originals stay gitignored).
-- [ ] If you used a captured discovery note's content in a structured doc, flip its `status: raw` → `promoted` and set `promoted_to:`.
+- [ ] To turn a captured discovery note into a decision/investigation, run `/promote-discovery` — via an agent it interviews you, drafts the Proposed ADR/RFC, and flips `status: raw` → `promoted` with `promoted_to:` set (ADR-0015). For a note whose content already went into a doc, the plain flip just records the link.
 - [ ] Run `/standards-check` (or `python scripts/standards-check/check.py`) and fix any findings before ending a session that touched docs.
 
 ## How to author each artifact type
