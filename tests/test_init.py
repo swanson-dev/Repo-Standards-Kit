@@ -38,6 +38,21 @@ class InitTests(unittest.TestCase):
                 (target / "ai" / "current-state.md").read_text(encoding="utf-8"), "MINE\n"
             )
 
+    def test_scaffolds_discovery_intake_structure(self):
+        # ADR-0014: init must scaffold the discovery intake subfolders (tracked via
+        # .gitkeep, contents gitignored), a captured/ output folder, and a
+        # docs/discovery/.gitignore that keeps the folders but ignores their contents.
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="library", adopted="2026-05-29")
+            disc = target / "docs" / "discovery"
+            for sub in ("meetings", "requirements", "use-cases", "notes"):
+                self.assertTrue((disc / sub / ".gitkeep").is_file(), f"{sub}/.gitkeep missing")
+            self.assertTrue((disc / "captured" / "README.md").is_file())
+            gi = (disc / ".gitignore").read_text(encoding="utf-8")
+            self.assertIn("/meetings/*", gi)
+            self.assertIn("!/meetings/.gitkeep", gi)
+
     def test_profile_written_into_checklist(self):
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)

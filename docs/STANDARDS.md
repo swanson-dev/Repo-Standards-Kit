@@ -54,7 +54,7 @@ If your repo doesn't fit, **pick the closest profile** and record any deviations
 | `docs/00-overview.md` | What this repo is, in 1 page. |
 | `docs/10-glossary.md` | Project-specific terminology. |
 | `docs/decisions/` | ADRs (folder + README, even if empty). |
-| `docs/discovery/` | Raw intake folder (folder + README). |
+| `docs/discovery/` | Raw intake (gitignored) + `captured/` synthesized notes (folder + README). |
 | `docs/rfcs/` | RFC folder (folder + README). |
 | `docs/templates/` | Starter templates (kit-supplied). |
 | `ai/current-state.md` | Living snapshot of repo state. |
@@ -219,23 +219,35 @@ RFCs do not sit `Open` indefinitely.
 
 ## Discovery folder
 
-`docs/discovery/` is the **raw intake folder** for unstructured stakeholder material — meeting notes, requirements drafts, use case docs, anything pre-structured.
+`docs/discovery/` is the **raw intake folder** for unstructured stakeholder material — meeting notes, requirements drafts, use case docs, PDFs, JSON exports, anything pre-structured. Raw source is captured locally and synthesized into tracked markdown notes (ADR-0014).
 
 ### Subfolders
 
-- `meetings/` — meeting notes.
+Raw intake (contents **gitignored** — drop source material here, it stays local):
+
+- `meetings/` — meeting notes, decks, call recordings.
 - `requirements/` — business requirements drafts received from stakeholders.
 - `use-cases/` — use case documents (often stakeholder-authored).
-- `notes/` — anything else pre-structured.
+- `notes/` — anything else pre-structured (PDFs, JSON, interviews).
 
-### Filename convention
+Synthesized output (**tracked**):
+
+- `captured/` — markdown notes produced by `/capture-discovery` from the intake material. These are the committed, auditable record; the raw originals are not version-controlled.
+
+### Capture and promotion workflow
+
+1. Drop source material into the matching intake subfolder (gitignored).
+2. Run `/capture-discovery` — the AI synthesizes each source into a `captured/` markdown note with `status: raw`.
+3. Run `/promote-discovery` when a captured note's content is synthesized into a structured doc.
+
+### Filename convention (for `captured/` notes)
 
 `YYYY-MM-DD-source-topic.md`
 
 Examples:
-- `meetings/2026-05-12-acme-corp-kickoff.md`
-- `requirements/2026-04-30-procurement-requirements-draft.md`
-- `use-cases/2026-05-02-claims-adjuster-use-case.md`
+- `captured/2026-05-12-acme-corp-kickoff.md`
+- `captured/2026-04-30-procurement-requirements-draft.md`
+- `captured/2026-05-02-claims-adjuster-use-case.md`
 
 ### Optional frontmatter (encouraged for traceability)
 
@@ -249,7 +261,7 @@ promoted_to: docs/01-prd.md   # filled when status flips to promoted
 
 ### Traceability flow
 
-When content from a discovery file is synthesized into a structured doc (PRD, architecture, ADR, etc.), flip `status: promoted` and set `promoted_to:`. This turns the folder from a write-only graveyard into a traceable feeder system.
+When content from a `captured/` note is synthesized into a structured doc (PRD, architecture, ADR, etc.), flip `status: promoted` and set `promoted_to:`. This turns the folder from a write-only graveyard into a traceable feeder system. (The `promoted_to:` integrity check applies to `captured/` and top-level notes; gitignored intake folders are excluded.)
 
 ### What does NOT belong in `docs/discovery/`
 
@@ -337,7 +349,7 @@ Beyond the structural checks, standards-check validates document bodies:
 - **Internal links** — every relative markdown link (and `#anchor`) must resolve to a real file/heading. External (`http(s)`/`mailto`) links are not checked.
 - **Placeholders** — committed ADRs/RFCs must not retain template scaffolding (`<...>` tokens, literal `YYYY-MM-DD`, bare `NNNN`).
 - **Skill format / parity / index** — every `.claude/skills/<n>/SKILL.md` needs frontmatter `name` (matching its directory) and `description`, a matching `.github/prompts/<n>.prompt.md` twin, and a row in the `AGENTS.md` `## Available skills` index. (Adopters: these default to warnings, escalatable via the `skill-format` key.)
-- **Discovery** — every `status: promoted` item under `docs/discovery/` must have a `promoted_to:` path that exists.
+- **Discovery** — every `status: promoted` item under `docs/discovery/` (excluding the gitignored intake folders) must have a `promoted_to:` path that exists.
 
 **Severity.** In the kit itself these are **errors**. In an adopting repo (one with a `.standards-kit.json` marker) they default to **warnings**. To escalate a check to an error in your repo, add a `"check"` map to `.standards-kit.json`:
 

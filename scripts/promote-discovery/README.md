@@ -1,6 +1,6 @@
 # `scripts/promote-discovery/`
 
-Stdlib-only Python script that audits `docs/discovery/` for unpromoted items, or flips a specific item from `status: raw` to `status: promoted` with a `promoted_to:` target.
+Stdlib-only Python script that audits `docs/discovery/` tracked notes for unpromoted items, or flips a specific item from `status: raw` to `status: promoted` with a `promoted_to:` target. (Capture of raw source material into notes is a separate step — see `scripts/capture-discovery/`.)
 
 ## Subcommands
 
@@ -12,7 +12,7 @@ Stdlib-only Python script that audits `docs/discovery/` for unpromoted items, or
 
 ## How discovery items are identified
 
-The script walks `docs/discovery/**/*.md`, skipping `README.md` and any path containing a `templates/` component. For each file it parses leading frontmatter (between the first two `---` fences; a leading `<!-- ... -->` HTML comment block is stripped first, since the discovery templates carry one). Files without frontmatter are skipped silently.
+The script walks `docs/discovery/**/*.md`, skipping `README.md`, any path containing a `templates/` component, and the gitignored raw-intake folders (`meetings/`, `requirements/`, `use-cases/`, `notes/`) — so only tracked notes (`captured/` and any top-level item) are inventoried (ADR-0014). For each file it parses leading frontmatter (between the first two `---` fences; a leading `<!-- ... -->` HTML comment block is stripped first, since the discovery templates carry one). Files without frontmatter are skipped silently.
 
 An item is "raw" if its `status:` value equals exactly `raw`. Items with `status: reviewed`, `status: promoted`, or no `status:` field are ignored.
 
@@ -43,4 +43,4 @@ The hook calls `list --check` (advisory only); the slash commands call `list` or
 python scripts/promote-discovery/test_promote_discovery.py
 ```
 
-16 stdlib `unittest` cases against `tmp_path` git repos. No third-party deps.
+17 stdlib `unittest` cases against `tmp_path` git repos. No third-party deps.

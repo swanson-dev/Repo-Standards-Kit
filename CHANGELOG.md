@@ -6,6 +6,27 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [0.14.0] - 2026-06-01
+
+### Added
+- **`/capture-discovery`** — a capture stage for discovery (ADR-0014). Raw stakeholder
+  source (PDFs, JSON, drafts) dropped into the `docs/discovery/{meetings,requirements,use-cases,notes}/`
+  intake folders is synthesized by the agent into tracked markdown notes under
+  `docs/discovery/captured/`. New stdlib script `scripts/capture-discovery/capture_discovery.py`
+  (`list` / `list --check` / `new`), Claude `SKILL.md` + Copilot prompt, and a SessionStart
+  `--check` hook (advisory "N uncaptured sources").
+- Discovery scaffolding: `init`/`adopt` now seed the intake subfolders (tracked via `.gitkeep`,
+  contents gitignored), a `captured/` output folder, and a `docs/discovery/.gitignore` that keeps
+  the folders but ignores their contents — preserving "markdown only **in version control**"
+  while accepting binary source material locally.
+- ADR-0014 (extends ADR-0005) documenting the intake lifecycle + gitignore strategy.
+
+### Changed
+- `promote-discovery` `list` and the `discovery` standards check now operate on tracked notes
+  (`captured/` + top-level) and exclude the gitignored intake folders.
+- Discovery soft-landing templates and docs (`docs/discovery/README.md`, `02-architecture.md`,
+  `STANDARDS.md`, `AGENTS.md`) updated for the capture → `captured/` → promote flow.
+
 ## [0.13.0] - 2026-06-01
 
 ### Added
@@ -202,6 +223,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.14.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.14.0
 [0.13.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.13.0
 [0.12.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.12.0
 [0.11.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.11.0

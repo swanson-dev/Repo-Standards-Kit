@@ -12,6 +12,10 @@ from . import Context, Finding, resolve_severity
 CHECK_ID = "discovery"
 DEFAULT_SEVERITY = "error"
 
+# Raw intake folders (ADR-0014) hold gitignored source material, not tracked promoted
+# notes — exclude them from the promoted_to integrity check.
+INTAKE_KINDS = ("meetings", "requirements", "use-cases", "notes")
+
 # Allow a leading HTML comment (discovery templates ship one) before the frontmatter.
 _FRONTMATTER_RE = re.compile(r"\A(?:\s*<!--.*?-->\s*)?---\n(.*?)\n---\n", re.DOTALL)
 
@@ -40,6 +44,9 @@ def _iter_discovery(root: Path):
         if path.name == "README.md":
             continue
         if "templates" in path.parts:
+            continue
+        rel_parts = path.relative_to(base).parts
+        if rel_parts and rel_parts[0] in INTAKE_KINDS:
             continue
         yield path
 

@@ -27,7 +27,7 @@ flowchart LR
 
 ### `docs/discovery/`
 
-**Responsibility:** Raw intake of stakeholder material. Lightweight conventions only.
+**Responsibility:** Raw intake of stakeholder material, then capture into synthesized markdown. Raw source (PDFs, JSON, drafts) lands in gitignored intake folders; `/capture-discovery` synthesizes it into tracked `captured/` notes. Lightweight conventions only. See ADR-0014.
 
 **Depends on:** nothing structural. Stakeholders write in their own language; the team preserves it.
 
@@ -72,9 +72,9 @@ sequenceDiagram
   participant Doc as docs/0X-*.md
   participant AI as ai/
 
-  SH->>Disc: meeting notes, requirements draft
-  Note over Disc: status: raw
-  Doc-->>Disc: synthesize content
+  SH->>Disc: drop raw source (PDF/JSON/draft) into intake (gitignored)
+  Note over Disc: /capture-discovery synthesizes → captured/ (status: raw)
+  Doc-->>Disc: synthesize captured note into structured doc
   Disc-->>Disc: flip status: promoted, set promoted_to
   Doc->>RFC: open RFC for technical question
   RFC->>ADR: spawn ADR with decision
@@ -90,7 +90,7 @@ sequenceDiagram
 
 ## Constraints
 
-- Markdown only. No proprietary doc formats.
+- Markdown only **in version control**. Raw stakeholder source (PDFs, JSON, decks) is captured locally in the gitignored `docs/discovery/{meetings,requirements,use-cases,notes}/` intake folders and synthesized to markdown; only the markdown (`captured/` notes and the numbered corpus) is committed. See ADR-0014.
 - Filename conventions stable across the kit (`NNNN-kebab-case-title.md` for ADRs/RFCs, `YYYY-MM-DD-source-topic.md` for discovery).
 - ISO 8601 dates everywhere.
 - The kit ships **content**, not tooling. Tooling is queued for Slices 2 and 4.
@@ -100,4 +100,5 @@ sequenceDiagram
 - **Markdown only** (vs. structured-doc formats) — accepts that some queries against the corpus are harder; gains universal toolability. See ADR [0002](./decisions/0002-adopt-madr-3.md).
 - **`ai/` committed** (vs. gitignored) — accepts PR diff noise; gains shared institutional memory. See ADR [0004](./decisions/0004-define-ai-directory-contract.md).
 - **Separate `discovery/` and `rfcs/`** (vs. a single folder) — accepts an extra top-level folder; gains clean separation of *received* vs. *produced* material. See ADR [0005](./decisions/0005-split-discovery-and-rfcs.md).
+- **Gitignore raw discovery intake, track only synthesized `captured/` markdown** (vs. committing source binaries) — accepts that raw originals aren't version-controlled; preserves markdown-only-in-VCS while still accepting PDFs/JSON as input. See ADR [0014](./decisions/0014-capture-stage-for-discovery-gitignore-raw-intake-track-synthesized-markdown.md).
 - **`AGENTS.md` + thin pointers** (vs. full per-tool files) — accepts that each new AI tool needs a pointer file; gains a single source of truth. See ADR [0006](./decisions/0006-adopt-agents-md-pattern.md).

@@ -1,0 +1,11 @@
+# Raw stakeholder intake — local only, never committed. PDFs, JSON, drafts: anything
+# pre-synthesis. Only the synthesized markdown in captured/ is tracked. See README.md.
+# (ADR-0014: gitignore raw intake, track synthesized markdown.)
+/meetings/*
+/requirements/*
+/use-cases/*
+/notes/*
+!/meetings/.gitkeep
+!/requirements/.gitkeep
+!/use-cases/.gitkeep
+!/notes/.gitkeep

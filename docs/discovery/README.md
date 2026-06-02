@@ -1,42 +1,53 @@
 # `docs/discovery/`
 
-**Raw intake.** Stakeholder material the team *receives*: meeting notes, business requirements drafts, use case docs, anything pre-structured. This folder is deliberately loose — forcing engineering structure on stakeholder material kills the practice.
+**Raw intake → synthesized notes.** Stakeholder material the team *receives* — meeting notes,
+business requirements drafts, use case docs, PDFs, JSON exports, anything pre-structured. This
+folder is deliberately loose; forcing engineering structure on stakeholder material kills the
+practice. See ADR-0014 for the capture lifecycle and ADR-0005 for the discovery/RFC split.
 
-## What goes here
+## How it works (ADR-0014)
 
-- Meeting notes (kickoffs, stakeholder syncs, customer calls).
-- Business requirements drafts.
-- Use case documents from product, sales, or the customer themselves.
-- Raw notes from interviews, demos, or workshops.
+```
+docs/discovery/
+├── meetings/        ┐
+├── requirements/    │  raw intake — LOCAL ONLY, gitignored (drop PDFs/JSON/drafts here)
+├── use-cases/       │
+├── notes/           ┘
+└── captured/        synthesized markdown notes — TRACKED (committed)
+```
+
+1. **Drop source material** into the matching intake subfolder. The contents of these folders
+   are **gitignored** (`.gitignore` keeps the folders via `.gitkeep` but ignores their files), so
+   binaries and drafts never enter version control — the "markdown only" constraint holds.
+2. **Run `/capture-discovery`.** The AI reads each source and writes a synthesized markdown note
+   into `captured/` with frontmatter (`status: raw`). The raw original stays local.
+3. **Run `/promote-discovery`** when a captured note's content is synthesized into a structured
+   doc — it flips `status: raw → promoted` and sets `promoted_to:`.
+
+## What goes where
+
+| Folder | Use for | Tracked? |
+|---|---|---|
+| `meetings/` | Meeting notes, call recordings, decks | No (gitignored) |
+| `requirements/` | Business requirements drafts received from stakeholders | No (gitignored) |
+| `use-cases/` | Use case docs (often stakeholder-authored) | No (gitignored) |
+| `notes/` | Anything else pre-structured (PDFs, JSON, interviews) | No (gitignored) |
+| `captured/` | Synthesized markdown notes produced by `/capture-discovery` | **Yes** |
 
 ## What does NOT go here
 
-- **Technical investigations with a question and recommendation** → those are RFCs under [`docs/rfcs/`](../rfcs/).
-- **Decisions** → those are ADRs under [`docs/decisions/`](../decisions/).
-- **Synthesized product specs** → those are in `docs/01-prd.md` and friends.
+- **Technical investigations with a question and recommendation** → RFCs under [`docs/rfcs/`](../rfcs/).
+- **Decisions** → ADRs under [`docs/decisions/`](../decisions/).
+- **Synthesized product specs** → `docs/01-prd.md` and friends.
 
-## Subfolders
+## Filename convention (for `captured/` notes)
 
-| Folder | Use for |
-|---|---|
-| `meetings/` | Meeting notes |
-| `requirements/` | Business requirements drafts received from stakeholders |
-| `use-cases/` | Use case docs (often stakeholder-authored) |
-| `notes/` | Anything else pre-structured |
+`YYYY-MM-DD-source-topic.md` — e.g. `captured/2026-05-12-acme-corp-kickoff.md`.
 
-## Filename convention
-
-`YYYY-MM-DD-source-topic.md`
-
-Examples:
-- `meetings/2026-05-12-acme-corp-kickoff.md`
-- `requirements/2026-04-30-procurement-requirements-draft.md`
-- `use-cases/2026-05-02-claims-adjuster-use-case.md`
-
-## Optional frontmatter (encouraged for traceability)
+## Frontmatter
 
 ```yaml
-source: <person, meeting, doc URL>
+source: <person, meeting, doc path/URL>
 date_captured: 2026-05-12
 topic: <free text>
 status: raw | reviewed | promoted
@@ -45,7 +56,9 @@ promoted_to: docs/01-prd.md
 
 ## Traceability flow
 
-When content from a discovery file gets synthesized into a structured doc (a PRD section, an ADR, an architecture decision), flip `status: promoted` and set `promoted_to:` to the synthesized doc's path. This turns the folder from a write-only graveyard into a feeder system you can audit: a future Skill (Slice 2) will list everything still `raw` to surface unprocessed input.
+`docs/discovery/{intake}` (local) → `/capture-discovery` → `docs/discovery/captured/` →
+`/promote-discovery` → `docs/decisions/` / numbered docs. Flipping `status: promoted` with a
+`promoted_to:` turns the folder from a write-only graveyard into an auditable feeder system.
 
 ## Templates
 

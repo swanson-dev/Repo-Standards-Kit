@@ -1,7 +1,9 @@
 <!--
 Discovery: meeting notes (soft-landing template, NOT required structure)
-Filename: docs/discovery/meetings/YYYY-MM-DD-source-topic.md
-Frontmatter is optional but encouraged for traceability.
+Filename: docs/discovery/captured/YYYY-MM-DD-source-topic.md
+A hand-authored note is already-synthesized markdown, so it lives in captured/ (tracked).
+Raw drops (PDFs, recordings) go in the gitignored docs/discovery/meetings/ intake folder
+and are turned into a captured/ note by /capture-discovery. See ADR-0014.
 When this file's content is synthesized into a structured doc, flip status to "promoted"
 and set promoted_to to the path of the synthesized doc.
 -->
