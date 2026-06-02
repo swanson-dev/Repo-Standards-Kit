@@ -6,6 +6,16 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
 include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
+## [Unreleased]
+
+### Fixed
+- `standards update` now delivers the discovery intake structure to repos that adopted
+  before v0.14.0. The structure (`docs/discovery/.gitignore`, the four intake `.gitkeep`
+  anchors, and `captured/README.md`) is reclassified from scaffold-once to **kit-tracked**,
+  so `update` creates it when absent (scaffold-once files are intentionally never delivered
+  on update). The top-level `docs/discovery/README.md` stays scaffold-once. Existing local
+  edits to these files are preserved (conflict → `.kit-<version>` sidecar), per ADR-0010.
+
 ## [0.14.0] - 2026-06-01
 
 ### Added
