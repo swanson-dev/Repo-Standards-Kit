@@ -1,5 +1,5 @@
 ---
-written: 2026-06-14T00:00:00-05:00
+written: 2026-06-14T00:45:00-05:00
 written_by: codex
 for: next-session
 ---
@@ -8,21 +8,20 @@ for: next-session
 
 ## TL;DR
 
-Release prep for v0.17.0 is in place locally. The post-0.16 cleanup now has coherent
-version metadata, changelog, roadmap/current-state/next-actions, and ignored local
-`.agents/` / `.codex/` surfaces so they do not accidentally ship. Gates were rerun
-after the cleanup; push/tag/publish is the remaining maintainer action.
+v0.17.0 is published to PyPI and now has a GitHub Release with the sdist and wheel
+attached. The remaining local work is release-workflow polish: future tag pushes
+should create/update the GitHub Release after PyPI publish so this gap does not recur.
 
 ## Recently touched
 
-- Release metadata: `src/standards/__about__.py`, `AGENTS.md`, `docs/STANDARDS.md`, `docs/STANDARDS-CHECKLIST.md`, `CHANGELOG.md` now target v0.17.0.
-- Release coordination: `README.md`, `docs/05-implementation-plan.md`, `ai/current-state.md`, `ai/next-actions.md`, and this handoff now reflect that v0.16.0 already landed and v0.17.0 is the next release.
-- Local tool surfaces: `.gitignore` now ignores `.agents/` and `.codex/`; the tracked shipped surface remains `AGENTS.md`, `.claude/`, and `.github/`.
-- Existing post-0.16 changes remain the release payload: discovery simplification, CLI help polish, paired skill scaffolding, and stronger agent-surface checks.
+- `v0.17.0` GitHub Release was created from the existing tag using the changelog section as notes, with the `0.17.0` wheel and sdist attached.
+- `.github/workflows/release.yml` now grants `contents: write` and adds an idempotent GitHub Release creation/upload step after PyPI publish.
+- `docs/RELEASING.md`, `CHANGELOG.md`, `ai/current-state.md`, and `ai/next-actions.md` were updated to describe the release workflow and next work accurately.
 
 ## Open threads
 
-- Push the local commit to `main`, create/push `v0.17.0`, and verify the release workflow publishes to PyPI.
+- Push the workflow/docs update after validation.
+- External-link liveness is the most valuable next reporting slice; it would catch missing release/tag links in `CHANGELOG.md`.
 - Historical changelog entries, prior ADR bodies, RFCs, and superpowers plans still mention capture/promote because they describe past design work.
 - No `commands`, `doctor`, interactive CLI prompting, or `standards new-skill` subcommand was added; keep that scope for a separate design pass if wanted.
 

@@ -8,6 +8,10 @@ include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-po
 
 ## [Unreleased]
 
+### Changed
+- The tag-triggered release workflow now creates or updates the matching GitHub
+  Release after PyPI publishing succeeds, attaching the built `dist/*` artifacts.
+
 ## [0.17.0] - 2026-06-14
 
 ### Added

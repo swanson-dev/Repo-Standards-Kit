@@ -24,7 +24,7 @@ last_updated_by: codex
 - **Slice 3 Plan 3 (release infrastructure, no version bump).** The package is now releasable to PyPI without ever having been published:
   - `tools/run_tests.py` — portable stdlib test runner (subprocess per suite, zero-dependency), the canonical `python tools/run_tests.py` command. 14/14 suites green.
   - `.github/workflows/repo-standards.yml` runs `check` + a `test` matrix (Python 3.9–3.12) + a `build-smoke` job that builds the wheel, installs it in a venv, runs `standards init`, and asserts the bundled `standards/_payload` shipped.
-  - `.github/workflows/release.yml` — tag-triggered (`v*`) PyPI **Trusted-Publishing (OIDC, tokenless)** release, gated on tests + build, scoped to a `pypi` GitHub Environment. Inert until the maintainer does the one-time PyPI setup and pushes a tag.
+  - `.github/workflows/release.yml` — tag-triggered (`v*`) PyPI **Trusted-Publishing (OIDC, tokenless)** release, gated on tests + build, scoped to a `pypi` GitHub Environment.
   - Decisions/docs: ADR-0011 (publish via GitHub Actions Trusted Publishing), `docs/RELEASING.md` (one-time setup + release ritual).
 - **Slice 4 deeper CI enforcement (v0.7.0 → v0.9.0).** `standards-check` grew from structural to content-level, plus release/process guardrails and a guarded skill surface:
   - `scripts/standards-check/checks/` package (orchestrator + `structural`/`links`/`content`/`skills`/`_text`). Content checks: internal link+anchor resolution, ADR/RFC placeholder + CHANGELOG-shape lint, and SKILL.md-to-prompt parity + skills-index drift. **Severity model:** error in the kit, warn-default in adopters, escalatable per-check via a `.standards-kit.json` check map.
@@ -33,15 +33,16 @@ last_updated_by: codex
   - New `/standards-check` skill (Claude + Copilot), skill templates, and an `## Available skills` index in `AGENTS.md`.
   - 23/23 test suites green; standards-check 0/0; version coherence OK at 0.9.0.
 - **Milestone roadmap (v0.16.0).** PR #18 has landed on `main` and local `v0.16.0` is tagged. The implementation-plan template now carries a `## Roadmap` milestone table, and the kit dogfoods the roadmap in `docs/05-implementation-plan.md` (RFC-0003, ADR-0016).
-- **Workflow simplification + AI readiness (v0.17.0 release-prep).** Discovery remains a normal tracked markdown folder under `docs/discovery/`; the capture/promote command workflow, intake scaffold, `captured/` folder, discovery SessionStart hooks, and `promoted_to` standards check have been removed from the shipped kit payload. ADR-0017 supersedes ADR-0014 and ADR-0015.
-- **CLI help polish (v0.17.0 release-prep).** The `standards` CLI now has richer argparse workflow help, concrete subcommand examples, a `standards help [command]` alias, and clearer `update` guidance for repos that have not been adopted yet.
-- **AI tooling polish (v0.17.0 release-prep).** `scripts/new-doc/new-skill.py` scaffolds paired Claude/Copilot skill files and updates the `AGENTS.md` skills index; `skill-format` checks also cover the Copilot pointer and local Claude hook script references. Agent-readiness guidance now lives in `docs/STANDARDS.md` and the shipped standards template.
+- **Workflow simplification + AI readiness (v0.17.0).** Discovery remains a normal tracked markdown folder under `docs/discovery/`; the capture/promote command workflow, intake scaffold, `captured/` folder, discovery SessionStart hooks, and `promoted_to` standards check have been removed from the shipped kit payload. ADR-0017 supersedes ADR-0014 and ADR-0015.
+- **CLI help polish (v0.17.0).** The `standards` CLI now has richer argparse workflow help, concrete subcommand examples, a `standards help [command]` alias, and clearer `update` guidance for repos that have not been adopted yet.
+- **AI tooling polish (v0.17.0).** `scripts/new-doc/new-skill.py` scaffolds paired Claude/Copilot skill files and updates the `AGENTS.md` skills index; `skill-format` checks also cover the Copilot pointer and local Claude hook script references. Agent-readiness guidance now lives in `docs/STANDARDS.md` and the shipped standards template.
+- **v0.17.0 published.** The `v0.17.0` tag published successfully to PyPI and now has a GitHub Release with the sdist and wheel attached.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| **v0.17.0 release prep** — version metadata, changelog, AI context, and release-readiness gates are being brought into sync after the post-0.16 cleanup. | `main` | codex | commit locally; maintainer can push/tag/publish |
+| **GitHub Release workflow polish** — future tag-triggered releases should create/update the matching GitHub Release after PyPI publish and attach `dist/*` artifacts. | `main` | codex | commit and push workflow/docs update |
 | _Backlog._ External-link liveness and richer doc-freshness reporting remain unscheduled. | — | swanson-dev | pick up in a future milestone |
 
 ## What's blocked
