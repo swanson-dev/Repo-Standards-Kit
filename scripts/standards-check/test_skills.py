@@ -1,6 +1,7 @@
 """Tests for the skill-hygiene checks: format, parity, and index-drift."""
 from __future__ import annotations
 
+import json
 import sys
 import tempfile
 import unittest
@@ -132,6 +133,49 @@ class IndexTests(unittest.TestCase):
             _write_index(root, [])
             findings = [f for f in run(root, _ctx(root, adopter=True)) if "not listed" in f.message]
             self.assertEqual(findings[0].severity, "warn")
+
+
+class AgentSurfaceTests(unittest.TestCase):
+    def test_copilot_instructions_must_point_to_agents(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            _write_skill(root, "new-adr")
+            _write_index(root, ["new-adr"])
+            copilot = root / ".github" / "copilot-instructions.md"
+            copilot.parent.mkdir(parents=True, exist_ok=True)
+            copilot.write_text("# Copilot\n\nUse local conventions.\n", encoding="utf-8")
+
+            findings = [f for f in run(root, _ctx(root)) if "copilot-instructions.md" in f.message]
+
+            self.assertEqual(len(findings), 1)
+            self.assertIn("AGENTS.md", findings[0].message)
+
+    def test_local_hook_script_paths_must_exist(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            _write_skill(root, "new-adr")
+            _write_index(root, ["new-adr"])
+            settings = root / ".claude" / "settings.json"
+            settings.parent.mkdir(parents=True, exist_ok=True)
+            settings.write_text(
+                json.dumps({
+                    "hooks": {
+                        "Stop": [{
+                            "matcher": "",
+                            "hooks": [{
+                                "type": "command",
+                                "command": "python scripts/missing-tool/run.py --check",
+                            }],
+                        }],
+                    },
+                }),
+                encoding="utf-8",
+            )
+
+            findings = [f for f in run(root, _ctx(root)) if "missing-tool" in f.message]
+
+            self.assertEqual(len(findings), 1)
+            self.assertIn(".claude/settings.json", findings[0].message)
 
 
 if __name__ == "__main__":

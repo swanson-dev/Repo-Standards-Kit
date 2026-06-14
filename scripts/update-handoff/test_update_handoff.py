@@ -183,6 +183,7 @@ class CheckModeTests(unittest.TestCase):
             result = run("--check", cwd=tmp)
             self.assertEqual(result.returncode, 0)
             self.assertIn("update-handoff:", result.stderr.lower())
+            self.assertIn("ai/handoff.md", result.stderr)
             self.assertIn("2 commits", result.stderr)
             self.assertIn("/update-handoff", result.stderr)
 
@@ -194,6 +195,7 @@ class CheckModeTests(unittest.TestCase):
             result = run("--check", cwd=tmp)
             self.assertEqual(result.returncode, 0)
             self.assertIn("update-handoff:", result.stderr.lower())
+            self.assertIn("ai/handoff.md", result.stderr)
             self.assertIn("1 modified", result.stderr)
             self.assertIn("0 commits", result.stderr)
 
@@ -206,6 +208,7 @@ class CheckModeTests(unittest.TestCase):
             result = run("--check", cwd=tmp)
             self.assertEqual(result.returncode, 0)
             self.assertIn("update-handoff:", result.stderr.lower())
+            self.assertIn("ai/handoff.md", result.stderr)
             self.assertIn("days old", result.stderr.lower())
 
     def test_fresh_handoff_with_no_work_is_silent(self):

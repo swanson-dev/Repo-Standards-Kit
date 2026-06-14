@@ -4,7 +4,7 @@
 
 The **Team Repository Standards Kit** — a versioned, opinionated set of documentation standards and templates that any repository on the team can adopt. This kit is itself a `library`-profile repo: it ships templates and a spec, not a runtime.
 
-Slice 1 (in progress, version 0.1.0) covers templates and standards content. Slices 2–4 cover AI Skills + Hooks, distribution, and deeper CI enforcement.
+The foundational slices are shipped: templates and standards content, AI Skills + hooks, the `standards` CLI distribution path, CI/content enforcement, hardening, and non-destructive adoption. The active roadmap now lives in `docs/05-implementation-plan.md`.
 
 ## Audience
 
@@ -26,7 +26,7 @@ Slice 1 (in progress, version 0.1.0) covers templates and standards content. Sli
 | [`versioning-policy.md`](./versioning-policy.md) | You're pinning a kit version in your repo and want the deprecation policy. |
 | [`templates/`](./templates/) | You're authoring a new artifact (ADR, RFC, numbered doc) and need a starter. |
 | [`decisions/`](./decisions/) | You want to know **why** the kit is shaped this way (ADRs 0001–0006). |
-| [`discovery/`](./discovery/) | Raw stakeholder material: gitignored intake folders + `captured/` synthesized notes. Captured via `/capture-discovery` (ADR-0014). |
+| [`discovery/`](./discovery/) | Lightweight stakeholder, research, and reconnaissance notes. |
 | [`rfcs/`](./rfcs/) | Open or concluded technical investigations (none in the kit yet). |
 
 For the AI session contract, read [`../AGENTS.md`](../AGENTS.md) first.

@@ -1,70 +1,41 @@
 # `docs/discovery/`
 
-**Raw intake → synthesized notes.** Stakeholder material the team *receives* — meeting notes,
-business requirements drafts, use case docs, PDFs, JSON exports, anything pre-structured. This
-folder is deliberately loose; forcing engineering structure on stakeholder material kills the
-practice. See ADR-0014 for the capture lifecycle and ADR-0005 for the discovery/RFC split.
+**Lightweight discovery notes.** Stakeholder material, meeting notes, requirements sketches,
+use cases, research, and reconnaissance can land here before they are synthesized into the
+numbered docs, an RFC, or an ADR. This folder is deliberately loose; forcing early context into
+engineering structure too soon kills the practice.
 
-## How it works (ADR-0014)
-
-```
-docs/discovery/
-├── meetings/        ┐
-├── requirements/    │  raw intake — LOCAL ONLY, gitignored (drop PDFs/JSON/drafts here)
-├── use-cases/       │
-├── notes/           ┘
-└── captured/        synthesized markdown notes — TRACKED (committed)
-```
-
-1. **Drop source material** into the matching intake subfolder. The contents of these folders
-   are **gitignored** (`.gitignore` keeps the folders via `.gitkeep` but ignores their files), so
-   binaries and drafts never enter version control — the "markdown only" constraint holds.
-2. **Run `/capture-discovery`.** The AI reads each source and writes a synthesized markdown note
-   into `captured/` with frontmatter (`status: raw`). The raw original stays local.
-3. **Run `/promote-discovery`** when a captured note holds a decision or open question. Via an AI
-   agent it defaults to *interviewing* you for the rationale an ADR/RFC needs, **drafting** the
-   Proposed doc(s), and then flipping `status: raw → promoted` with `promoted_to:` set (ADR-0015).
-   The plain CLI flip (`promote <note> --to <doc>`) is the fallback for just recording a link.
-
-## What goes where
-
-| Folder | Use for | Tracked? |
-|---|---|---|
-| `meetings/` | Meeting notes, call recordings, decks | No (gitignored) |
-| `requirements/` | Business requirements drafts received from stakeholders | No (gitignored) |
-| `use-cases/` | Use case docs (often stakeholder-authored) | No (gitignored) |
-| `notes/` | Anything else pre-structured (PDFs, JSON, interviews) | No (gitignored) |
-| `captured/` | Synthesized markdown notes produced by `/capture-discovery` | **Yes** |
+Write normal tracked markdown files directly under `docs/discovery/`. There is no capture command,
+promotion command, status lifecycle, or required subfolder structure.
 
 ## What does NOT go here
 
-- **Technical investigations with a question and recommendation** → RFCs under [`docs/rfcs/`](../rfcs/).
-- **Decisions** → ADRs under [`docs/decisions/`](../decisions/).
-- **Synthesized product specs** → `docs/01-prd.md` and friends.
+- **Technical investigations with a question and recommendation** -> RFCs under [`docs/rfcs/`](../rfcs/).
+- **Decisions** -> ADRs under [`docs/decisions/`](../decisions/).
+- **Large binary source files** -> keep those outside the repo and link to them from a markdown note when useful.
+- **Synthesized product specs** -> `docs/01-prd.md` and friends.
 
-## Filename convention (for `captured/` notes)
+## Filename convention
 
-`YYYY-MM-DD-source-topic.md` — e.g. `captured/2026-05-12-acme-corp-kickoff.md`.
+`YYYY-MM-DD-source-topic.md` - e.g. `2026-05-12-acme-corp-kickoff.md`.
 
 ## Frontmatter
 
+Optional, but useful for traceability:
+
 ```yaml
 source: <person, meeting, doc path/URL>
-date_captured: 2026-05-12
+date: 2026-05-12
 topic: <free text>
-status: raw | reviewed | promoted
-promoted_to: docs/01-prd.md
 ```
 
 ## Traceability flow
 
-`docs/discovery/{intake}` (local) → `/capture-discovery` → `docs/discovery/captured/` →
-`/promote-discovery` → `docs/decisions/` / numbered docs. Flipping `status: promoted` with a
-`promoted_to:` turns the folder from a write-only graveyard into an auditable feeder system.
+When a discovery note informs a structured doc, link the note from that doc, RFC, or ADR.
 
 ## Templates
 
-- [`../templates/discovery-meeting-notes.md`](../templates/discovery-meeting-notes.md) — soft-landing template for meeting notes.
-- [`../templates/discovery-use-case.md`](../templates/discovery-use-case.md) — soft-landing template for use cases.
+- [`../templates/discovery-meeting-notes.md`](../templates/discovery-meeting-notes.md) - soft-landing template for meeting notes.
+- [`../templates/discovery-use-case.md`](../templates/discovery-use-case.md) - soft-landing template for use cases.
 
-Neither template is required — use them when they help, ignore them when stakeholder material has its own shape.
+Neither template is required. Use them when they help, ignore them when stakeholder material has its own shape.

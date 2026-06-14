@@ -16,6 +16,32 @@ class CliTests(unittest.TestCase):
             cwd=str(cwd), capture_output=True, text=True, env=full_env,
         )
 
+    def test_top_level_help_lists_workflow_commands(self):
+        res = self._run("--help", cwd=REPO)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        text = res.stdout.lower()
+        for expected in ("init", "adopt", "update", "check"):
+            self.assertIn(expected, text)
+
+    def test_help_alias_prints_top_level_help(self):
+        flag_help = self._run("--help", cwd=REPO)
+        alias_help = self._run("help", cwd=REPO)
+        self.assertEqual(alias_help.returncode, 0, alias_help.stderr)
+        self.assertEqual(alias_help.stdout, flag_help.stdout)
+
+    def test_help_alias_for_subcommand_prints_examples(self):
+        res = self._run("help", "init", cwd=REPO)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("init --profile library", res.stdout)
+
+    def test_help_alias_unknown_topic_lists_valid_topics(self):
+        res = self._run("help", "bogus", cwd=REPO)
+        self.assertNotEqual(res.returncode, 0)
+        text = (res.stdout + res.stderr).lower()
+        self.assertIn("valid help topics", text)
+        for expected in ("init", "adopt", "update", "check"):
+            self.assertIn(expected, text)
+
     def test_init_subcommand_creates_repo(self):
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
@@ -52,6 +78,9 @@ class CliTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             res = self._run("update", d, cwd=REPO)
             self.assertNotEqual(res.returncode, 0)
+            text = (res.stdout + res.stderr).lower()
+            self.assertIn("standards init", text)
+            self.assertIn("standards adopt", text)
 
     def test_adopt_subcommand_is_nondestructive(self):
         with tempfile.TemporaryDirectory() as d:

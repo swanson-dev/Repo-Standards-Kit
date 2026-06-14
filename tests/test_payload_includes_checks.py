@@ -21,7 +21,6 @@ class PayloadIncludesChecksTests(unittest.TestCase):
             "scripts/standards-check/checks/content.py",
             "scripts/standards-check/checks/skills.py",
             "scripts/standards-check/checks/_text.py",
-            "scripts/standards-check/checks/discovery.py",
         ):
             self.assertIn(expected, rels, f"{expected} missing from payload")
 

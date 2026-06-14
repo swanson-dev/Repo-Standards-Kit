@@ -1,6 +1,6 @@
 ---
-written: 2026-06-02T13:45:52-05:00
-written_by: swanson-dev (via claude-code-assistant)
+written: 2026-06-14T00:00:00-05:00
+written_by: codex
 for: next-session
 ---
 
@@ -8,36 +8,27 @@ for: next-session
 
 ## TL;DR
 
-**Milestone roadmap** is built and verified on `feat/roadmap-milestones` (**PR #18** open into
-`main`, not yet merged). It standardizes the longitudinal roadmap the kit was improvising in the
-README table + AGENTS.md "queued slices": the `05-implementation-plan` **template** gains a
-`## Roadmap` milestone table (status `planned | active | shipped | dropped`, exactly-one-`active`
-invariant) above `## Approach`, and the existing `## Slices` is scoped to the active milestone.
-Decision in **ADR-0016**, investigation in **RFC-0003**. The kit dogfoods it in the new
-`docs/05-implementation-plan.md`; README + AGENTS now point there.
-
-No version bump — only a CHANGELOG `[Unreleased]` entry. The **v0.16.0 release cut is deferred**
-to the next session. This session also fixed stale `0.1.0` version strings in `docs/STANDARDS.md`
-and `docs/STANDARDS-CHECKLIST.md` (→ 0.15.0) and refreshed the `ai/` files.
-
-`standards-check` 0/0; version coherence OK (0.15.0); **26/26** suites.
+Release prep for v0.17.0 is in place locally. The post-0.16 cleanup now has coherent
+version metadata, changelog, roadmap/current-state/next-actions, and ignored local
+`.agents/` / `.codex/` surfaces so they do not accidentally ship. Gates were rerun
+after the cleanup; push/tag/publish is the remaining maintainer action.
 
 ## Recently touched
 
-- **New:** `docs/rfcs/0003-how-should-the-kit-standardize-a-milestone-roadmap/rfc.md`, `docs/decisions/0016-add-roadmap-section-to-implementation-plan.md`, `docs/05-implementation-plan.md`.
-- **Template (ships to adopters):** `docs/templates/implementation-plan-template.md` (`## Roadmap` section).
-- **Pointers / dogfood:** `README.md`, `AGENTS.md` (repo-owned `### Roadmap`, code-span not link), `docs/decisions/README.md` (index), `docs/STANDARDS-CHECKLIST.md` (05 box flipped + version), `CHANGELOG.md` (`[Unreleased]` Added).
-- **Staleness fix:** `docs/STANDARDS.md` + `docs/STANDARDS-CHECKLIST.md` version 0.1.0 → 0.15.0; `ai/*` refreshed.
+- Release metadata: `src/standards/__about__.py`, `AGENTS.md`, `docs/STANDARDS.md`, `docs/STANDARDS-CHECKLIST.md`, `CHANGELOG.md` now target v0.17.0.
+- Release coordination: `README.md`, `docs/05-implementation-plan.md`, `ai/current-state.md`, `ai/next-actions.md`, and this handoff now reflect that v0.16.0 already landed and v0.17.0 is the next release.
+- Local tool surfaces: `.gitignore` now ignores `.agents/` and `.codex/`; the tracked shipped surface remains `AGENTS.md`, `.claude/`, and `.github/`.
+- Existing post-0.16 changes remain the release payload: discovery simplification, CLI help polish, paired skill scaffolding, and stronger agent-surface checks.
 
 ## Open threads
 
-- **PR #18** — review + merge → `main`, then **cut v0.16.0** (see `ai/next-actions.md` step 2; remember to bump the unguarded STANDARDS.md/CHECKLIST versions too).
-- **Node 24 CI chore** (`6497ffd`) rides on this branch/PR; split onto its own branch if an atomic PR is preferred.
-- The local impl plan is at `~/.claude/plans/2026-06-02-roadmap-milestones.md` (its T6 = the deferred release-cut task).
+- Push the local commit to `main`, create/push `v0.17.0`, and verify the release workflow publishes to PyPI.
+- Historical changelog entries, prior ADR bodies, RFCs, and superpowers plans still mention capture/promote because they describe past design work.
+- No `commands`, `doctor`, interactive CLI prompting, or `standards new-skill` subcommand was added; keep that scope for a separate design pass if wanted.
 
 ## Don't do
 
-- **Don't put repo-specific markdown links in files that ship verbatim** (`AGENTS.md`, `docs/STANDARDS.md` — both in the payload). They break the multi-profile scaffold gate when the target (e.g. `docs/05-implementation-plan.md`) doesn't exist in a fresh adopter repo. Use **code spans**. `README.md` is NOT in the payload, so links there are fine. Run `python tools/run_tests.py` (not just the standards-check) after editing `AGENTS.md`/`STANDARDS.md`.
-- Don't tag off a feature branch — tag the `main` merge commit (matches v0.9.0/v0.11.0/v0.13.0/v0.15.0).
-- Don't push to `main` directly; don't add runtime deps; don't edit Accepted ADRs (0001–0016).
-- Don't run a single `pytest` — `python tools/run_tests.py` is canonical (duplicate `test_cli.py` basenames). Keep `from __future__ import annotations` (3.9 matrix).
+- Do not resurrect `/capture-discovery`, `/promote-discovery`, `docs/discovery/captured/`, or `promoted_to` unless a new ADR supersedes ADR-0017.
+- Do not edit the bodies of Accepted/Superseded ADRs; write a new ADR for reversals.
+- Keep discovery notes simple: tracked markdown under `docs/discovery/`, linked from structured docs when they matter.
+- Do not commit `.agents/` or `.codex/`; they are local tool surfaces, not the shipped kit contract.

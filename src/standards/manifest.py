@@ -19,7 +19,9 @@ from pathlib import Path
 # Directories whose entire contents are payload (relative to payload root).
 PAYLOAD_DIRS: tuple[str, ...] = (
     "docs/templates",
-    "scripts",
+    "scripts/new-doc",
+    "scripts/standards-check",
+    "scripts/update-handoff",
     ".github/prompts",
     ".claude",
 )
@@ -32,16 +34,6 @@ PAYLOAD_FILES: tuple[str, ...] = (
     ".github/pull_request_template.md",
     "AGENTS.md",
     "CLAUDE.md",
-    # Discovery intake structure (ADR-0014). Kit-tracked, NOT scaffold-once: it is
-    # kit-owned structure (a gitignore + .gitkeep folder anchors + the captured/ output
-    # folder), so `update` delivers it to repos that adopted before it existed. The
-    # top-level docs/discovery/README.md stays scaffold-once (adopter-owned prose).
-    "docs/discovery/.gitignore",
-    "docs/discovery/captured/README.md",
-    "docs/discovery/meetings/.gitkeep",
-    "docs/discovery/requirements/.gitkeep",
-    "docs/discovery/use-cases/.gitkeep",
-    "docs/discovery/notes/.gitkeep",
 )
 
 # Files the kit partially owns: a single managed block is kit-owned, the rest is

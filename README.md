@@ -57,24 +57,26 @@ Pick the profile that fits the repo: `application` | `library` | `infra` | `data
 3. A defined contract for the **`ai/` directory** — four files that carry session-to-session context.
 4. **MADR 3.0 ADRs** with a defined lifecycle.
 5. **RFCs** for time-boxed technical investigations (separate from raw discovery intake).
-6. Lightweight conventions for **`docs/discovery/`** — drop raw stakeholder material (incl. PDFs/JSON) into gitignored intake folders, **capture** it into tracked markdown notes, then promote to durable docs.
+6. Lightweight conventions for **`docs/discovery/`** — keep stakeholder, research, and reconnaissance notes as normal tracked markdown.
 7. A **PR template** that asks the right questions about documentation, ADRs, AI context, and operational impact.
 8. A **`STANDARDS-CHECKLIST.md`** with a waiver mechanism so absences are explicit, not silent.
 9. A **CI check** (`standards check`) that enforces the structural minimum plus content-level lints.
-10. **AI Skills + hooks** (Claude Code + Copilot) for ADRs, RFCs, discovery capture + promotion, handoffs, and running the check.
+10. **AI Skills + hooks** (Claude Code + Copilot) for ADRs, RFCs, handoffs, and running the check.
 
 ## The information flow
 
 ```
 docs/discovery/    →    docs/rfcs/        →    docs/decisions/    →    docs/0X-*.md
-(raw intake)            (investigated)          (decided)               (synthesized & durable)
-meetings, reqs,         time-boxed,             MADR 3.0 ADRs,          PRD, architecture,
-use case drafts         spawn-or-abandon        immutable               runbook, etc.
+(early context)         (investigated)          (decided)               (synthesized & durable)
+notes, reqs,            time-boxed,             MADR 3.0 ADRs,          PRD, architecture,
+use cases               spawn-or-abandon        immutable               runbook, etc.
 ```
 
 ## Adopting without the CLI
 
 If you'd rather adopt by hand (or want the full detail of what the CLI does), the manual process is documented in [`docs/STANDARDS.md`](./docs/STANDARDS.md): copy `docs/templates/`, pick a profile, fill in `docs/STANDARDS.md` + `docs/STANDARDS-CHECKLIST.md`, seed `ai/*.md` from `docs/templates/ai-starters/`, adopt the `.github/` workflow + PR template, and point your AI tools at `AGENTS.md`.
+
+For AI-assisted repos, use the agent-readiness checklist in [`docs/STANDARDS.md`](./docs/STANDARDS.md#agent-readiness-checklist) to confirm the agent contract, handoff files, skill pairs, and standards check are in a trustworthy state.
 
 ## Documentation philosophy
 
@@ -82,7 +84,7 @@ Keep documentation lean but scalable. Add durable docs when they improve onboard
 
 ## Roadmap
 
-All six foundational slices are **shipped** (through v0.15.0). The living roadmap — the active
+All six foundational slices are **shipped** and the kit is release-ready through v0.17.0. The living roadmap — the active
 milestone and what's planned next — and the full shipped-slice history now live in
 [`docs/05-implementation-plan.md`](./docs/05-implementation-plan.md). Design rationale is
 captured as ADRs under [`docs/decisions/`](./docs/decisions/) and investigations under

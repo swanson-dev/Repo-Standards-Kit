@@ -14,7 +14,7 @@ A future Skill (Slice 2) will automate the copy + parametrize step.
 - [`discovery-meeting-notes.md`](./discovery-meeting-notes.md)
 - [`discovery-use-case.md`](./discovery-use-case.md)
 
-Hand-authored discovery notes from these templates are tracked markdown, so they live in `docs/discovery/captured/`. Raw source drops (PDFs, JSON) go in the gitignored intake folders and are synthesized into `captured/` by `/capture-discovery` (ADR-0014).
+Hand-authored discovery notes from these templates are normal tracked markdown files under `docs/discovery/`. Link them from any structured doc, RFC, or ADR they later inform.
 
 ### Numbered-doc skeletons (`docs/00–10`)
 - `overview-template.md` → `docs/00-overview.md` (seeded automatically at adoption).
@@ -43,6 +43,12 @@ Hand-authored discovery notes from these templates are tracked markdown, so they
 ### Skill skeletons
 - [`skill-template.md`](./skill-template.md) — Claude `SKILL.md` skeleton.
 - [`skill-prompt-template.md`](./skill-prompt-template.md) — Copilot `.prompt.md` skeleton.
+
+Create skill surfaces as pairs: `.claude/skills/<name>/SKILL.md` and
+`.github/prompts/<name>.prompt.md` should share the same kebab-case name,
+same one-line description, and the same core invocation guidance. Add the name
+to `AGENTS.md` `## Available skills` so agents can discover it. Example index
+row: ``| `review-docs` | Review docs before shipping |``.
 
 ### Per-repo governance
 - [`STANDARDS.md.template`](./STANDARDS.md.template) → `docs/STANDARDS.md`

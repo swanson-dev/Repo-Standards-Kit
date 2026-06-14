@@ -12,7 +12,7 @@ The kit's "public API" is the set of artifacts and conventions downstream repos 
 | **Profile matrix** (Required / Expected / Optional / N/A per profile per numbered doc) | Stable; cells may move per kit-version rules in [`versioning-policy.md`](./versioning-policy.md) | `docs/STANDARDS.md` § "Profile matrix" |
 | **ADR format** (MADR 3.0) | Stable | `docs/templates/adr-template.md`, ADR [0002](./decisions/0002-adopt-madr-3.md) |
 | **RFC format** (folder per RFC, required sections) | Stable | `docs/templates/rfc-template.md` |
-| **Discovery conventions** (filename, optional frontmatter, `status` lifecycle) | Stable | `docs/STANDARDS.md` § "Discovery folder" |
+| **Discovery conventions** (filename and optional frontmatter) | Stable | `docs/STANDARDS.md` § "Discovery folder" |
 | **Waiver syntax** (`**Waived:** <reason>` on unchecked checklist boxes) | **Load-bearing for CI**; treat as a hard contract | `docs/STANDARDS.md` § "Waiver mechanism" |
 | **`AGENTS.md` reading order and end-of-session contract** | Stable | `AGENTS.md` (root) |
 

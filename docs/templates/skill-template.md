@@ -6,14 +6,16 @@ AGENTS.md `## Available skills` index.
 -->
 ---
 name: <skill-name>
-description: <one line — what it does and when to reach for it>
+description: <description>
 ---
 
 # <skill-name>
 
 ## When to invoke
 
-<The trigger. If it satisfies an AGENTS.md end-of-session contract item, name it.>
+<description>
+
+Use this when <the trigger or workflow need>.
 
 ## How to invoke
 
@@ -25,4 +27,4 @@ Run from the repo root:
 
 ## After
 
-<What the agent does with the result — fill fields, paste an index row, re-run, etc.>
+<What the agent does with the result: fill fields, paste an index row, re-run, etc.>

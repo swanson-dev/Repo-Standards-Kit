@@ -69,25 +69,18 @@ class UpdateTests(unittest.TestCase):
             self.assertIn("AGENTS.md", report["conflicts"])
             self.assertTrue((target / f"AGENTS.md.kit-{__version__}").is_file())
 
-    def test_update_delivers_missing_discovery_scaffold(self):
-        # A repo adopted before v0.14.0 lacks the discovery intake scaffold. Because the
-        # structure (.gitignore, .gitkeep folder anchors, captured/) is kit-tracked, update
-        # must deliver it when absent (ADR-0014 delivery fix).
-        import shutil
+    def test_update_reports_removed_discovery_workflow_payload(self):
         from standards.update import run_update
+        from standards.marker import MARKER_NAME
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
             _adopt(target)
-            disc = target / "docs" / "discovery"
-            (disc / ".gitignore").unlink()
-            shutil.rmtree(disc / "captured")
-            for k in ("meetings", "requirements", "use-cases", "notes"):
-                shutil.rmtree(disc / k)
-            run_update(target)
-            self.assertTrue((disc / ".gitignore").is_file(), ".gitignore not delivered")
-            self.assertTrue((disc / "captured" / "README.md").is_file(), "captured/ not delivered")
-            for k in ("meetings", "requirements", "use-cases", "notes"):
-                self.assertTrue((disc / k / ".gitkeep").is_file(), f"{k}/.gitkeep not delivered")
+            marker_path = target / MARKER_NAME
+            data = json.loads(marker_path.read_text(encoding="utf-8"))
+            data["tracked"]["docs/discovery/captured/README.md"] = "old"
+            marker_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+            report = run_update(target)
+            self.assertIn("docs/discovery/captured/README.md", report["removed"])
 
     def test_scaffold_once_never_touched(self):
         from standards.update import run_update

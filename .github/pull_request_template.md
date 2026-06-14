@@ -21,7 +21,7 @@ Check each box or replace with `N/A — <reason>`. The Standards check workflow 
 - [ ] **ADR:** A material decision is captured in `docs/decisions/` — or `N/A — no material decision in this PR`.
 - [ ] **RFC:** Any open RFC concluded by this PR (which: ____) — or `N/A`.
 - [ ] **AI context:** `ai/current-state.md` and/or `ai/handoff.md` updated — or `N/A — state did not change`.
-- [ ] **Discovery promoted:** Any `discovery/` items with `status: raw` synthesized in this PR are flipped to `promoted` — or `N/A`.
+- [ ] **Discovery:** New or updated `docs/discovery/` notes are linked from the structured docs they informed — or `N/A`.
 - [ ] **Testing:** New behavior covered by tests (link: ____) — or `N/A — <reason>`.
 - [ ] **Operational:** `06-runbook.md` updated if operability changed — or `N/A`.
 - [ ] **Standards drift:** No undocumented deviation from `docs/STANDARDS.md` introduced (or a new ADR justifies it).

@@ -15,7 +15,7 @@ Each finding is `[<check_id>] <file>:<line> <message>`.
 
 Fix by check_id: `links` → correct the relative path / `#anchor`; `placeholder` → fill
 `<…>`/`YYYY-MM-DD`/`NNNN` in the committed ADR/RFC; `changelog` → add a `## [x.y.z]`
-section; `discovery` → fix the `promoted_to:` path; `skill-format` → add the missing
+section; `skill-format` → add the missing
 frontmatter / `.github/prompts/<n>.prompt.md` twin / `AGENTS.md` index entry;
 `structural` → add the missing file or a `**Waived:**` reason; `ai` freshness → run
 the update-handoff prompt. Re-run until `0 error(s)`.

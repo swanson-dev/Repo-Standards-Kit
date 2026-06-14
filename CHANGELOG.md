@@ -8,6 +8,19 @@ include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-po
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-06-14
+
+### Added
+- Added a repo-local `scripts/new-doc/new-skill.py` scaffolder for paired Claude/Copilot
+  skill surfaces, plus agent-readiness guidance for AI-assisted repos.
+
+### Changed
+- Simplified `docs/discovery/` to normal tracked markdown notes (ADR-0017), removing the
+  capture/promote workflow, `captured/` folder, intake scaffold, discovery SessionStart hooks,
+  and `promoted_to` standards check from the shipped kit payload.
+- Strengthened `skill-format` checks to verify the Copilot pointer and local Claude hook script
+  references, and made the update-handoff advisory name `ai/handoff.md`.
+
 ## [0.16.0] - 2026-06-02
 
 ### Added
@@ -267,6 +280,8 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.17.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.17.0
+[0.16.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.16.0
 [0.15.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.15.0
 [0.14.1]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.14.1
 [0.14.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.14.0

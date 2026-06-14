@@ -1,6 +1,6 @@
 ---
-last_updated: 2026-06-02
-last_updated_by: swanson-dev (via claude-code-assistant)
+last_updated: 2026-06-14
+last_updated_by: codex
 ---
 
 # Current State
@@ -17,7 +17,6 @@ last_updated_by: swanson-dev (via claude-code-assistant)
 - `CHANGELOG.md` is started at v0.1.0 (Keep-a-Changelog), closing `ai/open-questions.md#q-3`.
 - `new-adr` and `new-rfc` scaffolding scripts with Claude/Copilot wrappers (Slice 2) — stdlib Python under `scripts/new-doc/`, dual SKILL.md + prompt.md surfaces, closing `ai/open-questions.md#q-1`.
 - `update-handoff` slash command + Stop hook for the AGENTS.md end-of-session contract (Slice 2.5).
-- `promote-discovery` slash command + SessionStart hook for the AGENTS.md end-of-session discovery-promotion contract (Slice 2.6).
 - **Slice 3 distribution (v0.5.0 + v0.6.0).** The kit is a pip/`pipx`/`uvx`-installable, zero-dependency package (`repo-standards-kit`, hatchling) with a `standards` CLI under `src/standards/`:
   - `standards init [--profile …] [target]` — vendors kit content into a repo (three ownership classes: kit-tracked / scaffold-once / partial managed-region), scaffolds `ai/` starters + a profile-filled checklist, writes the `.standards-kit.json` version+hash marker, and refuses to overwrite differing pre-existing files without `--force`.
   - `standards update [target] [--dry-run]` — reconciles an adopted repo against the running version: hash-guarded overwrite of untouched kit-tracked files, managed-block splice for partial files, `<path>.kit-<version>` sidecars on conflict (never destructive), and a 0.5.0→0.6.0 markerless-migration path.
@@ -28,21 +27,22 @@ last_updated_by: swanson-dev (via claude-code-assistant)
   - `.github/workflows/release.yml` — tag-triggered (`v*`) PyPI **Trusted-Publishing (OIDC, tokenless)** release, gated on tests + build, scoped to a `pypi` GitHub Environment. Inert until the maintainer does the one-time PyPI setup and pushes a tag.
   - Decisions/docs: ADR-0011 (publish via GitHub Actions Trusted Publishing), `docs/RELEASING.md` (one-time setup + release ritual).
 - **Slice 4 deeper CI enforcement (v0.7.0 → v0.9.0).** `standards-check` grew from structural to content-level, plus release/process guardrails and a guarded skill surface:
-  - `scripts/standards-check/checks/` package (orchestrator + `structural`/`links`/`content`/`skills`/`discovery`/`_text`). Content checks: internal link+anchor resolution, ADR/RFC placeholder + CHANGELOG-shape lint, SKILL.md format + SKILL.md⟺prompt.md parity + skills-index-drift, discovery `promoted_to`-existence. **Severity model:** error in the kit, warn-default in adopters, escalatable per-check via a `"check"` map in `.standards-kit.json`.
+  - `scripts/standards-check/checks/` package (orchestrator + `structural`/`links`/`content`/`skills`/`_text`). Content checks: internal link+anchor resolution, ADR/RFC placeholder + CHANGELOG-shape lint, and SKILL.md-to-prompt parity + skills-index drift. **Severity model:** error in the kit, warn-default in adopters, escalatable per-check via a `.standards-kit.json` check map.
   - `tools/check_version_coherence.py` (kit-only) — `__about__` ↔ CHANGELOG ↔ `AGENTS.md` Kit-version must agree; run by `.github/workflows/kit-guards.yml` (PR) + a `release.yml` tag-gate.
   - Handoff freshness tightened 7→5 days (warning); louder Stop-hook nudge with a staleness trigger.
   - New `/standards-check` skill (Claude + Copilot), skill templates, and an `## Available skills` index in `AGENTS.md`.
   - 23/23 test suites green; standards-check 0/0; version coherence OK at 0.9.0.
-- **Discovery capture (v0.14.0).** `/capture-discovery` turns raw intake (PDFs/JSON/drafts dropped in the gitignored `docs/discovery/{meetings,requirements,use-cases,notes}/` folders) into tracked markdown notes under `docs/discovery/captured/`. `init`/`adopt` now scaffold the intake folders (tracked via `.gitkeep`, contents ignored) + `captured/` + a `docs/discovery/.gitignore`; `promote-discovery` `list` and the `discovery` check now scope to tracked notes and exclude intake. New stdlib `scripts/capture-discovery/`, Claude SKILL + Copilot prompt, SessionStart `--check` hook. ADR-0014 (extends 0005). 26/26 suites; check 0/0; coherence OK at 0.14.0; wheel bundles the new payload.
-- **PDF fallback doc (v0.14.1).** `capture-discovery` SKILL + Copilot prompt document a `pypdf` extraction fallback for agents that can't read PDFs directly; the kit still ships no PDF dependency (ADR-0007).
-- **Interactive promote (v0.15.0).** `/promote-discovery` defaults to interactive decision-shaping — proposes candidate ADR(s)/RFC(s), interviews for rationale, drafts the Proposed doc(s), then flips `status: raw → promoted`; the CLI stays a plain monotonic flip (ADR-0015). Published to PyPI through **v0.15.0**.
+- **Milestone roadmap (v0.16.0).** PR #18 has landed on `main` and local `v0.16.0` is tagged. The implementation-plan template now carries a `## Roadmap` milestone table, and the kit dogfoods the roadmap in `docs/05-implementation-plan.md` (RFC-0003, ADR-0016).
+- **Workflow simplification + AI readiness (v0.17.0 release-prep).** Discovery remains a normal tracked markdown folder under `docs/discovery/`; the capture/promote command workflow, intake scaffold, `captured/` folder, discovery SessionStart hooks, and `promoted_to` standards check have been removed from the shipped kit payload. ADR-0017 supersedes ADR-0014 and ADR-0015.
+- **CLI help polish (v0.17.0 release-prep).** The `standards` CLI now has richer argparse workflow help, concrete subcommand examples, a `standards help [command]` alias, and clearer `update` guidance for repos that have not been adopted yet.
+- **AI tooling polish (v0.17.0 release-prep).** `scripts/new-doc/new-skill.py` scaffolds paired Claude/Copilot skill files and updates the `AGENTS.md` skills index; `skill-format` checks also cover the Copilot pointer and local Claude hook script references. Agent-readiness guidance now lives in `docs/STANDARDS.md` and the shipped standards template.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| **Milestone roadmap** — built + verified, PR open. Adds a `## Roadmap` section to the `05-implementation-plan` template (status vocab + exactly-one-`active` invariant) and dogfoods it in `docs/05-implementation-plan.md`; README/AGENTS point at it (RFC-0003, ADR-0016). Bundles the Node 24 CI chore. v0.16.0 release cut deferred. | `feat/roadmap-milestones` (PR #18) | swanson-dev | PR → main → cut v0.16.0 |
-| _Otherwise idle._ Slices 1–6 shipped; **published to PyPI through v0.15.0**. Backlog: external-link liveness, doc-freshness reporting, a `new-skill` scaffolder. | — | swanson-dev | — |
+| **v0.17.0 release prep** — version metadata, changelog, AI context, and release-readiness gates are being brought into sync after the post-0.16 cleanup. | `main` | codex | commit locally; maintainer can push/tag/publish |
+| _Backlog._ External-link liveness and richer doc-freshness reporting remain unscheduled. | — | swanson-dev | pick up in a future milestone |
 
 ## What's blocked
 

@@ -223,7 +223,10 @@ def cmd_check(args: argparse.Namespace) -> None:
     if stale:
         clauses.append(f"handoff is >{HANDOFF_STALE_DAYS} days old")
     detail = "; ".join(clauses)
-    msg = f"update-handoff: {detail} — run /update-handoff before ending the session"
+    msg = (
+        f"update-handoff: {detail} - refresh {HANDOFF_POSIX} with /update-handoff "
+        "before ending the session"
+    )
     print(msg, file=sys.stderr)
 
 

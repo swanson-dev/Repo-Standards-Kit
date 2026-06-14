@@ -63,19 +63,15 @@ class AdoptTests(unittest.TestCase):
             self.assertIn("AGENTS.md", report["spliced"])
             self.assertIn("AGENTS.md", read_marker(target)["managed"])
 
-    def test_adopt_scaffolds_discovery_intake_structure(self):
-        # ADR-0014: adopt delivers the discovery scaffold. The structure (.gitignore,
-        # .gitkeep anchors, captured/) is kit-tracked, so it lands via report["added"];
-        # only the top-level discovery README is scaffold-once.
+    def test_adopt_scaffolds_normal_discovery_folder(self):
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
             _seed_repo(target)
             report = run_adopt(target, profile="library", adopted="2026-06-01")
             disc = target / "docs" / "discovery"
-            self.assertTrue((disc / "captured" / "README.md").is_file())
-            self.assertTrue((disc / "notes" / ".gitkeep").is_file())
-            self.assertTrue((disc / ".gitignore").is_file())
-            self.assertIn("docs/discovery/.gitignore", report["added"])
+            self.assertFalse((disc / "captured").exists())
+            self.assertFalse((disc / "notes").exists())
+            self.assertFalse((disc / ".gitignore").exists())
             self.assertIn("docs/discovery/README.md", report["scaffolded"])
 
     def test_adopt_refuses_if_already_adopted(self):

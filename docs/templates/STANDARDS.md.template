@@ -24,3 +24,11 @@ None.
 ## Waivers
 
 For Required or Expected docs that this repo skipped, see [`STANDARDS-CHECKLIST.md`](./STANDARDS-CHECKLIST.md). Every unchecked Required/Expected box must include a `**Waived:**` reason.
+
+## Agent readiness
+
+- [ ] `AGENTS.md` names the canonical reading order.
+- [ ] `ai/current-state.md` is current enough to trust.
+- [ ] `ai/handoff.md` is present and not older than the handoff stale threshold.
+- [ ] Local skills, if any, are paired across Claude and Copilot surfaces and listed in `AGENTS.md`.
+- [ ] `standards check` passes, or any adopter warnings are explicitly accepted.

@@ -1,16 +1,16 @@
 # AGENTS.md
 
-<!-- BEGIN kit-managed: agents-core (v0.16.0) -->
+<!-- BEGIN kit-managed: agents-core (v0.17.0) -->
 Single source of truth for AI agents working in this repository. Tool-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) are thin pointers to this document.
 
-- Kit version: **0.16.0**
+- Kit version: **0.17.0**
 
 ## Canonical reading order
 
 When you start a session in a repo that follows this kit, read in this order before taking action:
 
 1. **`docs/00-overview.md`** — what this repo is, in 1 page.
-2. **`ai/handoff.md`** — what the last session left for you. If `written` is older than 7 days, treat as "no handoff available".
+2. **`ai/handoff.md`** — what the last session left for you. If `written` is older than 5 days, treat as "no handoff available".
 3. **`ai/current-state.md`** — the current truth about what works, what's in progress, what's blocked.
 4. **`docs/STANDARDS.md`** — which profile this repo follows and any local deviations.
 5. **`ai/next-actions.md`** — the next 1–7 things on deck.
@@ -28,15 +28,13 @@ Before you finish a session that produced meaningful change:
 - [ ] If you closed an `ai/open-questions.md` entry, flip status to `answered` and link the ADR (if one was produced) or the resolution.
 - [ ] If you made a material technical decision, write an ADR in `docs/decisions/` (MADR 3.0 format — see `docs/templates/adr-template.md`).
 - [ ] If you ran a time-boxed investigation, write or conclude an RFC in `docs/rfcs/<NNNN-slug>/rfc.md`.
-- [ ] If raw source material (PDFs, JSON, drafts) landed in the `docs/discovery/` intake folders, run `/capture-discovery` to synthesize it into tracked `docs/discovery/captured/` notes (the raw originals stay gitignored).
-- [ ] To turn a captured discovery note into a decision/investigation, run `/promote-discovery` — via an agent it interviews you, drafts the Proposed ADR/RFC, and flips `status: raw` → `promoted` with `promoted_to:` set (ADR-0015). For a note whose content already went into a doc, the plain flip just records the link.
 - [ ] Run `/standards-check` (or `python scripts/standards-check/check.py`) and fix any findings before ending a session that touched docs.
 
 ## How to author each artifact type
 
 - **ADRs:** `docs/templates/adr-template.md`. Immutable once `Accepted`. Reversal = new ADR + flip old to `Superseded by NNNN`.
 - **RFCs:** `docs/templates/rfc-template.md`. One folder per RFC under `docs/rfcs/NNNN-slug/`. Every RFC must either spawn an ADR, be `Abandoned` with reason, or its question must be tracked in `ai/open-questions.md`.
-- **Discovery items:** raw source material (PDFs, JSON, drafts) goes in the gitignored intake folders (`docs/discovery/{meetings,requirements,use-cases,notes}/`); `/capture-discovery` synthesizes it into tracked markdown notes in `docs/discovery/captured/`. Templates: `docs/templates/discovery-meeting-notes.md` / `discovery-use-case.md`. Filename: `YYYY-MM-DD-source-topic.md`. Frontmatter (`source`, `date_captured`, `topic`, `status`, `promoted_to`).
+- **Discovery items:** lightweight stakeholder, research, and reconnaissance notes live directly under `docs/discovery/` as tracked markdown. Templates: `docs/templates/discovery-meeting-notes.md` / `discovery-use-case.md`. Filename: `YYYY-MM-DD-source-topic.md`. Optional frontmatter (`source`, `date`, `topic`).
 - **Skills:** `docs/templates/skill-template.md` (Claude) + `docs/templates/skill-prompt-template.md` (Copilot). Name must equal the skill's directory; add a row to the `## Available skills` index.
 - **Numbered docs:** see `docs/STANDARDS.md` for which docs are Required/Expected/Optional/N/A for this profile.
 
@@ -54,8 +52,6 @@ Before you finish a session that produced meaningful change:
 |---|---|
 | `new-adr` | Recording a material architecture decision |
 | `new-rfc` | Starting a time-boxed investigation |
-| `capture-discovery` | Turning raw intake (PDFs/JSON/drafts) into synthesized `captured/` notes |
-| `promote-discovery` | Marking a discovery item promoted |
 | `update-handoff` | Writing the end-of-session handoff |
 | `standards-check` | Running the standards checks + fixing findings before pushing |
 

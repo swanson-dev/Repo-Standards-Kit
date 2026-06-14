@@ -27,7 +27,6 @@ do not fail CI. The output lists each finding as `[<check_id>] <file>:<line> <me
 - **`placeholder`** — a committed ADR/RFC still has template scaffolding. Fill the
   `<…>`, `YYYY-MM-DD`, or `NNNN`.
 - **`changelog`** — `CHANGELOG.md` has no `## [x.y.z]` version section; add one.
-- **`discovery`** — a `status: promoted` item's `promoted_to:` path is missing or wrong.
 - **`skill-format`** — a skill is missing frontmatter, its `.github/prompts/<n>.prompt.md`
   twin, or an entry in the `AGENTS.md` `## Available skills` index. Add the missing piece.
 - **`structural`** — a core file is missing, a profile/waiver is unset, or an ADR/RFC

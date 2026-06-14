@@ -38,7 +38,7 @@ class RunTestsTests(unittest.TestCase):
         names = {p.name for p in discover(root)}
         self.assertIn("test_update.py", names)
         self.assertIn("test_check.py", names)
-        self.assertIn("test_promote_discovery.py", names)
+        self.assertIn("test_update_handoff.py", names)
 
 
 if __name__ == "__main__":

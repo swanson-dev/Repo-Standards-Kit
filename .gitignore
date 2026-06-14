@@ -20,6 +20,10 @@ desktop.ini
 .claude/cache/
 .copilot/cache/
 
+# Local AI tool surfaces; the shipped agent contract is AGENTS.md + .claude/.github
+.agents/
+.codex/
+
 # Python bytecode and caches
 __pycache__/
 *.py[cod]

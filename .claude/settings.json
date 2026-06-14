@@ -10,21 +10,6 @@
           }
         ]
       }
-    ],
-    "SessionStart": [
-      {
-        "matcher": "",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python scripts/capture-discovery/capture_discovery.py list --check"
-          },
-          {
-            "type": "command",
-            "command": "python scripts/promote-discovery/promote_discovery.py list --check"
-          }
-        ]
-      }
     ]
   }
 }

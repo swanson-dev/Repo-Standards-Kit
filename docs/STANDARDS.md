@@ -1,6 +1,6 @@
 # Team Repository Standards
 
-**Kit version:** 0.16.0
+**Kit version:** 0.17.0
 **Status:** Slices 1–6 shipped; roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
@@ -54,7 +54,7 @@ If your repo doesn't fit, **pick the closest profile** and record any deviations
 | `docs/00-overview.md` | What this repo is, in 1 page. |
 | `docs/10-glossary.md` | Project-specific terminology. |
 | `docs/decisions/` | ADRs (folder + README, even if empty). |
-| `docs/discovery/` | Raw intake (gitignored) + `captured/` synthesized notes (folder + README). |
+| `docs/discovery/` | Lightweight stakeholder, research, and reconnaissance notes (folder + README). |
 | `docs/rfcs/` | RFC folder (folder + README). |
 | `docs/templates/` | Starter templates (kit-supplied). |
 | `ai/current-state.md` | Living snapshot of repo state. |
@@ -219,54 +219,32 @@ RFCs do not sit `Open` indefinitely.
 
 ## Discovery folder
 
-`docs/discovery/` is the **raw intake folder** for unstructured stakeholder material — meeting notes, requirements drafts, use case docs, PDFs, JSON exports, anything pre-structured. Raw source is captured locally and synthesized into tracked markdown notes (ADR-0014).
+`docs/discovery/` is a lightweight folder for stakeholder, research, and reconnaissance notes that are useful before they become structured project documentation. Keep it loose: discovery notes preserve context and language that may later inform PRDs, architecture docs, ADRs, RFCs, or glossary entries.
 
-### Subfolders
+Discovery notes are normal tracked markdown files directly under `docs/discovery/`. Do not use a separate capture/promote lifecycle; when a note informs a durable artifact, link the note from that artifact or mention it in the relevant ADR/RFC.
 
-Raw intake (contents **gitignored** — drop source material here, it stays local):
-
-- `meetings/` — meeting notes, decks, call recordings.
-- `requirements/` — business requirements drafts received from stakeholders.
-- `use-cases/` — use case documents (often stakeholder-authored).
-- `notes/` — anything else pre-structured (PDFs, JSON, interviews).
-
-Synthesized output (**tracked**):
-
-- `captured/` — markdown notes produced by `/capture-discovery` from the intake material. These are the committed, auditable record; the raw originals are not version-controlled.
-
-### Capture and promotion workflow
-
-1. Drop source material into the matching intake subfolder (gitignored).
-2. Run `/capture-discovery` — the AI synthesizes each source into a `captured/` markdown note with `status: raw`.
-3. Run `/promote-discovery` when a captured note's content is synthesized into a structured doc.
-
-### Filename convention (for `captured/` notes)
+### Filename convention
 
 `YYYY-MM-DD-source-topic.md`
 
 Examples:
-- `captured/2026-05-12-acme-corp-kickoff.md`
-- `captured/2026-04-30-procurement-requirements-draft.md`
-- `captured/2026-05-02-claims-adjuster-use-case.md`
+- `2026-05-12-acme-corp-kickoff.md`
+- `2026-04-30-procurement-requirements-draft.md`
+- `2026-05-02-claims-adjuster-use-case.md`
 
 ### Optional frontmatter (encouraged for traceability)
 
 ```yaml
 source: <person, meeting, doc URL>
-date_captured: 2026-05-12
+date: 2026-05-12
 topic: <free text>
-status: raw | reviewed | promoted
-promoted_to: docs/01-prd.md   # filled when status flips to promoted
 ```
-
-### Traceability flow
-
-When content from a `captured/` note is synthesized into a structured doc (PRD, architecture, ADR, etc.), flip `status: promoted` and set `promoted_to:`. This turns the folder from a write-only graveyard into a traceable feeder system. (The `promoted_to:` integrity check applies to `captured/` and top-level notes; gitignored intake folders are excluded.)
 
 ### What does NOT belong in `docs/discovery/`
 
-- Technical investigations with a question and recommendation → those are **RFCs** under `docs/rfcs/`.
-- Decisions → those are **ADRs** under `docs/decisions/`.
+- Technical investigations with a question and recommendation -> those are **RFCs** under `docs/rfcs/`.
+- Decisions -> those are **ADRs** under `docs/decisions/`.
+- Large binary source files -> keep those outside the repo and link to them from a markdown note when needed.
 
 ## AGENTS.md pattern
 
@@ -281,6 +259,16 @@ The kit uses a single root **`AGENTS.md`** as the canonical agent contract. Tool
 3. End-of-session contract (what to update before exiting a session).
 4. Pointers to the templates for each artifact type.
 5. Local conventions (date format, naming, etc.).
+
+### Agent-readiness checklist
+
+A repo is ready for AI-assisted work when:
+
+- `AGENTS.md` exists and names the canonical reading order.
+- `ai/current-state.md` is present and current enough to trust.
+- `ai/handoff.md` is present and not older than the handoff stale threshold.
+- Every local skill is paired across Claude and Copilot surfaces and listed in `AGENTS.md`.
+- `standards check` passes, or any adopter warnings are explicitly accepted by the team.
 
 ## Waiver mechanism
 
@@ -349,7 +337,8 @@ Beyond the structural checks, standards-check validates document bodies:
 - **Internal links** — every relative markdown link (and `#anchor`) must resolve to a real file/heading. External (`http(s)`/`mailto`) links are not checked.
 - **Placeholders** — committed ADRs/RFCs must not retain template scaffolding (`<...>` tokens, literal `YYYY-MM-DD`, bare `NNNN`).
 - **Skill format / parity / index** — every `.claude/skills/<n>/SKILL.md` needs frontmatter `name` (matching its directory) and `description`, a matching `.github/prompts/<n>.prompt.md` twin, and a row in the `AGENTS.md` `## Available skills` index. (Adopters: these default to warnings, escalatable via the `skill-format` key.)
-- **Discovery** — every `status: promoted` item under `docs/discovery/` (excluding the gitignored intake folders) must have a `promoted_to:` path that exists.
+
+- **Agent surface pointers** - Copilot instructions must point back to `AGENTS.md`, and local Claude hook commands must reference scripts that exist.
 
 **Severity.** In the kit itself these are **errors**. In an adopting repo (one with a `.standards-kit.json` marker) they default to **warnings**. To escalate a check to an error in your repo, add a `"check"` map to `.standards-kit.json`:
 
