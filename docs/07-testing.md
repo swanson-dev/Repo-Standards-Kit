@@ -10,14 +10,16 @@ The kit has no runtime, so there are no unit tests in the traditional sense. Ver
 | Opt-in link liveness | Stale or missing external `http(s)` destinations | `standards check --external-links` |
 | Opt-in freshness report | Current age/status for rolling `ai/` docs | `standards check --freshness-report` |
 | Self-application check | Does the kit conform to its own library-profile requirements? | The kit's own `STANDARDS-CHECKLIST.md` parsed by the same workflow |
-| Walkthrough | Can a contributor adopt the kit in ≤30 minutes for an empty repo of each profile? | Manual, recorded in `docs/discovery/` of a real downstream repo |
+| V1 readiness | Can generated downstream repos for every profile pass init/check/update/check? | `python tools/check_v1_readiness.py` |
+| Walkthrough | Can a contributor adopt the kit in a real repo of each profile? | Manual, recorded in `docs/discovery/` of a real downstream repo |
 | Cross-tool agent check | Do Claude Code, Copilot, and one other tool all land on `AGENTS.md` and follow the canonical reading order? | Manual, per release |
 
 ## Coverage targets
 
 - **Structural lint:** 100% of files matched by the workflow rules.
 - **Self-application:** every Required and Expected doc for the `library` profile present (or waived) in this kit.
-- **Walkthrough:** at least one downstream repo per profile (4 total) before the kit cuts a 1.0.0.
+- **V1 readiness:** generated downstream fixture repos for all four profiles pass `init`, `check`, `update`, and `check` again before the kit cuts v1.0.0.
+- **Walkthrough:** at least one real downstream repo per profile over time; useful evidence, but not a v1.0.0 release blocker.
 
 ## How to run locally
 
@@ -41,9 +43,15 @@ Freshness status reporting is also opt-in:
 python scripts/standards-check/check.py --freshness-report
 ```
 
+The v1 readiness gate validates generated downstream repos for all profiles:
+
+```
+python tools/check_v1_readiness.py
+```
+
 ## CI
 
-`.github/workflows/repo-standards.yml` runs the structural lint and self-application check on every push and PR to `main`. Phase E adds the workflow file.
+`.github/workflows/repo-standards.yml` runs the structural lint and self-application check on every push and PR to `main`. `.github/workflows/kit-guards.yml` runs version coherence and the v1 readiness gate. `.github/workflows/external-links.yml` is manual-only for networked external-link audits.
 
 ## Flaky-test policy
 

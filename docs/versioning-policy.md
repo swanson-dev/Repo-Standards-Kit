@@ -10,15 +10,9 @@ The kit follows **Semantic Versioning 2.0.0** (`MAJOR.MINOR.PATCH`). Each downst
 | New optional artifact, new profile-specific extra, new tier-respecting cell (e.g., Optional → Expected with grace period), new template, new section in an existing template | **MINOR** |
 | Typo fixes, wording clarifications, new examples, new bootstrap ADR, new internal doc | **PATCH** |
 
-## Pre-1.0 caveat
+## 1.0.0 baseline
 
-Until the kit reaches 1.0.0, **MINOR bumps may include breaking changes**. The kit will still publish a CHANGELOG entry and a migration note, but downstream consumers should not assume the strict SemVer guarantees above hold below 1.0.
-
-The kit reaches 1.0.0 when:
-
-- All four profiles have been validated by at least one real downstream repo adoption.
-- Slice 2 (AI Skills + Hooks) is at least scaffolded so the contract is exercised end-to-end.
-- A distribution mechanism (Slice 3) is chosen.
+As of v1.0.0, downstream consumers can rely on the SemVer guarantees above. The v1.0.0 baseline is guarded by generated downstream fixture repos for all four profiles (`application`, `library`, `infra`, `data`) plus the shipped AI Skills/Hooks and PyPI `standards` CLI distribution mechanism. ADR-0018 records generated fixtures as the release-readiness evidence.
 
 ## Public surface
 

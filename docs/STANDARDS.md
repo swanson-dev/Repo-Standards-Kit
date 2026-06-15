@@ -1,7 +1,7 @@
 # Team Repository Standards
 
-**Kit version:** 0.18.0
-**Status:** Slices 1-6 and M4 release/reporting hygiene shipped; roadmap in `docs/05-implementation-plan.md`
+**Kit version:** 1.0.0
+**Status:** v1.0.0 release readiness shipped; roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
 ## Purpose and precedence
@@ -328,7 +328,7 @@ Each repo records the kit version it adopted in its local `docs/STANDARDS.md`. U
 
 Link checking, placeholder/content linting, skill-format linting, opt-in external-link liveness, and opt-in freshness reporting now ship as the v2 content checks (see below).
 
-The kit's own release is guarded by `tools/check_version_coherence.py` (run in `kit-guards.yml` and `release.yml`): `src/standards/__about__.py`, the CHANGELOG top entry, and the `AGENTS.md` Kit-version must agree, and a release tag must match the version. This guard is kit-internal and is not shipped to adopters.
+The kit's own release is guarded by `tools/check_version_coherence.py` and `tools/check_v1_readiness.py` (run in `kit-guards.yml` and `release.yml`): version strings and release tags must agree, and generated downstream fixture repos for all four profiles must pass `init`, `check`, `update`, and `check` again. These guards are kit-internal and are not shipped to adopters.
 
 ## Content checks (v2)
 

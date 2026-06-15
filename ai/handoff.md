@@ -1,5 +1,5 @@
 ---
-written: 2026-06-15T11:00:00-05:00
+written: 2026-06-15T11:45:00-05:00
 written_by: codex
 for: next-session
 ---
@@ -8,23 +8,23 @@ for: next-session
 
 ## TL;DR
 
-M4 release/reporting hygiene shipped as v0.18.0. The kit now has opt-in
-`--external-links` and `--freshness-report` checks; `ai/` freshness covers
-current-state, next-actions, and handoff; historical changelog placeholder links
-are cleaned up. The v0.18.0 GitHub Release is live with sdist/wheel artifacts
-and publish attestations.
+v1.0.0 readiness is implemented locally. The kit now has a generated
+four-profile downstream readiness gate, release/kit-guard workflows run it, and
+the manual external-link workflow provides opt-in networked audits. Docs now
+describe the stable SemVer baseline, ADR-0018 records generated fixtures as the
+v1 readiness evidence, and release docs include the published-package smoke.
 
 ## Recently touched
 
-- `scripts/standards-check/checks/external_links.py` adds opt-in HTTP liveness checking with URL dedupe and HEAD-to-GET fallback.
-- `scripts/standards-check/checks/structural.py` now checks `ai/next-actions.md`, emits clearer freshness warning text, and supports opt-in freshness status output.
-- `scripts/standards-check/check.py` and `src/standards/cli.py` expose `--external-links` and `--freshness-report`.
-- Version/docs/changelog state was bumped to v0.18.0 and released.
+- `tools/check_v1_readiness.py` validates generated downstream repos for `application`, `library`, `infra`, and `data`.
+- `.github/workflows/kit-guards.yml` and `.github/workflows/release.yml` run the v1 readiness gate.
+- `.github/workflows/external-links.yml` adds a manual networked external-link check.
+- Version/docs/changelog state was bumped to v1.0.0 release prep.
 
 ## Open threads
 
-- Monitor downstream feedback on the new opt-in reporting checks.
-- Pick the next milestone before adding new CLI or adopter-contract surface.
+- Run final release gates, commit, push, tag `v1.0.0`, and verify the workflow.
+- Smoke the published `repo-standards-kit==1.0.0` package after PyPI publish.
 - Historical changelog entries, prior ADR bodies, RFCs, and superpowers plans still mention capture/promote because they describe past design work.
 - No `commands`, `doctor`, interactive CLI prompting, or `standards new-skill` subcommand was added; keep that scope for a separate design pass if wanted.
 

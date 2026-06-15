@@ -3,10 +3,28 @@
 All notable changes to the Team Repository Standards Kit are recorded here.
 
 This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and
-[Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0, MINOR bumps may
-include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-policy.md).
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html); see
+[`docs/versioning-policy.md`](./docs/versioning-policy.md).
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-06-15
+
+### Added
+- Added `tools/check_v1_readiness.py`, a release gate that validates generated
+  downstream fixture repos for all four profiles through `init`, `check`,
+  `update`, and a second `check`.
+- Added a manual `External link check` GitHub Actions workflow for opt-in
+  `standards-check --external-links` runs without making normal CI network-hard.
+- Added release documentation for v1 readiness and published-package smoke
+  validation.
+
+### Changed
+- Release and kit-guard workflows now run the v1 readiness gate.
+- Documentation now treats v1.0.0 as the stable SemVer baseline while preserving
+  historical pre-1.0 changelog notes.
+- Clarified future skill scaffolding work as a public `standards new-skill`
+  subcommand.
 
 ## [0.18.0] - 2026-06-15
 
@@ -297,6 +315,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[1.0.0]: #100---2026-06-15
 [0.18.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.18.0
 [0.17.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.17.0
 [0.16.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.16.0

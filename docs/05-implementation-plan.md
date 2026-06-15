@@ -2,7 +2,7 @@
 
 ## Roadmap
 
-> Active milestone: **None**. M4 shipped in v0.18.0; choose the next milestone before implementation begins.
+> Active milestone: **M5 — v1.0.0 readiness** (release-ready for v1.0.0)
 
 | Milestone                        | Outcome                                                                                  | Target   | Status  |
 |----------------------------------|------------------------------------------------------------------------------------------|----------|---------|
@@ -10,6 +10,7 @@
 | M2 — Roadmap & planning surface  | A standard home for the longitudinal roadmap (this doc + the template `## Roadmap` section) | v0.16.0  | shipped |
 | M3 — Workflow simplification & AI readiness | Flat discovery notes, clearer CLI help, local skill scaffolding, and stronger agent-surface checks | v0.17.0 | shipped |
 | M4 — Release and reporting hygiene | GitHub Release consistency, external-link liveness, and richer doc-freshness reporting    | v0.18.0  | shipped |
+| M5 — v1.0.0 readiness | Generated four-profile downstream validation, manual external-link workflow, stable SemVer docs | v1.0.0 | release-ready |
 
 ### Shipped slices (M1 — Foundation)
 
@@ -31,11 +32,34 @@
 
 ## Approach
 
+M5 turns the remaining v1.0.0 release criterion into a reproducible local and CI
+gate. Generated downstream fixture repos validate every profile through the
+public `standards` adoption path, and release docs now include a
+published-package smoke procedure.
+
 M4 closes the quality gaps that appear around releases and long-lived docs: release pages should
 exist when changelog links point at them, external links should not silently rot, and `ai/`
 freshness should be easier to report on than a simple stale/not-stale warning.
 
 ## Slices
+
+### Slice 1: Generated four-profile readiness gate
+
+- **Goal:** prove every profile can be adopted and updated through the public path before v1.0.0.
+- **Includes:** `tools/check_v1_readiness.py`, generated downstream fixtures, CI/release workflow gating, and tests.
+- **Excludes:** requiring private real-repo adoption as a release blocker.
+- **Owner:** codex
+- **Status:** Release-ready for v1.0.0.
+- **Verification:** `python tools/check_v1_readiness.py`; `python tests/test_v1_readiness.py -v`.
+
+### Slice 2: Release polish and stable SemVer docs
+
+- **Goal:** make the v1.0.0 release path and support promise explicit.
+- **Includes:** manual external-link workflow, published-package smoke docs, stable SemVer wording, and ADR-0018.
+- **Excludes:** new public CLI commands such as `standards new-skill` or `standards doctor`.
+- **Owner:** codex
+- **Status:** Release-ready for v1.0.0.
+- **Verification:** workflow contract tests, standards check, version coherence, and build.
 
 ### Slice 1: GitHub Release consistency
 
@@ -68,8 +92,8 @@ freshness should be easier to report on than a simple stale/not-stale warning.
 
 ```mermaid
 flowchart LR
-  S1[Slice 1: release consistency] --> S2[Slice 2: external links]
-  S2 --> S3[Slice 3: freshness reporting]
+  V1[Generated profile fixtures] --> V2[Stable SemVer docs]
+  V2 --> V3[v1.0.0 release gates]
 ```
 
 ## Verification per slice
@@ -77,8 +101,9 @@ flowchart LR
 Release/reporting hygiene work is verified with focused tests and the full local gates:
 - `python scripts/standards-check/check.py` — links/placeholders/structure.
 - `python tools/run_tests.py` — payload/manifest/CLI suite unaffected.
+- `python tools/check_v1_readiness.py` — generated downstream profile fixtures.
 - `python tools/check_version_coherence.py` — version strings stay coherent.
-- `gh release view v0.18.0` — GitHub Release exists with sdist/wheel artifacts.
+- `gh release view v1.0.0` — GitHub Release exists with sdist/wheel artifacts.
 
 ## Open questions blocking the plan
 

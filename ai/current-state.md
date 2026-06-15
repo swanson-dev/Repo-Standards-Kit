@@ -38,12 +38,13 @@ last_updated_by: codex
 - **AI tooling polish (v0.17.0).** `scripts/new-doc/new-skill.py` scaffolds paired Claude/Copilot skill files and updates the `AGENTS.md` skills index; `skill-format` checks also cover the Copilot pointer and local Claude hook script references. Agent-readiness guidance now lives in `docs/STANDARDS.md` and the shipped standards template.
 - **v0.17.0 published.** The `v0.17.0` tag published successfully to PyPI and now has a GitHub Release with the sdist and wheel attached.
 - **M4 release/reporting hygiene (v0.18.0 published).** The `v0.18.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. The tag-triggered release workflow creates/updates GitHub Releases, `standards-check` has opt-in `--external-links` and `--freshness-report` modes, historical changelog placeholder links are cleaned up, and `ai/` freshness now covers `current-state`, `next-actions`, and `handoff`.
+- **v1.0.0 readiness (release-ready).** Generated downstream fixture repos now validate all four profiles through `init`, `check`, `update`, and `check` again; release/kit-guard workflows run the v1 gate; the manual external-link workflow provides opt-in networked audits; docs now describe the stable SemVer baseline and published-package smoke.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| _No active implementation work._ | main | codex | choose next milestone |
+| **v1.0.0 release prep** - readiness implementation is complete locally; run final gates, commit, tag, and publish after review. | working tree | codex | v1.0.0 |
 
 ## What's blocked
 

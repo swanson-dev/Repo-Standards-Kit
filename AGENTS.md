@@ -1,9 +1,9 @@
 # AGENTS.md
 
-<!-- BEGIN kit-managed: agents-core (v0.18.0) -->
+<!-- BEGIN kit-managed: agents-core (v1.0.0) -->
 Single source of truth for AI agents working in this repository. Tool-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) are thin pointers to this document.
 
-- Kit version: **0.18.0**
+- Kit version: **1.0.0**
 
 ## Canonical reading order
 
@@ -68,5 +68,5 @@ This is the **Team Repository Standards Kit** — a versioned set of documentati
 ### Roadmap
 
 The active milestone and forward plan live in
-`docs/05-implementation-plan.md`. Genuinely-future work
-(open an RFC or `ai/open-questions.md` entry before starting): a `new-skill` scaffolder.
+`docs/05-implementation-plan.md`. Genuinely-future public CLI work
+(open an RFC or `ai/open-questions.md` entry before starting): a `standards new-skill` subcommand.

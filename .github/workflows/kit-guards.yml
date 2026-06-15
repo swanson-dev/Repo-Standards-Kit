@@ -19,3 +19,14 @@ jobs:
           python-version: '3.x'
       - name: Check version coherence
         run: python tools/check_version_coherence.py
+
+  v1-readiness:
+    name: V1 readiness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Validate generated downstream profiles
+        run: python tools/check_v1_readiness.py

@@ -84,7 +84,7 @@ Keep documentation lean but scalable. Add durable docs when they improve onboard
 
 ## Roadmap
 
-All six foundational slices are **shipped** and the kit is release-ready through v0.18.0. The living roadmap — the active
+All six foundational slices are **shipped** and the kit is released through v1.0.0. The living roadmap — the active
 milestone and what's planned next — and the full shipped-slice history now live in
 [`docs/05-implementation-plan.md`](./docs/05-implementation-plan.md). Design rationale is
 captured as ADRs under [`docs/decisions/`](./docs/decisions/) and investigations under

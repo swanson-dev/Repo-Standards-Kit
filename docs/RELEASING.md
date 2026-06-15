@@ -25,16 +25,22 @@ created on first publish.
    - `src/standards/__about__.py` (`__version__`)
    - The top numeric `## [X.Y.Z]` entry in `CHANGELOG.md`
    - The `Kit version: **X.Y.Z**` line in the `AGENTS.md` managed block
-2. Point the new CHANGELOG reference link at the real tag:
+2. Before the tag exists, point the new CHANGELOG reference link at the same-file
+   version anchor so `--external-links` stays green:
+   `[X.Y.Z]: #XYZ---YYYY-MM-DD`
+3. After the GitHub Release exists, update that reference link to the real tag:
    `[X.Y.Z]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/vX.Y.Z`
-3. Run the local gates:
+4. Run the local gates:
    ```sh
    python tools/run_tests.py
+   python tools/check_v1_readiness.py
    python scripts/standards-check/check.py
+   python scripts/standards-check/check.py --freshness-report
+   python scripts/standards-check/check.py --external-links
    python tools/check_version_coherence.py
    python -m build
    ```
-4. Tag and push:
+5. Tag and push:
    ```sh
    git tag vX.Y.Z
    git push origin main
@@ -43,6 +49,25 @@ created on first publish.
 
 The tag triggers `release.yml`: tests, build, PyPI publish, then GitHub Release
 creation with the sdist and wheel attached.
+
+## Published-package smoke
+
+After the tag workflow publishes, verify the installed package path from a clean
+temporary environment:
+
+```sh
+python -m venv .tmp-v1-smoke
+.tmp-v1-smoke/Scripts/python -m pip install repo-standards-kit==X.Y.Z
+.tmp-v1-smoke/Scripts/standards --version
+.tmp-v1-smoke/Scripts/standards init --profile library .tmp-adopted
+.tmp-v1-smoke/Scripts/standards check .tmp-adopted
+.tmp-v1-smoke/Scripts/standards check --freshness-report .tmp-adopted
+.tmp-v1-smoke/Scripts/standards check --external-links .tmp-adopted
+```
+
+Use the platform-appropriate `bin/` paths on Unix-like systems. The
+`--external-links` smoke depends on network access; retry before treating a
+transient network failure as a package failure.
 
 ## Notes
 
@@ -57,3 +82,5 @@ creation with the sdist and wheel attached.
   a stored PyPI API token; see ADR-0011.
 - Version coherence is enforced locally by `tools/check_version_coherence.py`
   and in CI by the kit guard workflows.
+- V1 readiness is enforced locally by `tools/check_v1_readiness.py` and in CI
+  by the kit guard and release workflows.

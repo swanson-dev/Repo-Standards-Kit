@@ -4,6 +4,6 @@ last_updated: 2026-06-15
 
 # Next Actions
 
-1. **Monitor v0.18.0 adoption** - watch for downstream feedback on `--external-links`, `--freshness-report`, and release-asset expectations.
-2. **Choose the next milestone** - decide whether the next slice is `standards new-skill`, `commands`/`doctor`, or another reporting-hardening pass before implementation begins.
-3. **Open an RFC for material new scope** - if the next milestone changes adopter contracts or CLI surface materially, capture the decision path before coding.
+1. **Cut v1.0.0** - after final local gates, commit, push, tag `v1.0.0`, and verify the release workflow.
+2. **Smoke the published package** - after PyPI publish, install `repo-standards-kit==1.0.0` in a clean temp environment and run the documented CLI smoke.
+3. **Pick the first post-v1 milestone** - decide whether the next public CLI slice is `standards new-skill`, `standards doctor`, or command discovery.

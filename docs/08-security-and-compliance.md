@@ -28,8 +28,8 @@ The kit has **no runtime, no secrets, no PII, and no external integrations**. Th
 
 ## Reviews
 
-- **Last security review:** 2026-05-28 (this document is the first review).
-- **Next review due:** at v1.0.0 cut, or when the kit gains a runtime component (Slice 2 Skills may introduce dependencies worth re-reviewing).
+- **Last security review:** 2026-06-15 (v1.0.0 release-readiness review; posture unchanged).
+- **Next review due:** when the kit gains a new runtime component, external integration, or non-stdlib dependency.
 - **Dependency-scan cadence:** N/A — no code dependencies.
 
 ## What changes the threat model

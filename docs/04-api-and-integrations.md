@@ -55,6 +55,10 @@ To inspect rolling `ai/` freshness without waiting for stale warnings, run
 `python scripts/standards-check/check.py --freshness-report` or
 `standards check --freshness-report`.
 
+This repository also ships a manual GitHub Actions workflow,
+`.github/workflows/external-links.yml`, for maintainers who want to run the
+networked external-link check on demand without adding it to default CI.
+
 ## Versioning
 
 See [`versioning-policy.md`](./versioning-policy.md). The kit follows SemVer. A consumer pins a specific kit version; upgrades are deliberate.
