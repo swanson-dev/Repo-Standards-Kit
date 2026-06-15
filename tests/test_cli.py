@@ -34,6 +34,16 @@ class CliTests(unittest.TestCase):
         self.assertEqual(res.returncode, 0, res.stderr)
         self.assertIn("init --profile library", res.stdout)
 
+    def test_check_help_lists_external_links_flag(self):
+        res = self._run("help", "check", cwd=REPO)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("--external-links", res.stdout)
+
+    def test_check_help_lists_freshness_report_flag(self):
+        res = self._run("help", "check", cwd=REPO)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("--freshness-report", res.stdout)
+
     def test_help_alias_unknown_topic_lists_valid_topics(self):
         res = self._run("help", "bogus", cwd=REPO)
         self.assertNotEqual(res.returncode, 0)

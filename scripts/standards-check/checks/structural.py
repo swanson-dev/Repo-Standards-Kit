@@ -44,6 +44,7 @@ UNIVERSAL_CORE = [
 ]
 
 CURRENT_STATE_STALE_DAYS = 14
+NEXT_ACTIONS_STALE_DAYS = 14
 HANDOFF_STALE_DAYS = 5
 
 
@@ -51,12 +52,16 @@ HANDOFF_STALE_DAYS = 5
 class Report:
     errors: list = field(default_factory=list)
     warnings: list = field(default_factory=list)
+    infos: list = field(default_factory=list)
 
     def err(self, msg: str) -> None:
         self.errors.append(msg)
 
     def warn(self, msg: str) -> None:
         self.warnings.append(msg)
+
+    def info(self, msg: str) -> None:
+        self.infos.append(msg)
 
 
 def parse_frontmatter(text: str) -> dict:
@@ -124,7 +129,7 @@ def check_waivers(root: Path, report: Report) -> None:
             )
 
 
-def _check_date_field(path, field_name, raw, stale_days, today, report, file_label) -> None:
+def _check_date_field(path, field_name, raw, stale_days, today, report, file_label, action, include_report=False) -> None:
     if not raw:
         report.err(f"[ai] {file_label} missing `{field_name}:` frontmatter.")
         return
@@ -134,20 +139,45 @@ def _check_date_field(path, field_name, raw, stale_days, today, report, file_lab
     except ValueError:
         report.err(f"[ai] {file_label} `{field_name}:` is not a valid ISO 8601 date: {raw}")
         return
-    if today - parsed > timedelta(days=stale_days):
-        report.warn(f"[ai] {file_label} `{field_name}: {date_part}` is older than {stale_days} days.")
+    age_days = (today - parsed).days
+    is_stale = today - parsed > timedelta(days=stale_days)
+    status = "stale" if is_stale else "fresh"
+    detail = (
+        f"[ai] {file_label} `{field_name}: {date_part}` is {status} "
+        f"(age {age_days} day(s), threshold {stale_days} day(s)). {action}"
+    )
+    if include_report:
+        report.info(detail)
+    if is_stale:
+        report.warn(detail)
 
 
-def check_ai_freshness(root: Path, report: Report) -> None:
+def check_ai_freshness(root: Path, report: Report, include_report=False) -> None:
     today = date.today()
     cs = root / "ai/current-state.md"
     if cs.exists():
         fm = parse_frontmatter(cs.read_text(encoding="utf-8", errors="replace"))
-        _check_date_field(cs, "last_updated", fm.get("last_updated"), CURRENT_STATE_STALE_DAYS, today, report, "ai/current-state.md")
+        _check_date_field(
+            cs, "last_updated", fm.get("last_updated"), CURRENT_STATE_STALE_DAYS,
+            today, report, "ai/current-state.md", "Refresh `ai/current-state.md` if repo truth changed.",
+            include_report,
+        )
+    na = root / "ai/next-actions.md"
+    if na.exists():
+        fm = parse_frontmatter(na.read_text(encoding="utf-8", errors="replace"))
+        _check_date_field(
+            na, "last_updated", fm.get("last_updated"), NEXT_ACTIONS_STALE_DAYS,
+            today, report, "ai/next-actions.md", "Refresh `ai/next-actions.md` with current priorities.",
+            include_report,
+        )
     ho = root / "ai/handoff.md"
     if ho.exists():
         fm = parse_frontmatter(ho.read_text(encoding="utf-8", errors="replace"))
-        _check_date_field(ho, "written", fm.get("written"), HANDOFF_STALE_DAYS, today, report, "ai/handoff.md")
+        _check_date_field(
+            ho, "written", fm.get("written"), HANDOFF_STALE_DAYS,
+            today, report, "ai/handoff.md", "Refresh `ai/handoff.md` at the end of meaningful work.",
+            include_report,
+        )
 
 
 def check_adrs(root: Path, report: Report) -> None:
@@ -194,9 +224,10 @@ def run(root: Path, ctx: Context) -> list:
     check_universal_core(root, report)
     check_profile(root, report)
     check_waivers(root, report)
-    check_ai_freshness(root, report)
+    check_ai_freshness(root, report, include_report=ctx.freshness_report)
     check_adrs(root, report)
     check_rfcs(root, report)
     findings = [Finding("structural", "error", m) for m in report.errors]
     findings += [Finding("structural", "warn", m) for m in report.warnings]
+    findings += [Finding("freshness", "info", m) for m in report.infos]
     return findings

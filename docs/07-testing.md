@@ -7,6 +7,8 @@ The kit has no runtime, so there are no unit tests in the traditional sense. Ver
 | Layer | What it catches | Tooling |
 |---|---|---|
 | Structural lint | Filename conventions, status vocabulary, frontmatter presence | `.github/workflows/repo-standards.yml` (Phase E) |
+| Opt-in link liveness | Stale or missing external `http(s)` destinations | `standards check --external-links` |
+| Opt-in freshness report | Current age/status for rolling `ai/` docs | `standards check --freshness-report` |
 | Self-application check | Does the kit conform to its own library-profile requirements? | The kit's own `STANDARDS-CHECKLIST.md` parsed by the same workflow |
 | Walkthrough | Can a contributor adopt the kit in ≤30 minutes for an empty repo of each profile? | Manual, recorded in `docs/discovery/` of a real downstream repo |
 | Cross-tool agent check | Do Claude Code, Copilot, and one other tool all land on `AGENTS.md` and follow the canonical reading order? | Manual, per release |
@@ -27,6 +29,18 @@ gh workflow run repo-standards.yml
 
 Or run the underlying script locally (Phase E adds the script under `scripts/`).
 
+External-link liveness is intentionally opt-in because it depends on the network:
+
+```
+python scripts/standards-check/check.py --external-links
+```
+
+Freshness status reporting is also opt-in:
+
+```
+python scripts/standards-check/check.py --freshness-report
+```
+
 ## CI
 
 `.github/workflows/repo-standards.yml` runs the structural lint and self-application check on every push and PR to `main`. Phase E adds the workflow file.
@@ -34,6 +48,8 @@ Or run the underlying script locally (Phase E adds the script under `scripts/`).
 ## Flaky-test policy
 
 Structural lint should never be flaky — it's deterministic markdown parsing. If a check goes red intermittently, treat it as a real bug (likely a parser ambiguity or a frontmatter edge case) rather than a transient.
+
+External-link liveness can be affected by network availability or remote service behavior; run it deliberately when validating release notes or docs with important outbound links.
 
 ## Test data
 

@@ -1,7 +1,7 @@
 # Team Repository Standards
 
-**Kit version:** 0.17.0
-**Status:** Slices 1–6 shipped; roadmap in `docs/05-implementation-plan.md`
+**Kit version:** 0.18.0
+**Status:** Slices 1-6 and M4 release/reporting hygiene shipped; roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
 ## Purpose and precedence
@@ -322,11 +322,11 @@ Each repo records the kit version it adopted in its local `docs/STANDARDS.md`. U
 1. **Universal core present** — all files listed under "Universal core".
 2. **Profile declared** — `docs/STANDARDS.md` declares a profile from the allowed set.
 3. **Waiver completeness** — every unchecked box in `docs/STANDARDS-CHECKLIST.md` has `**Waived:** <reason>`.
-4. **`ai/` freshness** — `ai/current-state.md` and `ai/handoff.md` have required frontmatter; warn if `last_updated` / `written` is older than the stale threshold.
+4. **`ai/` freshness** — `ai/current-state.md`, `ai/next-actions.md`, and `ai/handoff.md` have required frontmatter; warn if `last_updated` / `written` is older than the stale threshold.
 5. **ADR filename + status** — filenames match `NNNN-kebab-case.md`; status is `Proposed` | `Accepted` | `Deprecated` | `Superseded by NNNN`.
 6. **RFC structure + status** — `docs/rfcs/NNNN-slug/rfc.md` exists; status is `Open` | `Concluded` | `Abandoned`.
 
-Link checking, placeholder/content linting, and skill-format linting now ship as the v2 content checks (see below). Deeper checks still ahead — external-link liveness and richer doc-freshness reporting — remain future work.
+Link checking, placeholder/content linting, skill-format linting, opt-in external-link liveness, and opt-in freshness reporting now ship as the v2 content checks (see below).
 
 The kit's own release is guarded by `tools/check_version_coherence.py` (run in `kit-guards.yml` and `release.yml`): `src/standards/__about__.py`, the CHANGELOG top entry, and the `AGENTS.md` Kit-version must agree, and a release tag must match the version. This guard is kit-internal and is not shipped to adopters.
 
@@ -334,14 +334,16 @@ The kit's own release is guarded by `tools/check_version_coherence.py` (run in `
 
 Beyond the structural checks, standards-check validates document bodies:
 
-- **Internal links** — every relative markdown link (and `#anchor`) must resolve to a real file/heading. External (`http(s)`/`mailto`) links are not checked.
+- **Internal links** — every relative markdown link (and `#anchor`) must resolve to a real file/heading. External schemes are ignored by the default offline check.
 - **Placeholders** — committed ADRs/RFCs must not retain template scaffolding (`<...>` tokens, literal `YYYY-MM-DD`, bare `NNNN`).
 - **Skill format / parity / index** — every `.claude/skills/<n>/SKILL.md` needs frontmatter `name` (matching its directory) and `description`, a matching `.github/prompts/<n>.prompt.md` twin, and a row in the `AGENTS.md` `## Available skills` index. (Adopters: these default to warnings, escalatable via the `skill-format` key.)
 
 - **Agent surface pointers** - Copilot instructions must point back to `AGENTS.md`, and local Claude hook commands must reference scripts that exist.
+- **External-link liveness** — opt-in networked check for `http(s)` markdown links. It is off by default so normal CI stays deterministic; run `python scripts/standards-check/check.py --external-links` or `standards check --external-links` when you want to verify release, docs, or vendor links.
+- **Freshness report** — opt-in status output for `ai/current-state.md`, `ai/next-actions.md`, and `ai/handoff.md`; run `python scripts/standards-check/check.py --freshness-report` or `standards check --freshness-report`.
 
 **Severity.** In the kit itself these are **errors**. In an adopting repo (one with a `.standards-kit.json` marker) they default to **warnings**. To escalate a check to an error in your repo, add a `"check"` map to `.standards-kit.json`:
 
 ```json
-{ "check": { "links": "error", "placeholder": "error", "skill-format": "error" } }
+{ "check": { "links": "error", "placeholder": "error", "skill-format": "error", "external-links": "error" } }
 ```

@@ -47,6 +47,14 @@ The kit ships `.github/workflows/repo-standards.yml` (Phase E). It expects a dow
 
 Repos with non-default file paths must adjust the workflow accordingly (or capture the deviation in a local ADR).
 
+The default check is offline and deterministic. To verify live `http(s)` links,
+run `python scripts/standards-check/check.py --external-links` or
+`standards check --external-links`; adopter findings default to warnings unless
+the repo escalates the `external-links` check in `.standards-kit.json`.
+To inspect rolling `ai/` freshness without waiting for stale warnings, run
+`python scripts/standards-check/check.py --freshness-report` or
+`standards check --freshness-report`.
+
 ## Versioning
 
 See [`versioning-policy.md`](./versioning-policy.md). The kit follows SemVer. A consumer pins a specific kit version; upgrades are deliberate.
@@ -58,5 +66,7 @@ The kit has no runtime errors. "Errors" surface as:
 - **CI standards-check failures** in downstream repos when a contract is violated.
 - **Doc drift** flagged during the per-repo "last reviewed" cycle.
 - **Validation warnings** (`ai/*.md` past stale threshold).
+- **Opt-in external-link warnings/errors** when networked liveness is requested.
+- **Opt-in freshness status** when `--freshness-report` is requested.
 
 Each surfaces in the workflow output with a pointer to the relevant `docs/STANDARDS.md` section.

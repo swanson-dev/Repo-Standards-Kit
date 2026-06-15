@@ -1,5 +1,5 @@
 ---
-written: 2026-06-14T00:45:00-05:00
+written: 2026-06-15T09:56:52-05:00
 written_by: codex
 for: next-session
 ---
@@ -8,20 +8,23 @@ for: next-session
 
 ## TL;DR
 
-v0.17.0 is published to PyPI and now has a GitHub Release with the sdist and wheel
-attached. The remaining local work is release-workflow polish: future tag pushes
-should create/update the GitHub Release after PyPI publish so this gap does not recur.
+M4 release/reporting hygiene is implemented locally and prepared as v0.18.0. The
+kit now has opt-in `--external-links` and `--freshness-report` checks; `ai/`
+freshness covers current-state, next-actions, and handoff; historical changelog
+placeholder links are cleaned up. Final local release gates passed; the remaining
+work is commit, then tag/push v0.18.0 after explicit release approval.
 
 ## Recently touched
 
-- `v0.17.0` GitHub Release was created from the existing tag using the changelog section as notes, with the `0.17.0` wheel and sdist attached.
-- `.github/workflows/release.yml` now grants `contents: write` and adds an idempotent GitHub Release creation/upload step after PyPI publish.
-- `docs/RELEASING.md`, `CHANGELOG.md`, `ai/current-state.md`, and `ai/next-actions.md` were updated to describe the release workflow and next work accurately.
+- `scripts/standards-check/checks/external_links.py` adds opt-in HTTP liveness checking with URL dedupe and HEAD-to-GET fallback.
+- `scripts/standards-check/checks/structural.py` now checks `ai/next-actions.md`, emits clearer freshness warning text, and supports opt-in freshness status output.
+- `scripts/standards-check/check.py` and `src/standards/cli.py` expose `--external-links` and `--freshness-report`.
+- Version/docs/changelog state was bumped to v0.18.0 release prep.
 
 ## Open threads
 
-- Push the workflow/docs update after validation.
-- External-link liveness is the most valuable next reporting slice; it would catch missing release/tag links in `CHANGELOG.md`.
+- Commit the v0.18.0 release prep; final local gates are green.
+- Push `main` and tag `v0.18.0` only after explicit release approval.
 - Historical changelog entries, prior ADR bodies, RFCs, and superpowers plans still mention capture/promote because they describe past design work.
 - No `commands`, `doctor`, interactive CLI prompting, or `standards new-skill` subcommand was added; keep that scope for a separate design pass if wanted.
 

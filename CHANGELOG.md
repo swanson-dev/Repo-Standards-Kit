@@ -8,9 +8,22 @@ include breaking changes; see [`docs/versioning-policy.md`](./docs/versioning-po
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-06-15
+
+### Added
+- Added an opt-in `--external-links` standards-check mode for networked `http(s)`
+  liveness checks, exposed through both the vendored script and `standards check`.
+- Added an opt-in `--freshness-report` standards-check mode that prints age,
+  threshold, and status for `ai/current-state.md`, `ai/next-actions.md`, and
+  `ai/handoff.md`.
+
 ### Changed
 - The tag-triggered release workflow now creates or updates the matching GitHub
   Release after PyPI publishing succeeds, attaching the built `dist/*` artifacts.
+- `ai/` freshness warnings now cover `ai/next-actions.md` and include clearer
+  age, threshold, and suggested-action details.
+- Historical changelog references no longer point at placeholder external URLs;
+  versions without release/tag pages use same-file changelog anchors.
 
 ## [0.17.0] - 2026-06-14
 
@@ -284,6 +297,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[0.18.0]: #0180---2026-06-15
 [0.17.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.17.0
 [0.16.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.16.0
 [0.15.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.15.0
@@ -292,13 +306,13 @@ Initial Slice 1 release: templates and standards content.
 [0.13.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.13.0
 [0.12.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.12.0
 [0.11.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.11.0
-[0.10.0]: https://example.invalid/releases/tag/v0.10.0
+[0.10.0]: #0100---2026-06-01
 [0.9.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.9.0
-[0.8.0]: https://example.invalid/releases/tag/v0.8.0
-[0.7.0]: https://example.invalid/releases/tag/v0.7.0
-[0.6.0]: https://example.invalid/releases/tag/v0.6.0
-[0.5.0]: https://example.invalid/releases/tag/v0.5.0
-[0.4.0]: https://example.invalid/releases/tag/v0.4.0
-[0.3.0]: https://example.invalid/releases/tag/v0.3.0
-[0.2.0]: https://example.invalid/releases/tag/v0.2.0
-[0.1.0]: https://example.invalid/releases/tag/v0.1.0
+[0.8.0]: #080---2026-05-31
+[0.7.0]: #070---2026-05-30
+[0.6.0]: #060---2026-05-29
+[0.5.0]: #050---2026-05-29
+[0.4.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.4.0
+[0.3.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.3.0
+[0.2.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.2.0
+[0.1.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.1.0

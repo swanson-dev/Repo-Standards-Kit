@@ -1,9 +1,9 @@
 ---
-last_updated: 2026-06-14
+last_updated: 2026-06-15
 ---
 
 # Next Actions
 
-1. **Push the GitHub Release workflow polish** — commit and push the release workflow/docs update so future tag pushes create or update GitHub Releases with artifacts.
-2. **Pick the next reporting slice** — choose external-link liveness or richer doc-freshness reporting as the next active milestone in `docs/05-implementation-plan.md` before implementation.
-3. **Consider changelog link cleanup** — after external-link liveness exists, decide whether to backfill older GitHub Releases or switch older changelog references to tag/compare URLs.
+1. **Commit v0.18.0 release prep** — commit the validated M4 release/reporting hygiene work; final local gates are green.
+2. **Tag and push v0.18.0** — after commit review, push `main` and tag `v0.18.0` so the release workflow publishes PyPI and the GitHub Release.
+3. **Verify the live release surface** — after the workflow completes, confirm the GitHub Release exists and has the sdist/wheel assets.

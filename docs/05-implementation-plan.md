@@ -2,14 +2,14 @@
 
 ## Roadmap
 
-> Active milestone: **M4 — Release and reporting hygiene** (sliced below)
+> Active milestone: **M4 — Release and reporting hygiene** (release-ready for v0.18.0)
 
 | Milestone                        | Outcome                                                                                  | Target   | Status  |
 |----------------------------------|------------------------------------------------------------------------------------------|----------|---------|
 | M1 — Foundation                  | Templates → AI skills → `standards` CLI → CI enforcement → hardening → non-destructive `adopt` | →v0.15.0 | shipped |
 | M2 — Roadmap & planning surface  | A standard home for the longitudinal roadmap (this doc + the template `## Roadmap` section) | v0.16.0  | shipped |
 | M3 — Workflow simplification & AI readiness | Flat discovery notes, clearer CLI help, local skill scaffolding, and stronger agent-surface checks | v0.17.0 | shipped |
-| M4 — Release and reporting hygiene | GitHub Release consistency, external-link liveness, and richer doc-freshness reporting    | TBD      | active  |
+| M4 — Release and reporting hygiene | GitHub Release consistency, external-link liveness, and richer doc-freshness reporting    | v0.18.0  | release-ready |
 
 ### Shipped slices (M1 — Foundation)
 
@@ -43,22 +43,25 @@ freshness should be easier to report on than a simple stale/not-stale warning.
 - **Includes:** create the missing `v0.17.0` GitHub Release; update `release.yml` to create/update releases after PyPI publish; update release docs and AI state.
 - **Excludes:** backfilling every older missing GitHub Release.
 - **Owner:** codex
+- **Status:** Shipped.
 - **Verification:** `gh release view v0.17.0`; `python scripts/standards-check/check.py`; `python tools/run_tests.py`; `python tools/check_version_coherence.py`.
 
 ### Slice 2: External-link liveness
 
 - **Goal:** catch stale external links such as changelog release URLs before they ship.
-- **Includes:** a standards-check liveness mode with conservative defaults and tests.
-- **Excludes:** flaky network-hard CI by default; networked checks should be opt-in or warn-first.
-- **Owner:** swanson-dev
+- **Includes:** an opt-in `--external-links` standards-check mode with conservative defaults and tests.
+- **Excludes:** flaky network-hard CI by default; networked checks remain opt-in.
+- **Owner:** codex
+- **Status:** Release-ready for v0.18.0.
 - **Verification:** targeted tests with mocked URL results plus standards-check.
 
 ### Slice 3: Richer doc-freshness reporting
 
 - **Goal:** make `ai/` drift visible as an actionable report instead of only stale-threshold warnings.
-- **Includes:** clearer age/status output for `ai/current-state.md`, `ai/next-actions.md`, and `ai/handoff.md`.
+- **Includes:** freshness warnings for `ai/current-state.md`, `ai/next-actions.md`, and `ai/handoff.md`, plus opt-in `--freshness-report` age/status output.
 - **Excludes:** turning freshness warnings into hard adopter errors by default.
 - **Owner:** swanson-dev
+- **Status:** Release-ready for v0.18.0.
 - **Verification:** standards-check freshness tests plus current repo check.
 
 ## Sequencing

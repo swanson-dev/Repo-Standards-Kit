@@ -96,6 +96,16 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
         **_parser_kwargs(),
     )
     p_check.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
+    p_check.add_argument(
+        "--external-links",
+        action="store_true",
+        help="Opt in to networked http(s) external-link liveness checks.",
+    )
+    p_check.add_argument(
+        "--freshness-report",
+        action="store_true",
+        help="Print ai/ freshness status for current-state, next-actions, and handoff.",
+    )
     parsers["check"] = p_check
 
     p_help = sub.add_parser(
@@ -186,7 +196,13 @@ def main(argv: list[str] | None = None) -> int:
         if not check_py.is_file():
             print(f"error: bundled check not found at {check_py}", file=sys.stderr)
             return 2
-        return subprocess.run([sys.executable, str(check_py), str(args.target)]).returncode
+        cmd = [sys.executable, str(check_py)]
+        if args.external_links:
+            cmd.append("--external-links")
+        if args.freshness_report:
+            cmd.append("--freshness-report")
+        cmd.append(str(args.target))
+        return subprocess.run(cmd).returncode
 
     return 1
 

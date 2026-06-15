@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict
 
-# "error" | "warn" — kept as plain str for 3.9 friendliness.
+# "error" | "warn" | "info" - kept as plain str for 3.9 friendliness.
 Severity = str
 
 
@@ -27,6 +27,8 @@ class Context:
     root: Path
     adopter_mode: bool                    # True iff .standards-kit.json present at root
     overrides: Dict[str, Severity] = field(default_factory=dict)
+    external_links: bool = False          # Opt-in networked liveness check.
+    freshness_report: bool = False        # Opt-in ai/ freshness status output.
 
 
 def resolve_severity(check_id: str, default: Severity, ctx: Context) -> Severity:

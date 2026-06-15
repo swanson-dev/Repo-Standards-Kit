@@ -18,6 +18,7 @@ class PayloadIncludesChecksTests(unittest.TestCase):
             "scripts/standards-check/checks/__init__.py",
             "scripts/standards-check/checks/structural.py",
             "scripts/standards-check/checks/links.py",
+            "scripts/standards-check/checks/external_links.py",
             "scripts/standards-check/checks/content.py",
             "scripts/standards-check/checks/skills.py",
             "scripts/standards-check/checks/_text.py",
