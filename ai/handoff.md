@@ -1,5 +1,5 @@
 ---
-written: 2026-06-15T09:56:52-05:00
+written: 2026-06-15T11:00:00-05:00
 written_by: codex
 for: next-session
 ---
@@ -8,23 +8,23 @@ for: next-session
 
 ## TL;DR
 
-M4 release/reporting hygiene is implemented locally and prepared as v0.18.0. The
-kit now has opt-in `--external-links` and `--freshness-report` checks; `ai/`
-freshness covers current-state, next-actions, and handoff; historical changelog
-placeholder links are cleaned up. Final local release gates passed; the remaining
-work is commit, then tag/push v0.18.0 after explicit release approval.
+M4 release/reporting hygiene shipped as v0.18.0. The kit now has opt-in
+`--external-links` and `--freshness-report` checks; `ai/` freshness covers
+current-state, next-actions, and handoff; historical changelog placeholder links
+are cleaned up. The v0.18.0 GitHub Release is live with sdist/wheel artifacts
+and publish attestations.
 
 ## Recently touched
 
 - `scripts/standards-check/checks/external_links.py` adds opt-in HTTP liveness checking with URL dedupe and HEAD-to-GET fallback.
 - `scripts/standards-check/checks/structural.py` now checks `ai/next-actions.md`, emits clearer freshness warning text, and supports opt-in freshness status output.
 - `scripts/standards-check/check.py` and `src/standards/cli.py` expose `--external-links` and `--freshness-report`.
-- Version/docs/changelog state was bumped to v0.18.0 release prep.
+- Version/docs/changelog state was bumped to v0.18.0 and released.
 
 ## Open threads
 
-- Commit the v0.18.0 release prep; final local gates are green.
-- Push `main` and tag `v0.18.0` only after explicit release approval.
+- Monitor downstream feedback on the new opt-in reporting checks.
+- Pick the next milestone before adding new CLI or adopter-contract surface.
 - Historical changelog entries, prior ADR bodies, RFCs, and superpowers plans still mention capture/promote because they describe past design work.
 - No `commands`, `doctor`, interactive CLI prompting, or `standards new-skill` subcommand was added; keep that scope for a separate design pass if wanted.
 

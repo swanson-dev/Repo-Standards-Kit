@@ -37,13 +37,13 @@ last_updated_by: codex
 - **CLI help polish (v0.17.0).** The `standards` CLI now has richer argparse workflow help, concrete subcommand examples, a `standards help [command]` alias, and clearer `update` guidance for repos that have not been adopted yet.
 - **AI tooling polish (v0.17.0).** `scripts/new-doc/new-skill.py` scaffolds paired Claude/Copilot skill files and updates the `AGENTS.md` skills index; `skill-format` checks also cover the Copilot pointer and local Claude hook script references. Agent-readiness guidance now lives in `docs/STANDARDS.md` and the shipped standards template.
 - **v0.17.0 published.** The `v0.17.0` tag published successfully to PyPI and now has a GitHub Release with the sdist and wheel attached.
-- **M4 release/reporting hygiene (v0.18.0 release-ready).** The tag-triggered release workflow creates/updates GitHub Releases, `standards-check` has opt-in `--external-links` and `--freshness-report` modes, historical changelog placeholder links are cleaned up, and `ai/` freshness now covers `current-state`, `next-actions`, and `handoff`.
+- **M4 release/reporting hygiene (v0.18.0 published).** The `v0.18.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. The tag-triggered release workflow creates/updates GitHub Releases, `standards-check` has opt-in `--external-links` and `--freshness-report` modes, historical changelog placeholder links are cleaned up, and `ai/` freshness now covers `current-state`, `next-actions`, and `handoff`.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| **v0.18.0 release prep** - M4 implementation is complete locally; commit, tag, and push after final gates. | working tree | codex | commit/tag after release gates |
+| _No active implementation work._ | main | codex | choose next milestone |
 
 ## What's blocked
 

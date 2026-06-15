@@ -2,14 +2,14 @@
 
 ## Roadmap
 
-> Active milestone: **M4 — Release and reporting hygiene** (release-ready for v0.18.0)
+> Active milestone: **None**. M4 shipped in v0.18.0; choose the next milestone before implementation begins.
 
 | Milestone                        | Outcome                                                                                  | Target   | Status  |
 |----------------------------------|------------------------------------------------------------------------------------------|----------|---------|
 | M1 — Foundation                  | Templates → AI skills → `standards` CLI → CI enforcement → hardening → non-destructive `adopt` | →v0.15.0 | shipped |
 | M2 — Roadmap & planning surface  | A standard home for the longitudinal roadmap (this doc + the template `## Roadmap` section) | v0.16.0  | shipped |
 | M3 — Workflow simplification & AI readiness | Flat discovery notes, clearer CLI help, local skill scaffolding, and stronger agent-surface checks | v0.17.0 | shipped |
-| M4 — Release and reporting hygiene | GitHub Release consistency, external-link liveness, and richer doc-freshness reporting    | v0.18.0  | release-ready |
+| M4 — Release and reporting hygiene | GitHub Release consistency, external-link liveness, and richer doc-freshness reporting    | v0.18.0  | shipped |
 
 ### Shipped slices (M1 — Foundation)
 
@@ -52,7 +52,7 @@ freshness should be easier to report on than a simple stale/not-stale warning.
 - **Includes:** an opt-in `--external-links` standards-check mode with conservative defaults and tests.
 - **Excludes:** flaky network-hard CI by default; networked checks remain opt-in.
 - **Owner:** codex
-- **Status:** Release-ready for v0.18.0.
+- **Status:** Shipped in v0.18.0.
 - **Verification:** targeted tests with mocked URL results plus standards-check.
 
 ### Slice 3: Richer doc-freshness reporting
@@ -61,7 +61,7 @@ freshness should be easier to report on than a simple stale/not-stale warning.
 - **Includes:** freshness warnings for `ai/current-state.md`, `ai/next-actions.md`, and `ai/handoff.md`, plus opt-in `--freshness-report` age/status output.
 - **Excludes:** turning freshness warnings into hard adopter errors by default.
 - **Owner:** swanson-dev
-- **Status:** Release-ready for v0.18.0.
+- **Status:** Shipped in v0.18.0.
 - **Verification:** standards-check freshness tests plus current repo check.
 
 ## Sequencing
@@ -78,6 +78,7 @@ Release/reporting hygiene work is verified with focused tests and the full local
 - `python scripts/standards-check/check.py` — links/placeholders/structure.
 - `python tools/run_tests.py` — payload/manifest/CLI suite unaffected.
 - `python tools/check_version_coherence.py` — version strings stay coherent.
+- `gh release view v0.18.0` — GitHub Release exists with sdist/wheel artifacts.
 
 ## Open questions blocking the plan
 

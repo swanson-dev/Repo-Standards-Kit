@@ -4,6 +4,6 @@ last_updated: 2026-06-15
 
 # Next Actions
 
-1. **Commit v0.18.0 release prep** — commit the validated M4 release/reporting hygiene work; final local gates are green.
-2. **Tag and push v0.18.0** — after commit review, push `main` and tag `v0.18.0` so the release workflow publishes PyPI and the GitHub Release.
-3. **Verify the live release surface** — after the workflow completes, confirm the GitHub Release exists and has the sdist/wheel assets.
+1. **Monitor v0.18.0 adoption** - watch for downstream feedback on `--external-links`, `--freshness-report`, and release-asset expectations.
+2. **Choose the next milestone** - decide whether the next slice is `standards new-skill`, `commands`/`doctor`, or another reporting-hardening pass before implementation begins.
+3. **Open an RFC for material new scope** - if the next milestone changes adopter contracts or CLI surface materially, capture the decision path before coding.
