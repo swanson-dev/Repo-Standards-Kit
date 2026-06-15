@@ -2,7 +2,7 @@
 
 ## Roadmap
 
-> Active milestone: **M5 — v1.0.0 readiness** (release-ready for v1.0.0)
+> Active milestone: **None**. M5 shipped in v1.0.0; choose the next milestone before implementation begins.
 
 | Milestone                        | Outcome                                                                                  | Target   | Status  |
 |----------------------------------|------------------------------------------------------------------------------------------|----------|---------|
@@ -10,7 +10,7 @@
 | M2 — Roadmap & planning surface  | A standard home for the longitudinal roadmap (this doc + the template `## Roadmap` section) | v0.16.0  | shipped |
 | M3 — Workflow simplification & AI readiness | Flat discovery notes, clearer CLI help, local skill scaffolding, and stronger agent-surface checks | v0.17.0 | shipped |
 | M4 — Release and reporting hygiene | GitHub Release consistency, external-link liveness, and richer doc-freshness reporting    | v0.18.0  | shipped |
-| M5 — v1.0.0 readiness | Generated four-profile downstream validation, manual external-link workflow, stable SemVer docs | v1.0.0 | release-ready |
+| M5 — v1.0.0 readiness | Generated four-profile downstream validation, manual external-link workflow, stable SemVer docs | v1.0.0 | shipped |
 
 ### Shipped slices (M1 — Foundation)
 
@@ -49,7 +49,7 @@ freshness should be easier to report on than a simple stale/not-stale warning.
 - **Includes:** `tools/check_v1_readiness.py`, generated downstream fixtures, CI/release workflow gating, and tests.
 - **Excludes:** requiring private real-repo adoption as a release blocker.
 - **Owner:** codex
-- **Status:** Release-ready for v1.0.0.
+- **Status:** Shipped in v1.0.0.
 - **Verification:** `python tools/check_v1_readiness.py`; `python tests/test_v1_readiness.py -v`.
 
 ### Slice 2: Release polish and stable SemVer docs
@@ -58,7 +58,7 @@ freshness should be easier to report on than a simple stale/not-stale warning.
 - **Includes:** manual external-link workflow, published-package smoke docs, stable SemVer wording, and ADR-0018.
 - **Excludes:** new public CLI commands such as `standards new-skill` or `standards doctor`.
 - **Owner:** codex
-- **Status:** Release-ready for v1.0.0.
+- **Status:** Shipped in v1.0.0.
 - **Verification:** workflow contract tests, standards check, version coherence, and build.
 
 ### Slice 1: GitHub Release consistency

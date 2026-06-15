@@ -59,6 +59,9 @@ temporary environment:
 python -m venv .tmp-v1-smoke
 .tmp-v1-smoke/Scripts/python -m pip install repo-standards-kit==X.Y.Z
 .tmp-v1-smoke/Scripts/standards --version
+mkdir .tmp-adopted
+echo "# Smoke repo" > .tmp-adopted/README.md
+echo "# Changelog`n`n## [0.1.0] - 2026-06-15`n`n### Added`n- Initial standards adoption." > .tmp-adopted/CHANGELOG.md
 .tmp-v1-smoke/Scripts/standards init --profile library .tmp-adopted
 .tmp-v1-smoke/Scripts/standards check .tmp-adopted
 .tmp-v1-smoke/Scripts/standards check --freshness-report .tmp-adopted
