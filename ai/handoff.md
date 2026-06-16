@@ -1,5 +1,5 @@
 ---
-written: 2026-06-16T10:20:52-05:00
+written: 2026-06-16T17:09:44-05:00
 written_by: codex
 for: next-session
 ---
@@ -8,7 +8,7 @@ for: next-session
 
 ## TL;DR
 
-Implemented the v1.1.0 adoption-assistant slice and extended it with AI continuity: `standards doctor [--recommend]`, `standards new-skill`, `standards commands`, optional discovery/design/support templates, `standard-update-handoff`, `standard-get-session-context`, `standard-compact-snapshot`, and an advisory read-only SessionStart context hook. Local verification passed after the continuity additions; v1.1.0 has not been published.
+Published v1.1.0 after implementing the adoption-assistant and AI-continuity slice: `standards doctor [--recommend]`, `standards new-skill`, `standards commands`, optional discovery/design/support templates, `standard-update-handoff`, `standard-get-session-context`, `standard-compact-snapshot`, and an advisory read-only SessionStart context hook. The `v1.1.0` tag deployed through GitHub Actions, published to PyPI, created the GitHub Release, and passed the clean installed-package smoke.
 
 ## Recently touched
 
@@ -18,12 +18,11 @@ Implemented the v1.1.0 adoption-assistant slice and extended it with AI continui
 - `docs/templates/` adds optional lane templates for discovery notes, meetings, artifact indexes, design, incidents, troubleshooting, and guides.
 - `docs/STANDARDS.md`, `README.md`, `docs/04-api-and-integrations.md`, and `docs/discovery/README.md` document optional lanes and the pointer-first artifact policy.
 - `docs/rfcs/0004-.../rfc.md`, `docs/decisions/0019-...md`, RFC-0005, and ADR-0020 record the public CLI, optional-lane, and AI-continuity decisions.
-- `ai/current-state.md` and `ai/next-actions.md` now describe v1.1.0 as prepared, not published.
+- `CHANGELOG.md`, `ai/current-state.md`, and `ai/next-actions.md` now describe v1.1.0 as published.
 
 ## Open threads
 
-- Review and commit the v1.1.0 slice if the diff looks right.
-- Publish v1.1.0 only after the normal release ritual and final review.
+- Merge/reconcile `codex/release-v1.1.0` into `main` if you want `main` to carry the release commit and post-release changelog link.
 - Pilot `standards doctor --recommend` in a real downstream repo to tune recommendation noise.
 - Pilot the SessionStart context brief in real work to tune summary noise.
 
