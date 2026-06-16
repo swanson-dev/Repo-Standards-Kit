@@ -32,3 +32,4 @@ For Required or Expected docs that this repo skipped, see [`STANDARDS-CHECKLIST.
 - [ ] `ai/handoff.md` is present and not older than the handoff stale threshold.
 - [ ] Local skills, if any, are paired across Claude and Copilot surfaces and listed in `AGENTS.md`.
 - [ ] `standards check` passes, or any adopter warnings are explicitly accepted.
+- [ ] `standards doctor --recommend` has been reviewed for optional lane or drift suggestions.

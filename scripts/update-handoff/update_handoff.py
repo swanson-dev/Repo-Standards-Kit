@@ -4,6 +4,8 @@
 Modes:
   (no flag)   Write a draft ai/handoff.md. Refuse to overwrite unless --force.
   --force     With write mode, overwrite an existing handoff.
+  --compact-snapshot
+              Write a compact pre-compaction checkpoint to ai/handoff.md.
   --check     Advisory mode (for Claude Code Stop hook). Silent unless commits or
               modified files have accumulated since the prior handoff. Always exits 0.
 
@@ -148,6 +150,74 @@ def render_draft(
     )
 
 
+def _porcelain_path(line: str) -> str:
+    """Extract the path from a `git status --porcelain` line (handles renames)."""
+    # Format: 'XY <path>' or 'XY <old> -> <new>' for renames.
+    body = line[3:] if len(line) > 3 else ""
+    if " -> " in body:
+        body = body.split(" -> ", 1)[1]
+    return body.strip().strip('"')
+
+
+# Use POSIX form to match git's path output regardless of platform.
+HANDOFF_POSIX = HANDOFF_REL.as_posix()
+
+
+def collect_status_files(cwd: Path) -> list[str]:
+    status_out = git(["status", "--porcelain", "--untracked-files=all"], cwd=cwd, check=False)
+    files: list[str] = []
+    for line in status_out.splitlines():
+        path = _porcelain_path(line)
+        if path and path != HANDOFF_POSIX:
+            files.append(path)
+    return files
+
+
+def render_compact_snapshot(now_ts: str, author: str, files: list[str]) -> str:
+    file_lines = "\n".join(f"- `{f}`" for f in files) if files else "- (no modified or untracked files detected)"
+    return (
+        f"---\n"
+        f"written: {now_ts}\n"
+        f"written_by: {author} (via compact-snapshot)\n"
+        f"for: next-session\n"
+        f"---\n"
+        f"\n"
+        f"# Handoff\n"
+        f"\n"
+        f"## Current Goal\n"
+        f"\n"
+        f"- <current goal before compaction>\n"
+        f"\n"
+        f"## Status / Plan\n"
+        f"\n"
+        f"- <what is done, in progress, and next>\n"
+        f"\n"
+        f"## Files Touched\n"
+        f"\n"
+        f"{file_lines}\n"
+        f"\n"
+        f"## Tests Run\n"
+        f"\n"
+        f"- <commands and results>\n"
+        f"\n"
+        f"## Decisions Made\n"
+        f"\n"
+        f"- <decisions or assumptions to preserve>\n"
+        f"\n"
+        f"## Blockers\n"
+        f"\n"
+        f"- <blockers or none>\n"
+        f"\n"
+        f"## Don't Redo\n"
+        f"\n"
+        f"- <dead ends or checks already completed>\n"
+        f"\n"
+        f"## Next Exact Action\n"
+        f"\n"
+        f"- <single next action after compaction>\n"
+    )
+
+
 def cmd_write(args: argparse.Namespace) -> None:
     try:
         root = repo_root(Path.cwd())
@@ -166,17 +236,20 @@ def cmd_write(args: argparse.Namespace) -> None:
     print(f"{verb} ai/handoff.md")
 
 
-def _porcelain_path(line: str) -> str:
-    """Extract the path from a `git status --porcelain` line (handles renames)."""
-    # Format: 'XY <path>' or 'XY <old> -> <new>' for renames.
-    body = line[3:] if len(line) > 3 else ""
-    if " -> " in body:
-        body = body.split(" -> ", 1)[1]
-    return body.strip().strip('"')
-
-
-# Use POSIX form to match git's path output regardless of platform.
-HANDOFF_POSIX = HANDOFF_REL.as_posix()
+def cmd_compact_snapshot(args: argparse.Namespace) -> None:
+    try:
+        root = repo_root(Path.cwd())
+    except RepoRootNotFound:
+        die("not in a git repo (no .git found walking up from cwd)")
+    handoff_path = root / HANDOFF_REL
+    existed = handoff_path.exists()
+    if existed and not args.force:
+        die("refuse to overwrite existing ai/handoff.md; pass --force to replace")
+    draft = render_compact_snapshot(now_iso(), author_name(root), collect_status_files(root))
+    handoff_path.parent.mkdir(parents=True, exist_ok=True)
+    handoff_path.write_text(draft, encoding="utf-8")
+    verb = "Updated" if existed else "Created"
+    print(f"{verb} ai/handoff.md")
 
 
 def _is_stale(written_ts: str, max_days: int) -> bool:
@@ -234,9 +307,12 @@ def main(argv: list[str]) -> None:
     parser = argparse.ArgumentParser(prog="update-handoff", description=__doc__)
     parser.add_argument("--force", action="store_true", help="(write mode) overwrite existing handoff")
     parser.add_argument("--check", action="store_true", help="advisory hook mode (no file writes)")
+    parser.add_argument("--compact-snapshot", action="store_true", help="write a compact pre-compaction checkpoint")
     args = parser.parse_args(argv[1:])
     if args.check:
         cmd_check(args)
+    elif args.compact_snapshot:
+        cmd_compact_snapshot(args)
     else:
         cmd_write(args)
 

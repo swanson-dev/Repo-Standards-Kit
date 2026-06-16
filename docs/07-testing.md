@@ -9,6 +9,10 @@ The kit has no runtime, so there are no unit tests in the traditional sense. Ver
 | Structural lint | Filename conventions, status vocabulary, frontmatter presence | `.github/workflows/repo-standards.yml` (Phase E) |
 | Opt-in link liveness | Stale or missing external `http(s)` destinations | `standards check --external-links` |
 | Opt-in freshness report | Current age/status for rolling `ai/` docs | `standards check --freshness-report` |
+| Adoption diagnostics | Can adopters identify marker, check, sidecar, managed-region, and optional-lane issues without mutation? | `standards doctor --recommend` + CLI tests |
+| AI continuity | Can hooks and commands read context, refresh handoffs, and capture compact snapshots safely? | `scripts/session-context/test_session_context.py`, `scripts/update-handoff/test_update_handoff.py` |
+| Command discovery | Can adopters find the right command and command-specific examples? | `standards commands`, `standards help <command>` |
+| Optional lane payload | Do optional discovery/design/support templates ship without becoming required scaffold output? | Payload and init tests |
 | Self-application check | Does the kit conform to its own library-profile requirements? | The kit's own `STANDARDS-CHECKLIST.md` parsed by the same workflow |
 | V1 readiness | Can generated downstream repos for every profile pass init/check/update/check? | `python tools/check_v1_readiness.py` |
 | Walkthrough | Can a contributor adopt the kit in a real repo of each profile? | Manual, recorded in `docs/discovery/` of a real downstream repo |
@@ -41,6 +45,18 @@ Freshness status reporting is also opt-in:
 
 ```
 python scripts/standards-check/check.py --freshness-report
+```
+
+The adoption doctor is read-only:
+
+```
+standards doctor --recommend .
+```
+
+The session context hook is also read-only and advisory:
+
+```
+python scripts/session-context/session_context.py --hook
 ```
 
 The v1 readiness gate validates generated downstream repos for all profiles:

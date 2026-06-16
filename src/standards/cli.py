@@ -9,12 +9,22 @@ from pathlib import Path
 from typing import Tuple
 
 from standards.__about__ import __version__
+from standards.doctor import doctor_lines
 from standards.init import run_adopt, run_init
 from standards.payload import payload_root
 from standards.update import run_update
 
 PROFILES = ["application", "library", "infra", "data"]
-HELP_TOPICS = ("init", "adopt", "update", "check")
+HELP_TOPICS = ("init", "adopt", "update", "check", "doctor", "new-skill", "commands")
+
+COMMAND_ROWS = (
+    ("init", "Adopt the kit into a new or clean repo.", "standards check ."),
+    ("adopt", "Adopt the kit into an existing repo without clobbering files.", "standards doctor ."),
+    ("update", "Reconcile an adopted repo with this kit version.", "standards check ."),
+    ("check", "Run deterministic standards checks.", "standards doctor --recommend ."),
+    ("doctor", "Diagnose adoption health and suggest next commands.", "standards update --dry-run ."),
+    ("new-skill", "Scaffold paired Claude/Copilot skill files.", "standards check ."),
+)
 
 
 def _parser_kwargs(**kwargs):
@@ -26,10 +36,20 @@ def build_parser() -> Tuple[argparse.ArgumentParser, dict[str, argparse.Argument
         prog="standards",
         description="Adopt and maintain the Repo-Standards-Kit.",
         epilog="""Workflows:
-  New or clean repo:       standards init --profile library .
-  Existing repo:           standards adopt --profile application .
-  Already adopted repo:    standards update .
-  Validate a repo:         standards check .
+  Adopt:
+    New or clean repo:     standards init --profile library .
+    Existing repo:         standards adopt --profile application .
+
+  Maintain:
+    Already adopted repo:  standards update .
+    Validate a repo:       standards check .
+
+  Diagnose:
+    Adoption health:       standards doctor --recommend .
+    Command list:          standards commands
+
+  Author:
+    New AI skill:          standards new-skill review-docs "Review docs before shipping"
 
 Use `standards help <command>` for command-specific examples.""",
         **_parser_kwargs(),
@@ -108,6 +128,45 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
     )
     parsers["check"] = p_check
 
+    p_doctor = sub.add_parser(
+        "doctor",
+        help="Diagnose adoption health without changing files.",
+        description="Diagnose adoption health without changing files.",
+        epilog="""Examples:
+  standards doctor .
+  standards doctor --recommend C:\\path\\to\\repo""",
+        **_parser_kwargs(),
+    )
+    p_doctor.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
+    p_doctor.add_argument(
+        "--recommend",
+        action="store_true",
+        help="Suggest optional discovery, design, and support lanes from repo state.",
+    )
+    parsers["doctor"] = p_doctor
+
+    p_new_skill = sub.add_parser(
+        "new-skill",
+        help="Scaffold paired Claude/Copilot skill files.",
+        description="Scaffold paired Claude/Copilot skill files.",
+        epilog="""Examples:
+  standards new-skill review-docs "Review docs before shipping"
+  standards new-skill triage-incidents "Triage support incidents" C:\\path\\to\\repo""",
+        **_parser_kwargs(),
+    )
+    p_new_skill.add_argument("name", help="Kebab-case skill name.")
+    p_new_skill.add_argument("description", help="One-line skill description.")
+    p_new_skill.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
+    parsers["new-skill"] = p_new_skill
+
+    p_commands = sub.add_parser(
+        "commands",
+        help="List public commands with common next steps.",
+        description="List public commands with common next steps.",
+        **_parser_kwargs(),
+    )
+    parsers["commands"] = p_commands
+
     p_help = sub.add_parser(
         "help",
         help="Show top-level or command-specific help.",
@@ -138,6 +197,12 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 2
+
+    if args.command == "commands":
+        print("Public commands:")
+        for name, purpose, next_step in COMMAND_ROWS:
+            print(f"  {name:<10} {purpose} Next: {next_step}")
+        return 0
 
     if args.command == "init":
         try:
@@ -203,6 +268,26 @@ def main(argv: list[str] | None = None) -> int:
             cmd.append("--freshness-report")
         cmd.append(str(args.target))
         return subprocess.run(cmd).returncode
+
+    if args.command == "doctor":
+        code, lines = doctor_lines(Path(args.target), recommend=args.recommend)
+        for line in lines:
+            print(line)
+        return code
+
+    if args.command == "new-skill":
+        script = payload_root() / "scripts" / "new-doc" / "new-skill.py"
+        if not script.is_file():
+            print(f"error: bundled new-skill script not found at {script}", file=sys.stderr)
+            return 2
+        try:
+            return subprocess.run(
+                [sys.executable, str(script), args.name, args.description],
+                cwd=str(Path(args.target)),
+            ).returncode
+        except OSError as exc:
+            print(f"error: could not run new-skill in {args.target}: {exc}", file=sys.stderr)
+            return 2
 
     return 1
 

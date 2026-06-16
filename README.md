@@ -42,6 +42,21 @@ standards check .
 
 # Pull in a newer kit version later (non-destructive reconcile):
 standards update .
+
+# Diagnose adoption health and optional next lanes:
+standards doctor --recommend .
+
+# Scaffold a paired Claude/Copilot AI skill:
+standards new-skill review-docs "Review docs before shipping"
+
+# See the public command list:
+standards commands
+
+# Print the standard AI session context brief:
+python scripts/session-context/session_context.py
+
+# Capture a compact pre-compaction checkpoint:
+python scripts/update-handoff/update_handoff.py --compact-snapshot --force
 ```
 
 Pick the profile that fits the repo: `application` | `library` | `infra` | `data`. Each profile has its own Required / Expected / Optional / N/A doc matrix — see [`docs/STANDARDS.md`](./docs/STANDARDS.md).
@@ -62,6 +77,9 @@ Pick the profile that fits the repo: `application` | `library` | `infra` | `data
 8. A **`STANDARDS-CHECKLIST.md`** with a waiver mechanism so absences are explicit, not silent.
 9. A **CI check** (`standards check`) that enforces the structural minimum plus content-level lints.
 10. **AI Skills + hooks** (Claude Code + Copilot) for ADRs, RFCs, handoffs, and running the check.
+11. A read-only **adoption doctor** (`standards doctor`) for marker health, check findings, sidecar conflicts, managed-region drift, and optional lane recommendations.
+12. Optional **knowledge-lane templates** for discovery notes, meetings, artifact indexes, design notes, incidents, troubleshooting, and guides.
+13. Optional **AI continuity commands** for session context, compact snapshots, and standard handoff refreshes.
 
 ## The information flow
 
@@ -78,13 +96,18 @@ If you'd rather adopt by hand (or want the full detail of what the CLI does), th
 
 For AI-assisted repos, use the agent-readiness checklist in [`docs/STANDARDS.md`](./docs/STANDARDS.md#agent-readiness-checklist) to confirm the agent contract, handoff files, skill pairs, and standards check are in a trustworthy state.
 
+Discovery artifacts are pointer-first: use markdown indexes that link to external
+files by default. Commit raw binaries only when the local repo has an explicit
+policy such as Git LFS, release assets, object storage, or another deliberate
+storage mechanism.
+
 ## Documentation philosophy
 
 Keep documentation lean but scalable. Add durable docs when they improve onboarding, implementation, review, operations, traceability, or decision quality. Do not create documents only because a structure exists — that's why the kit uses **Required / Expected / Optional** rather than a single rigid required-doc list.
 
 ## Roadmap
 
-All six foundational slices are **shipped** and the kit is released through v1.0.0. The living roadmap — the active
+All six foundational slices are **shipped** and the kit is released through v1.1.0. The living roadmap — the active
 milestone and what's planned next — and the full shipped-slice history now live in
 [`docs/05-implementation-plan.md`](./docs/05-implementation-plan.md). Design rationale is
 captured as ADRs under [`docs/decisions/`](./docs/decisions/) and investigations under

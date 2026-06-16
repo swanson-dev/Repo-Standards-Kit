@@ -19,7 +19,9 @@ from pathlib import Path
 # Directories whose entire contents are payload (relative to payload root).
 PAYLOAD_DIRS: tuple[str, ...] = (
     "docs/templates",
+    "scripts/_doc_lib",
     "scripts/new-doc",
+    "scripts/session-context",
     "scripts/standards-check",
     "scripts/update-handoff",
     ".github/prompts",

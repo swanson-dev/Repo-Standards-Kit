@@ -33,6 +33,15 @@ class ManifestTests(unittest.TestCase):
         from standards.payload import payload_root
         rels = {rel for _full, rel in iter_payload(payload_root())}
         self.assertIn("docs/templates/adr-template.md", rels)
+        self.assertIn("docs/templates/discovery-note-template.md", rels)
+        self.assertIn("docs/templates/discovery-meeting-template.md", rels)
+        self.assertIn("docs/templates/discovery-artifact-template.md", rels)
+        self.assertIn("docs/templates/design-template.md", rels)
+        self.assertIn("docs/templates/incident-template.md", rels)
+        self.assertIn("docs/templates/troubleshooting-template.md", rels)
+        self.assertIn("docs/templates/guide-template.md", rels)
+        self.assertIn("scripts/_doc_lib/helpers.py", rels)
+        self.assertIn("scripts/session-context/session_context.py", rels)
         self.assertIn("docs/STANDARDS.md", rels)
         self.assertIn("scripts/standards-check/check.py", rels)
         self.assertNotIn("docs/discovery/captured/README.md", rels)

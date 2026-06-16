@@ -1,6 +1,8 @@
 # `scripts/update-handoff/`
 
-Stdlib-only Python script that generates a draft `ai/handoff.md` from git state, or emits an advisory line on Claude Code Stop events when work has accumulated.
+Stdlib-only Python script that generates a draft `ai/handoff.md` from git state,
+captures a compact pre-compaction snapshot, or emits an advisory line on Claude
+Code Stop events when work has accumulated.
 
 ## Two modes
 
@@ -8,6 +10,7 @@ Stdlib-only Python script that generates a draft `ai/handoff.md` from git state,
 |---|---|---|
 | `python scripts/update-handoff/update_handoff.py` | write | Creates/updates `ai/handoff.md`. Frontmatter + "Recently touched" pre-filled from git. Refuses to overwrite without `--force`. |
 | `python scripts/update-handoff/update_handoff.py --force` | write | Same as above, overwriting an existing handoff. |
+| `python scripts/update-handoff/update_handoff.py --compact-snapshot --force` | write | Writes a compact pre-compaction checkpoint to `ai/handoff.md`. |
 | `python scripts/update-handoff/update_handoff.py --check` | hook | Silent if no commits and no modified files since last handoff. Otherwise prints one line to stderr. Always exits 0 (never breaks the session). |
 
 ## How "Recently touched" is computed
@@ -30,11 +33,13 @@ The prior `written:` timestamp is parsed verbatim from frontmatter and handed to
 | Surface | File |
 |---|---|
 | Claude Code Stop hook | `.claude/settings.json` |
-| Claude Code slash command | `.claude/skills/update-handoff/SKILL.md` |
-| GitHub Copilot Chat | `.github/prompts/update-handoff.prompt.md` |
+| Claude Code slash command | `.claude/skills/update-handoff/SKILL.md`, `.claude/skills/standard-update-handoff/SKILL.md`, `.claude/skills/standard-compact-snapshot/SKILL.md` |
+| GitHub Copilot Chat | `.github/prompts/update-handoff.prompt.md`, `.github/prompts/standard-update-handoff.prompt.md`, `.github/prompts/standard-compact-snapshot.prompt.md` |
 | Bash / Codex / manual | `python scripts/update-handoff/update_handoff.py` |
 
-The hook calls `--check` (advisory only); the slash commands call write mode. Both pathways converge on the same Python script. See **ADR-0008** for the form-factor rationale (hooks invoke the script in check mode; behavior writes happen via the slash command).
+The Stop hook calls `--check` (advisory only); slash commands call write modes.
+Both pathways converge on the same Python script. See **ADR-0008** for the
+form-factor rationale and ADR-0020 for the AI continuity commands.
 
 ## Tests
 
@@ -42,4 +47,4 @@ The hook calls `--check` (advisory only); the slash commands call write mode. Bo
 python scripts/update-handoff/test_update_handoff.py
 ```
 
-10 stdlib `unittest` cases against `tmp_path` git repos. No third-party deps.
+Stdlib `unittest` cases against temporary git repos. No third-party deps.

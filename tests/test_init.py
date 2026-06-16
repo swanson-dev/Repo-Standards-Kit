@@ -46,8 +46,20 @@ class InitTests(unittest.TestCase):
             self.assertTrue((disc / "README.md").is_file())
             self.assertFalse((disc / ".gitignore").exists())
             self.assertFalse((disc / "captured").exists())
-            for sub in ("meetings", "requirements", "use-cases", "notes"):
+            for sub in ("meetings", "requirements", "use-cases", "notes", "artifacts"):
                 self.assertFalse((disc / sub).exists(), f"{sub}/ should not be scaffolded")
+
+    def test_optional_knowledge_lanes_not_scaffolded_by_default(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="application", adopted="2026-05-29")
+            for rel in (
+                "docs/design",
+                "support/incidents",
+                "support/troubleshooting",
+                "support/guides",
+            ):
+                self.assertFalse((target / rel).exists(), f"{rel} should be optional")
 
     def test_profile_written_into_checklist(self):
         with tempfile.TemporaryDirectory() as d:

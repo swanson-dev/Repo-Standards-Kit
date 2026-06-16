@@ -2,7 +2,7 @@
 
 ## Roadmap
 
-> Active milestone: **None**. M5 shipped in v1.0.0; choose the next milestone before implementation begins.
+> Active milestone: **None**. M6 shipped in v1.1.0; choose the next milestone before implementation begins.
 
 | Milestone                        | Outcome                                                                                  | Target   | Status  |
 |----------------------------------|------------------------------------------------------------------------------------------|----------|---------|
@@ -11,6 +11,7 @@
 | M3 — Workflow simplification & AI readiness | Flat discovery notes, clearer CLI help, local skill scaffolding, and stronger agent-surface checks | v0.17.0 | shipped |
 | M4 — Release and reporting hygiene | GitHub Release consistency, external-link liveness, and richer doc-freshness reporting    | v0.18.0  | shipped |
 | M5 — v1.0.0 readiness | Generated four-profile downstream validation, manual external-link workflow, stable SemVer docs | v1.0.0 | shipped |
+| M6 — Adoption assistant + AI continuity | `standards doctor`, public `new-skill`, command discovery, optional knowledge-lane templates, and standard AI continuity commands | v1.1.0 | shipped |
 
 ### Shipped slices (M1 — Foundation)
 
@@ -30,7 +31,23 @@
 | 1 | Roadmap section in the implementation-plan template | Shipped |
 | 2 | Dogfood the kit's own roadmap in `docs/05-implementation-plan.md` | Shipped |
 
+### Shipped slices (M6 — Adoption assistant)
+
+| Slice | Scope | Status |
+|---|---|---|
+| 1 | Read-only `standards doctor` diagnostics and optional lane recommendations | Shipped |
+| 2 | Public `standards new-skill` wrapper for paired Claude/Copilot skill scaffolding | Shipped |
+| 3 | `standards commands` and expanded help discovery | Shipped |
+| 4 | Optional discovery/design/support templates with pointer-first artifact policy | Shipped |
+| 5 | Advisory SessionStart context hook and `standard-*` AI continuity commands | Shipped |
+
 ## Approach
+
+M6 closes the first post-v1 adoption-assistant and AI-continuity milestone. It
+gives adopters a read-only way to diagnose health, discover the right command,
+scaffold AI skill surfaces, choose optional knowledge lanes, read session context
+at startup, and capture compact pre-compaction handoffs without making the
+default scaffold heavier.
 
 M5 turns the remaining v1.0.0 release criterion into a reproducible local and CI
 gate. Generated downstream fixture repos validate every profile through the
@@ -99,6 +116,8 @@ flowchart LR
 ## Verification per slice
 
 Release/reporting hygiene work is verified with focused tests and the full local gates:
+- `python -m unittest tests.test_cli tests.test_manifest tests.test_payload tests.test_init` — adoption-assistant CLI and optional-lane payload coverage.
+- `python -m unittest scripts.session-context.test_session_context scripts.update-handoff.test_update_handoff` — AI continuity hook and compact snapshot coverage.
 - `python scripts/standards-check/check.py` — links/placeholders/structure.
 - `python tools/run_tests.py` — payload/manifest/CLI suite unaffected.
 - `python tools/check_v1_readiness.py` — generated downstream profile fixtures.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import unittest
 from pathlib import Path
 
@@ -20,6 +21,17 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn("workflow_dispatch:", text)
         self.assertNotIn("pull_request:", text)
         self.assertIn("python scripts/standards-check/check.py --external-links", text)
+
+    def test_claude_hooks_include_read_only_session_start_and_stop_check(self):
+        data = json.loads((REPO / ".claude" / "settings.json").read_text(encoding="utf-8"))
+        hooks = data["hooks"]
+        session_start = hooks["SessionStart"][0]["hooks"][0]["command"]
+        stop = hooks["Stop"][0]["hooks"][0]["command"]
+
+        self.assertEqual(session_start, "python scripts/session-context/session_context.py --hook")
+        self.assertEqual(stop, "python scripts/update-handoff/update_handoff.py --check")
+        self.assertNotIn("compact-snapshot", session_start)
+        self.assertNotIn("--force", session_start)
 
 
 if __name__ == "__main__":

@@ -177,6 +177,33 @@ class AgentSurfaceTests(unittest.TestCase):
             self.assertEqual(len(findings), 1)
             self.assertIn(".claude/settings.json", findings[0].message)
 
+    def test_session_start_hook_script_path_must_exist(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            _write_skill(root, "new-adr")
+            _write_index(root, ["new-adr"])
+            settings = root / ".claude" / "settings.json"
+            settings.parent.mkdir(parents=True, exist_ok=True)
+            settings.write_text(
+                json.dumps({
+                    "hooks": {
+                        "SessionStart": [{
+                            "matcher": "",
+                            "hooks": [{
+                                "type": "command",
+                                "command": "python scripts/session-context/session_context.py --hook",
+                            }],
+                        }],
+                    },
+                }),
+                encoding="utf-8",
+            )
+            script = root / "scripts" / "session-context" / "session_context.py"
+            script.parent.mkdir(parents=True, exist_ok=True)
+            script.write_text("# ok\n", encoding="utf-8")
+
+            self.assertEqual(run(root, _ctx(root)), [])
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -1,7 +1,7 @@
 # Team Repository Standards
 
-**Kit version:** 1.0.0
-**Status:** v1.0.0 release readiness shipped; roadmap in `docs/05-implementation-plan.md`
+**Kit version:** 1.1.0
+**Status:** v1.1.0 adoption-assistant CLI and optional knowledge lanes shipped; roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
 ## Purpose and precedence
@@ -223,6 +223,16 @@ RFCs do not sit `Open` indefinitely.
 
 Discovery notes are normal tracked markdown files directly under `docs/discovery/`. Do not use a separate capture/promote lifecycle; when a note informs a durable artifact, link the note from that artifact or mention it in the relevant ADR/RFC.
 
+Optional subfolders may be used when they help a repo stay organized:
+
+| Folder | Use when |
+|---|---|
+| `docs/discovery/notes/` | General research, stakeholder context, and reconnaissance notes. |
+| `docs/discovery/meetings/` | Meeting notes, customer conversations, and working-session summaries. |
+| `docs/discovery/artifacts/` | Markdown indexes for source artifacts such as screenshots, exports, recordings, diagrams, PDFs, or whiteboards. |
+
+Artifact storage is **pointer-first**. Prefer a markdown index in `docs/discovery/artifacts/` that records source, owner, external location, sensitivity, retention, summary, and follow-ups. Do not commit raw binary artifacts by default. Small text-native artifacts may be tracked when sanitized and useful; binary storage requires an explicit local policy, ADR, Git LFS, release assets, object storage, Drive/SharePoint, issue attachments, or another deliberate mechanism.
+
 ### Filename convention
 
 `YYYY-MM-DD-source-topic.md`
@@ -245,6 +255,19 @@ topic: <free text>
 - Technical investigations with a question and recommendation -> those are **RFCs** under `docs/rfcs/`.
 - Decisions -> those are **ADRs** under `docs/decisions/`.
 - Large binary source files -> keep those outside the repo and link to them from a markdown note when needed.
+
+## Optional knowledge lanes
+
+These folders are optional and should not be created just because the kit mentions them:
+
+| Folder | Use when |
+|---|---|
+| `docs/design/` | Product, UX, workflow, or system design notes that are not ADRs or RFCs. |
+| `support/incidents/` | Operational incident notes and post-incident follow-ups. Most relevant for application, infra, and data repos. |
+| `support/troubleshooting/` | Recurring symptoms, likely causes, checks, fixes, and escalation paths. |
+| `support/guides/` | User, admin, contributor, or operator guides that do not belong in numbered docs. |
+
+Use templates under `docs/templates/` when starting these documents. `standards doctor --recommend` may suggest optional lanes from repo state. AI agents may also suggest them from session context, such as when a conversation captures a meeting, incident, design note, support guide, or external artifact. These recommendations are advisory and non-blocking; no files are created unless the user asks.
 
 ## AGENTS.md pattern
 
@@ -269,6 +292,15 @@ A repo is ready for AI-assisted work when:
 - `ai/handoff.md` is present and not older than the handoff stale threshold.
 - Every local skill is paired across Claude and Copilot surfaces and listed in `AGENTS.md`.
 - `standards check` passes, or any adopter warnings are explicitly accepted by the team.
+
+### Optional AI continuity hooks
+
+Tools may add advisory hooks around the canonical AI context files. A session-start
+hook may read `ai/handoff.md`, `ai/current-state.md`, `ai/next-actions.md`, and
+`ai/open-questions.md` to print a context brief, but it must not block session
+start and must not mutate files. Compact snapshots and handoff refreshes are
+explicit command/manual actions that write `ai/handoff.md`; they are not automatic
+SessionStart behavior.
 
 ## Waiver mechanism
 

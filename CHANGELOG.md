@@ -8,6 +8,34 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-06-16
+
+### Added
+- Added `standards doctor [--recommend] [target]`, a read-only adoption health
+  diagnostic that reports marker state, standards-check findings, sidecar
+  conflicts, managed-region drift, and optional lane recommendations.
+- Added `standards new-skill "<skill-name>" "<description>" [target]`, exposing
+  the paired Claude/Copilot skill scaffolder through the packaged CLI.
+- Added `standards commands` plus expanded command-help grouping for adoption,
+  maintenance, diagnosis, and authoring workflows.
+- Added optional AI continuity surfaces: `standard-update-handoff`,
+  `standard-get-session-context`, and `standard-compact-snapshot`.
+- Added `scripts/session-context/session_context.py`, a read-only context brief
+  used by an advisory Claude `SessionStart` hook.
+- Added `--compact-snapshot` to `scripts/update-handoff/update_handoff.py` for
+  explicit pre-compaction checkpoints in `ai/handoff.md`.
+- Added optional templates for discovery notes, discovery meetings, discovery
+  artifact indexes, design notes, incidents, troubleshooting, and guides.
+- Added RFC-0004/ADR-0019 and RFC-0005/ADR-0020 for the post-v1
+  adoption-assistant and AI-continuity milestones.
+
+### Changed
+- Discovery artifact guidance is pointer-first: markdown indexes should link to
+  external binaries unless a repo explicitly chooses Git LFS, release assets,
+  object storage, or another deliberate storage mechanism.
+- The packaged payload now includes `scripts/_doc_lib` so shipped `new-doc`
+  scripts have their helper module available after install.
+
 ## [1.0.0] - 2026-06-15
 
 ### Added
@@ -315,6 +343,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[1.1.0]: #110---2026-06-16
 [1.0.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.0.0
 [0.18.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.18.0
 [0.17.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.17.0

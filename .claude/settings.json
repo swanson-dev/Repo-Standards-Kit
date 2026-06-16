@@ -1,5 +1,16 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python scripts/session-context/session_context.py --hook"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",

@@ -11,10 +11,22 @@ A future Skill (Slice 2) will automate the copy + parametrize step.
 - [`rfc-template.md`](./rfc-template.md) — Time-boxed technical investigation.
 
 ### Discovery soft-landing templates (optional)
-- [`discovery-meeting-notes.md`](./discovery-meeting-notes.md)
+- [`discovery-note-template.md`](./discovery-note-template.md)
+- [`discovery-meeting-template.md`](./discovery-meeting-template.md)
+- [`discovery-artifact-template.md`](./discovery-artifact-template.md) — pointer-first index for external artifacts; do not commit raw binaries by default.
+- [`discovery-meeting-notes.md`](./discovery-meeting-notes.md) — legacy meeting-note starter kept for compatibility.
 - [`discovery-use-case.md`](./discovery-use-case.md)
 
 Hand-authored discovery notes from these templates are normal tracked markdown files under `docs/discovery/`. Link them from any structured doc, RFC, or ADR they later inform.
+
+### Optional knowledge lanes
+- [`design-template.md`](./design-template.md) — for optional `docs/design/` notes.
+- [`incident-template.md`](./incident-template.md) — for optional `support/incidents/` notes.
+- [`troubleshooting-template.md`](./troubleshooting-template.md) — for optional `support/troubleshooting/` notes.
+- [`guide-template.md`](./guide-template.md) — for optional `support/guides/` docs.
+
+These folders are not scaffolded by default. Create them when they fit the repo,
+or let `standards doctor --recommend` point out likely candidates.
 
 ### Numbered-doc skeletons (`docs/00–10`)
 - `overview-template.md` → `docs/00-overview.md` (seeded automatically at adoption).

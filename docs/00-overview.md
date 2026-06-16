@@ -27,6 +27,6 @@ The foundational slices are shipped: templates and standards content, AI Skills 
 | [`templates/`](./templates/) | You're authoring a new artifact (ADR, RFC, numbered doc) and need a starter. |
 | [`decisions/`](./decisions/) | You want to know **why** the kit is shaped this way (ADRs 0001–0006). |
 | [`discovery/`](./discovery/) | Lightweight stakeholder, research, and reconnaissance notes. |
-| [`rfcs/`](./rfcs/) | Open or concluded technical investigations (none in the kit yet). |
+| [`rfcs/`](./rfcs/) | Open or concluded technical investigations. |
 
 For the AI session contract, read [`../AGENTS.md`](../AGENTS.md) first.

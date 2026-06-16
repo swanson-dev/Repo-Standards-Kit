@@ -160,6 +160,39 @@ class WriteModeTests(unittest.TestCase):
             self.assertEqual(result.returncode, 2)
             self.assertIn("not in a git repo", result.stderr.lower())
 
+    def test_compact_snapshot_writes_expected_sections(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_git_repo(Path(d))
+            (tmp / "work.py").write_text("print('work')\n", encoding="utf-8")
+
+            result = run("--compact-snapshot", "--force", cwd=tmp)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            body = (tmp / "ai" / "handoff.md").read_text(encoding="utf-8")
+            for heading in (
+                "## Current Goal",
+                "## Status / Plan",
+                "## Files Touched",
+                "## Tests Run",
+                "## Decisions Made",
+                "## Blockers",
+                "## Don't Redo",
+                "## Next Exact Action",
+            ):
+                self.assertIn(heading, body)
+            self.assertIn("work.py", body)
+            self.assertIn("Created ai/handoff.md", result.stdout)
+
+    def test_compact_snapshot_refuses_overwrite_without_force(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_git_repo(Path(d))
+            write_handoff(tmp, "2026-05-01T00:00:00+00:00")
+
+            result = run("--compact-snapshot", cwd=tmp)
+
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("refuse to overwrite", result.stderr.lower())
+
 
 class CheckModeTests(unittest.TestCase):
     def test_silent_when_no_work_happened(self):

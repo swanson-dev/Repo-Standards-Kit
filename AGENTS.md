@@ -1,9 +1,9 @@
 # AGENTS.md
 
-<!-- BEGIN kit-managed: agents-core (v1.0.0) -->
+<!-- BEGIN kit-managed: agents-core (v1.1.0) -->
 Single source of truth for AI agents working in this repository. Tool-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) are thin pointers to this document.
 
-- Kit version: **1.0.0**
+- Kit version: **1.1.0**
 
 ## Canonical reading order
 
@@ -34,7 +34,9 @@ Before you finish a session that produced meaningful change:
 
 - **ADRs:** `docs/templates/adr-template.md`. Immutable once `Accepted`. Reversal = new ADR + flip old to `Superseded by NNNN`.
 - **RFCs:** `docs/templates/rfc-template.md`. One folder per RFC under `docs/rfcs/NNNN-slug/`. Every RFC must either spawn an ADR, be `Abandoned` with reason, or its question must be tracked in `ai/open-questions.md`.
-- **Discovery items:** lightweight stakeholder, research, and reconnaissance notes live directly under `docs/discovery/` as tracked markdown. Templates: `docs/templates/discovery-meeting-notes.md` / `discovery-use-case.md`. Filename: `YYYY-MM-DD-source-topic.md`. Optional frontmatter (`source`, `date`, `topic`).
+- **Discovery items:** lightweight stakeholder, research, artifact indexes, and meeting notes live under `docs/discovery/` as tracked markdown. Templates: `docs/templates/discovery-note-template.md`, `discovery-meeting-template.md`, `discovery-artifact-template.md`, and `discovery-use-case.md`. Filename: `YYYY-MM-DD-source-topic.md`. Optional frontmatter (`source`, `date`, `topic`).
+- **Optional knowledge lanes:** `docs/design/`, `support/incidents/`, `support/troubleshooting/`, and `support/guides/` are optional. Use templates from `docs/templates/`; do not create these folders unless they fit the repo.
+- **AI continuity:** use `standard-get-session-context` at session start or after compaction, `standard-compact-snapshot` before compaction, and `standard-update-handoff` before ending meaningful work.
 - **Skills:** `docs/templates/skill-template.md` (Claude) + `docs/templates/skill-prompt-template.md` (Copilot). Name must equal the skill's directory; add a row to the `## Available skills` index.
 - **Numbered docs:** see `docs/STANDARDS.md` for which docs are Required/Expected/Optional/N/A for this profile.
 
@@ -54,6 +56,9 @@ Before you finish a session that produced meaningful change:
 | `new-rfc` | Starting a time-boxed investigation |
 | `update-handoff` | Writing the end-of-session handoff |
 | `standards-check` | Running the standards checks + fixing findings before pushing |
+| `standard-update-handoff` | Refreshing the standard end-of-session handoff |
+| `standard-get-session-context` | Reading the standard AI context brief |
+| `standard-compact-snapshot` | Capturing pre-compaction session state |
 
 ## About this repository
 
@@ -68,5 +73,5 @@ This is the **Team Repository Standards Kit** — a versioned set of documentati
 ### Roadmap
 
 The active milestone and forward plan live in
-`docs/05-implementation-plan.md`. Genuinely-future public CLI work
-(open an RFC or `ai/open-questions.md` entry before starting): a `standards new-skill` subcommand.
+`docs/05-implementation-plan.md`. Open an RFC or `ai/open-questions.md`
+entry before starting material new public CLI scope.

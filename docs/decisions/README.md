@@ -46,5 +46,8 @@ If a decision is the result of an RFC, the RFC's `Follow-ups → ADR to write` f
 | [0015](./0015-promote-discovery-defaults-to-interactive-decision-shaping-the-cli-stays-a-plain-flip.md) | promote-discovery defaults to interactive decision-shaping; the CLI stays a plain flip |
 | [0016](./0016-add-roadmap-section-to-implementation-plan.md) | Add a milestone roadmap section to the implementation-plan template |
 | [0017](./0017-simplify-discovery-to-tracked-markdown-notes.md) | Simplify discovery to tracked markdown notes |
+| [0018](./0018-validate-v1-readiness-with-generated-profile-fixtures.md) | Validate v1 readiness with generated profile fixtures |
+| [0019](./0019-add-post-v1-adoption-assistant-commands-and-optional-knowledge-lanes.md) | Add post-v1 adoption assistant commands and optional knowledge lanes |
+| [0020](./0020-add-advisory-ai-continuity-hooks-and-standard-slash-commands.md) | Add advisory AI continuity hooks and standard slash commands |
 
 (Index is maintained manually for now; Slice 4 may automate it.)
