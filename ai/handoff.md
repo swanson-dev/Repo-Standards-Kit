@@ -12,7 +12,7 @@ Published v1.2.0 with the new `documentation` repo profile for documentation/spe
 
 Follow-up fix: standards-check link traversal now skips common dependency/build/cache directories such as `node_modules/`, which prevents dependency markdown from flooding downstream checks.
 
-Current v1.3.0 release work adds README/CHANGELOG starter scaffolding to `standards init`/`standards adopt` and ships an advisory `standard-update-changelog` command plus Stop-hook reminder.
+Published v1.3.0 with README/CHANGELOG starter scaffolding for `standards init`/`standards adopt`, an advisory `standard-update-changelog` command plus Stop-hook reminder, and link-check exclusions for dependency/build/cache directories. Release workflow and PyPI installed-package smoke both passed.
 
 ## Recently touched
 
@@ -32,12 +32,15 @@ Validation:
 - `python tools/check_version_coherence.py`
 - `python -m unittest scripts.standards-check.test_links`
 - `python -m unittest tests.test_init tests.test_adopt tests.test_profiles_scaffold tests.test_v1_readiness tests.test_payload tests.test_payload_includes_checks tests.test_manifest tests.test_workflows scripts.changelog.test_check_changelog scripts.standards-check.test_skills`
+- `python -m build`
+- GitHub Actions release workflow `27661574279` succeeded for `v1.3.0`.
+- PyPI smoke installed `repo-standards-kit==1.3.0` and ran `standards init --profile documentation`, `standards check`, `standards check --freshness-report`, and `standards check --external-links`.
 
 ## Open threads
 
 - Pilot `standards init --profile documentation` in a real docs-only repo and tune `docs/source-map.md` if the linked-repo fields feel too light or too heavy.
 - Merge/reconcile `codex/release-v1.1.0` into `main` so main carries the v1.2.0 and v1.3.0 release work.
-- Tag and verify `v1.3.0`, then confirm the GitHub Release, PyPI package, and installed-package smoke.
+- Confirm whether to merge/reconcile `codex/release-v1.1.0` into `main` now that `v1.3.0` is published.
 
 ## Don't do
 

@@ -41,14 +41,14 @@ last_updated_by: codex
 - **v1.0.0 published.** The `v1.0.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. Generated downstream fixture repos now validate all four profiles through `init`, `check`, `update`, and `check` again; release/kit-guard workflows run the v1 gate; the manual external-link workflow provides opt-in networked audits; docs now describe the stable SemVer baseline and published-package smoke.
 - **M6 adoption assistant + AI continuity (v1.1.0 published).** The CLI now includes `standards doctor [--recommend]`, `standards new-skill`, and `standards commands`; optional templates cover discovery notes, meetings, artifact indexes, design notes, incidents, troubleshooting, and guides. The AI surface also includes `standard-update-handoff`, `standard-get-session-context`, and `standard-compact-snapshot`, plus an advisory read-only SessionStart context hook. RFC-0004/ADR-0019 and RFC-0005/ADR-0020 record the decisions. The `v1.1.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. Published-package smoke passed from a clean temporary environment.
 - **v1.2.0 published.** The `documentation` profile is now a supported profile for docs/spec repos whose implementation lives elsewhere. The profile keeps the universal core, adds `docs/source-map.md` as its profile extra, updates CLI/check/profile readiness plumbing, and records RFC-0006/ADR-0021. The `v1.2.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. Published-package smoke passed from a clean temporary environment using `standards init --profile documentation`.
-- **v1.3.0 prepared.** `standards init` and `standards adopt` now seed missing root `README.md` and `CHANGELOG.md` files, preserve existing ones, and ship an advisory `standard-update-changelog` skill plus Stop-hook reminder.
+- **v1.3.0 published.** `standards init` and `standards adopt` now seed missing root `README.md` and `CHANGELOG.md` files, preserve existing ones, and ship an advisory `standard-update-changelog` skill plus Stop-hook reminder. The `v1.3.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. Published-package smoke passed from a clean temporary environment using `standards init --profile documentation` without manually seeding README/CHANGELOG.
 - **Standards-check traversal fix (v1.3.0).** Internal and external markdown link checks now skip common dependency, build, and cache directories such as `node_modules/`, `dist/`, `build/`, `.venv/`, and `.next/`.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| v1.3.0 release | codex/release-v1.1.0 | codex | tag, publish, and verify |
+| v1.3.0 post-release bookkeeping | codex/release-v1.1.0 | codex | merge/reconcile release branch |
 
 ## What's blocked
 
