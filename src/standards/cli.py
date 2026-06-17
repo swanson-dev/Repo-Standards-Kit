@@ -14,7 +14,7 @@ from standards.init import run_adopt, run_init
 from standards.payload import payload_root
 from standards.update import run_update
 
-PROFILES = ["application", "library", "infra", "data"]
+PROFILES = ["application", "library", "infra", "data", "documentation"]
 HELP_TOPICS = ("init", "adopt", "update", "check", "doctor", "new-skill", "commands")
 
 COMMAND_ROWS = (
@@ -65,6 +65,7 @@ Use `standards help <command>` for command-specific examples.""",
         description="Adopt the kit into a new or clean target repo.",
         epilog="""Examples:
   standards init --profile library .
+  standards init --profile documentation .
   standards init --profile application C:\\path\\to\\repo
 
 Use `standards adopt` instead for an existing repo with local files.""",
@@ -97,6 +98,7 @@ Requires an existing .standards-kit.json marker.""",
         description="Adopt the kit into an existing repo non-destructively.",
         epilog="""Examples:
   standards adopt --profile application .
+  standards adopt --profile documentation .
   standards adopt --profile data C:\\path\\to\\repo
 
 Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",

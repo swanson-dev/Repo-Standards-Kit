@@ -1,8 +1,10 @@
 <!--
 docs/07-testing.md
-  Required (application, library, data)
+  Required (application, library, data, documentation)
   Expected (infra — focus on drift detection and preview-plan)
 The point of this doc is to make tests reproducible and to declare what coverage means.
+For documentation repos, focus on markdown validation, internal links, external link audits,
+generated-doc checks, and freshness expectations.
 -->
 
 # Testing

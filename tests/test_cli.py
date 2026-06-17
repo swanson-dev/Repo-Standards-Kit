@@ -86,6 +86,14 @@ class CliTests(unittest.TestCase):
             self.assertTrue((target / ".standards-kit.json").is_file())
             self.assertTrue((target / "docs" / "STANDARDS.md").is_file())
 
+    def test_init_accepts_documentation_profile(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            result = self._run("init", "--profile", "documentation", str(target), cwd=REPO)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            marker = (target / ".standards-kit.json").read_text(encoding="utf-8")
+            self.assertIn('"profile": "documentation"', marker)
+
     def test_rejects_unknown_profile(self):
         with tempfile.TemporaryDirectory() as d:
             result = self._run("init", "--profile", "bogus", d, cwd=REPO)

@@ -1,5 +1,5 @@
 <!--
-docs/03-data-model.md — Required (data), Expected if state-bearing (application), Optional (infra), N/A (library)
+docs/03-data-model.md — Required (data), Expected if state-bearing (application), Optional (infra, documentation), N/A (library)
 Describes the entities the system owns, their invariants, and how they change over time.
 -->
 

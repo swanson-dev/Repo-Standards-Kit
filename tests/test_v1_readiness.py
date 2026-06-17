@@ -21,7 +21,7 @@ class V1ReadinessTests(unittest.TestCase):
             text=True,
         )
         self.assertEqual(res.returncode, 0, res.stdout + res.stderr)
-        for profile in ("application", "library", "infra", "data"):
+        for profile in ("application", "library", "infra", "data", "documentation"):
             self.assertIn(f"{profile}: init/check/update OK", res.stdout)
         self.assertIn("V1 readiness: OK", res.stdout)
 

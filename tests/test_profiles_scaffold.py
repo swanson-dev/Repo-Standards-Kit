@@ -2,7 +2,7 @@
 
 For every profile, scaffold into a temp dir (seeding the README/CHANGELOG a real
 repo always supplies) and assert the standards check reports zero ERROR findings.
-This exercises all four profiles end-to-end, not just the `library` profile the
+This exercises all profiles end-to-end, not just the `library` profile the
 kit self-applies.
 """
 from __future__ import annotations
@@ -20,7 +20,7 @@ sys.path.insert(0, str(REPO / "scripts" / "standards-check"))
 from standards.init import run_init  # noqa: E402
 import check as check_mod  # noqa: E402
 
-PROFILES = ("application", "library", "infra", "data")
+PROFILES = ("application", "library", "infra", "data", "documentation")
 
 CHANGELOG_STUB = (
     "# Changelog\n\n"

@@ -105,7 +105,10 @@ def _recommendations(root: Path, marker: dict | None) -> list[str]:
             )
 
     if not (root / "docs" / "design").exists():
-        design_signal = (root / "docs" / "01-prd.md").exists() or profile == "application"
+        design_signal = (
+            (root / "docs" / "01-prd.md").exists()
+            or profile in {"application", "documentation"}
+        )
         if design_signal:
             recs.append("Consider docs/design for product, UX, or system design notes.")
 

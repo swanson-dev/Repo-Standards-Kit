@@ -1,9 +1,9 @@
 # AGENTS.md
 
-<!-- BEGIN kit-managed: agents-core (v1.1.0) -->
+<!-- BEGIN kit-managed: agents-core (v1.2.0) -->
 Single source of truth for AI agents working in this repository. Tool-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) are thin pointers to this document.
 
-- Kit version: **1.1.0**
+- Kit version: **1.2.0**
 
 ## Canonical reading order
 

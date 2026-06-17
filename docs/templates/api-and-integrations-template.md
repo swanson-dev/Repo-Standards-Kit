@@ -1,10 +1,11 @@
 <!--
 docs/04-api-and-integrations.md
-  Required (application, library, data)
+  Required (application, library, data, documentation)
   Expected (infra)
 For libraries: this is the public API contract.
 For applications: this is the consumer-facing surface + dependencies.
 For data: this is sources + sinks (input contracts + output contracts).
+For documentation: this is linked source repos, canonical references, and upstream/downstream doc contracts.
 -->
 
 # API and Integrations

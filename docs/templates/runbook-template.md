@@ -1,5 +1,5 @@
 <!--
-docs/06-runbook.md — Required (application, infra, data), N/A (library)
+docs/06-runbook.md — Required (application, infra, data), N/A (library, documentation unless the docs site has operations)
 For the on-call human or AI agent at 2am. Optimize for "I am tired and need to fix this fast."
 -->
 

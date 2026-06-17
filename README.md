@@ -59,7 +59,7 @@ python scripts/session-context/session_context.py
 python scripts/update-handoff/update_handoff.py --compact-snapshot --force
 ```
 
-Pick the profile that fits the repo: `application` | `library` | `infra` | `data`. Each profile has its own Required / Expected / Optional / N/A doc matrix — see [`docs/STANDARDS.md`](./docs/STANDARDS.md).
+Pick the profile that fits the repo: `application` | `library` | `infra` | `data` | `documentation`. Each profile has its own Required / Expected / Optional / N/A doc matrix — see [`docs/STANDARDS.md`](./docs/STANDARDS.md).
 
 - **`init`** is for blank/clean repos; it refuses if kit-owned files already exist with different content (it points you at `adopt`).
 - **`adopt`** is for repos that already have their own README, docs, or CI; it never clobbers — it keeps your files, sidecars true conflicts, and appends/splices the kit's managed block into an existing `AGENTS.md`.
@@ -68,7 +68,7 @@ Pick the profile that fits the repo: `application` | `library` | `infra` | `data
 ## What this kit gives you
 
 1. A **standard folder layout** that scales across repo types.
-2. Four **repo profiles** (application, library, infra, data) with explicit Required / Expected / Optional / N/A doc requirements.
+2. Five **repo profiles** (application, library, infra, data, documentation) with explicit Required / Expected / Optional / N/A doc requirements.
 3. A defined contract for the **`ai/` directory** — four files that carry session-to-session context.
 4. **MADR 3.0 ADRs** with a defined lifecycle.
 5. **RFCs** for time-boxed technical investigations (separate from raw discovery intake).

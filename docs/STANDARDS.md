@@ -1,7 +1,7 @@
 # Team Repository Standards
 
-**Kit version:** 1.1.0
-**Status:** v1.1.0 adoption-assistant CLI and optional knowledge lanes shipped; roadmap in `docs/05-implementation-plan.md`
+**Kit version:** 1.2.0
+**Status:** v1.2.0 documentation profile shipped; roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
 ## Purpose and precedence
@@ -29,6 +29,7 @@ Each repo declares exactly one profile. The profile determines which numbered do
 | **library** | Internal packages (npm, NuGet, PyPI, Go modules). Distribute via registry; no environment of their own. |
 | **infra** | Terraform, Bicep, Kubernetes manifests, IaC repos. Care about environments, drift, change windows. |
 | **data** | ETL pipelines, dbt projects, analytics notebooks. Care about data contracts, lineage, freshness. |
+| **documentation** | Documentation/specification repos whose implementation lives elsewhere. Care about source maps, freshness, links, and ownership boundaries. |
 
 If your repo doesn't fit, **pick the closest profile** and record any deviations in the local `STANDARDS.md`. Don't invent new profiles in-repo; propose one via RFC.
 
@@ -67,17 +68,17 @@ If your repo doesn't fit, **pick the closest profile** and record any deviations
 
 ## Profile matrix (numbered docs)
 
-| Doc | application | library | infra | data |
-|---|---|---|---|---|
-| `01-prd.md` | Required | Optional | Optional | Expected |
-| `02-architecture.md` | Required | Expected | Required | Required |
-| `03-data-model.md` | Expected (if state-bearing) | N/A | Optional | Required |
-| `04-api-and-integrations.md` | Required | Required (public API contract) | Expected | Required (sources/sinks) |
-| `05-implementation-plan.md` | Expected | Optional | Expected | Expected |
-| `06-runbook.md` | Required | N/A | Required | Required |
-| `07-testing.md` | Required | Required | Expected (drift/preview) | Required (data quality) |
-| `08-security-and-compliance.md` | Required | Expected | Required | Required |
-| `09-deployment.md` | Required | N/A (publishing policy in CHANGELOG) | Required | Required (orchestration) |
+| Doc | application | library | infra | data | documentation |
+|---|---|---|---|---|---|
+| `01-prd.md` | Required | Optional | Optional | Expected | Expected |
+| `02-architecture.md` | Required | Expected | Required | Required | Expected (information architecture) |
+| `03-data-model.md` | Expected (if state-bearing) | N/A | Optional | Required | Optional |
+| `04-api-and-integrations.md` | Required | Required (public API contract) | Expected | Required (sources/sinks) | Required (linked source repos and reference contracts) |
+| `05-implementation-plan.md` | Expected | Optional | Expected | Expected | Expected |
+| `06-runbook.md` | Required | N/A | Required | Required | N/A (unless the docs site has operations) |
+| `07-testing.md` | Required | Required | Expected (drift/preview) | Required (data quality) | Required (links, generated docs, freshness) |
+| `08-security-and-compliance.md` | Required | Expected | Required | Required | Expected (sensitivity, redaction, access, licensing) |
+| `09-deployment.md` | Required | N/A (publishing policy in CHANGELOG) | Required | Required (orchestration) | Optional (docs site publishing only) |
 
 ### Profile-specific extras
 
@@ -86,6 +87,7 @@ If your repo doesn't fit, **pick the closest profile** and record any deviations
 | `library` | `docs/versioning-policy.md` (SemVer commitments, deprecation cadence, support window) |
 | `infra` | `docs/environments.md` (dev/stage/prod topology + change windows) |
 | `data` | `docs/data-contracts/` (per-dataset contracts: schema, owner, freshness SLO, lineage) |
+| `documentation` | `docs/source-map.md` (linked implementation repos, owners, reference policy, sync cadence) |
 
 ## The `ai/` directory contract
 
@@ -330,7 +332,7 @@ Waivers are reviewed during the doc's review cycle (recorded in `docs/STANDARDS.
 4. Fill `docs/STANDARDS.md` from `docs/templates/STANDARDS.md.template`.
 5. Fill `docs/STANDARDS-CHECKLIST.md` from `docs/templates/STANDARDS-CHECKLIST.md.template`.
 6. Seed `ai/*.md` from `docs/templates/ai-starters/`.
-7. Create the profile-required numbered docs from their templates. Leave Expected docs as stubs to be filled in (or waive them).
+7. Create the profile-required numbered docs from their templates. Leave Expected docs as stubs to be filled in (or waive them). For `documentation` repos, create `docs/source-map.md` from `docs/templates/source-map-template.md`.
 8. Adopt `.github/pull_request_template.md` and `.github/workflows/repo-standards.yml`.
 9. Run the CI check locally if possible; commit when green.
 
@@ -360,7 +362,7 @@ Each repo records the kit version it adopted in its local `docs/STANDARDS.md`. U
 
 Link checking, placeholder/content linting, skill-format linting, opt-in external-link liveness, and opt-in freshness reporting now ship as the v2 content checks (see below).
 
-The kit's own release is guarded by `tools/check_version_coherence.py` and `tools/check_v1_readiness.py` (run in `kit-guards.yml` and `release.yml`): version strings and release tags must agree, and generated downstream fixture repos for all four profiles must pass `init`, `check`, `update`, and `check` again. These guards are kit-internal and are not shipped to adopters.
+The kit's own release is guarded by `tools/check_version_coherence.py` and `tools/check_v1_readiness.py` (run in `kit-guards.yml` and `release.yml`): version strings and release tags must agree, and generated downstream fixture repos for every supported profile must pass `init`, `check`, `update`, and `check` again. These guards are kit-internal and are not shipped to adopters.
 
 ## Content checks (v2)
 

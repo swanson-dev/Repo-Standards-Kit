@@ -1,6 +1,6 @@
 # Testing
 
-The kit has no runtime, so there are no unit tests in the traditional sense. Verification is **structural** (does the artifact set match the spec?) and **walkthrough** (does adopting the kit actually work for the four profiles?).
+The kit has no runtime, so there are no unit tests in the traditional sense. Verification is **structural** (does the artifact set match the spec?) and **walkthrough** (does adopting the kit actually work for every supported profile?).
 
 ## Test pyramid for this repo
 
@@ -22,7 +22,7 @@ The kit has no runtime, so there are no unit tests in the traditional sense. Ver
 
 - **Structural lint:** 100% of files matched by the workflow rules.
 - **Self-application:** every Required and Expected doc for the `library` profile present (or waived) in this kit.
-- **V1 readiness:** generated downstream fixture repos for all four profiles pass `init`, `check`, `update`, and `check` again before the kit cuts v1.0.0.
+- **Readiness:** generated downstream fixture repos for every supported profile pass `init`, `check`, `update`, and `check` again before release.
 - **Walkthrough:** at least one real downstream repo per profile over time; useful evidence, but not a v1.0.0 release blocker.
 
 ## How to run locally

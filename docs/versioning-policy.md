@@ -12,7 +12,7 @@ The kit follows **Semantic Versioning 2.0.0** (`MAJOR.MINOR.PATCH`). Each downst
 
 ## 1.0.0 baseline
 
-As of v1.0.0, downstream consumers can rely on the SemVer guarantees above. The v1.0.0 baseline is guarded by generated downstream fixture repos for all four profiles (`application`, `library`, `infra`, `data`) plus the shipped AI Skills/Hooks and PyPI `standards` CLI distribution mechanism. ADR-0018 records generated fixtures as the release-readiness evidence.
+As of v1.0.0, downstream consumers can rely on the SemVer guarantees above. The v1.0.0 baseline was guarded by generated downstream fixture repos for the original four profiles (`application`, `library`, `infra`, `data`) plus the shipped AI Skills/Hooks and PyPI `standards` CLI distribution mechanism. Current release readiness covers every supported profile. ADR-0018 records generated fixtures as the release-readiness evidence.
 
 ## Public surface
 

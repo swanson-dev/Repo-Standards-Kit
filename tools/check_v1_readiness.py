@@ -20,7 +20,7 @@ from standards.init import run_init  # noqa: E402
 from standards.update import run_update  # noqa: E402
 import check as check_mod  # noqa: E402
 
-PROFILES = ("application", "library", "infra", "data")
+PROFILES = ("application", "library", "infra", "data", "documentation")
 
 CHANGELOG_STUB = (
     "# Changelog\n\n"

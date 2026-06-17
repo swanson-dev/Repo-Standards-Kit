@@ -1,6 +1,7 @@
 <!--
-docs/02-architecture.md — Required (application, infra, data), Expected (library)
+docs/02-architecture.md — Required (application, infra, data), Expected (library, documentation)
 How the pieces fit. Keep diagrams source-controlled (mermaid, ASCII, or linked image).
+For documentation repos, describe the information architecture and how docs map to source repos.
 -->
 
 # Architecture

@@ -13,7 +13,7 @@ from pathlib import Path
 
 from . import Context, Finding
 
-ALLOWED_PROFILES = {"application", "library", "infra", "data"}
+ALLOWED_PROFILES = {"application", "library", "infra", "data", "documentation"}
 ADR_STATUSES = {"Proposed", "Accepted", "Deprecated"}
 RFC_STATUSES = {"Open", "Concluded", "Abandoned"}
 

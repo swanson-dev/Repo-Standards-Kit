@@ -1,7 +1,7 @@
 <!--
 docs/08-security-and-compliance.md
   Required (application, infra, data)
-  Expected (library)
+  Expected (library, documentation)
 Even minimal repos benefit from a written threat-model summary and a secrets policy.
 -->
 

@@ -8,6 +8,15 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-06-16
+
+### Added
+- Added the `documentation` repo profile for documentation/specification repos
+  whose implementation lives in linked repositories.
+- Added `docs/templates/source-map-template.md` as the documentation-profile
+  extra for linked repos, ownership, canonical references, and sync policy.
+- Added RFC-0006/ADR-0021 documenting the documentation profile decision.
+
 ## [1.1.0] - 2026-06-16
 
 ### Added
@@ -343,6 +352,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[1.2.0]: #120---2026-06-16
 [1.1.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.1.0
 [1.0.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.0.0
 [0.18.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v0.18.0

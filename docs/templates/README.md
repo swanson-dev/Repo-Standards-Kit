@@ -45,6 +45,7 @@ or let `standards doctor --recommend` point out likely candidates.
 - [`versioning-policy-template.md`](./versioning-policy-template.md) — library profile.
 - [`environments-template.md`](./environments-template.md) — infra profile.
 - [`data-contract-template.md`](./data-contract-template.md) — data profile (one per dataset).
+- [`source-map-template.md`](./source-map-template.md) — documentation profile.
 
 ### `ai/` starters (seeded automatically at adoption)
 - `ai-starters/current-state.md` → `ai/current-state.md`

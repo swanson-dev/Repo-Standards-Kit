@@ -2,7 +2,7 @@
 
 ## Roadmap
 
-> Active milestone: **None**. M6 shipped in v1.1.0; choose the next milestone before implementation begins.
+> Active milestone: **None**. M7 ships in v1.2.0; choose the next milestone before new implementation begins.
 
 | Milestone                        | Outcome                                                                                  | Target   | Status  |
 |----------------------------------|------------------------------------------------------------------------------------------|----------|---------|
@@ -12,6 +12,7 @@
 | M4 — Release and reporting hygiene | GitHub Release consistency, external-link liveness, and richer doc-freshness reporting    | v0.18.0  | shipped |
 | M5 — v1.0.0 readiness | Generated four-profile downstream validation, manual external-link workflow, stable SemVer docs | v1.0.0 | shipped |
 | M6 — Adoption assistant + AI continuity | `standards doctor`, public `new-skill`, command discovery, optional knowledge-lane templates, and standard AI continuity commands | v1.1.0 | shipped |
+| M7 — Documentation profile | First-class profile for documentation/spec repos linked to implementation elsewhere | v1.2.0 | shipped |
 
 ### Shipped slices (M1 — Foundation)
 
@@ -41,7 +42,20 @@
 | 4 | Optional discovery/design/support templates with pointer-first artifact policy | Shipped |
 | 5 | Advisory SessionStart context hook and `standard-*` AI continuity commands | Shipped |
 
+### Shipped slices (M7 — Documentation profile)
+
+| Slice | Scope | Status |
+|---|---|---|
+| 1 | Add `documentation` to CLI/check/profile fixture plumbing | Shipped |
+| 2 | Add `docs/source-map.md` template and profile matrix/docs updates | Shipped |
+| 3 | Record RFC-0006 and ADR-0021 for the new profile | Shipped |
+
 ## Approach
+
+M7 adds a first-class `documentation` profile for repos whose durable artifact is
+documentation or specification content linked to implementation elsewhere. It
+keeps the universal core unchanged while adding source-map guidance and generated
+readiness coverage for the new profile.
 
 M6 closes the first post-v1 adoption-assistant and AI-continuity milestone. It
 gives adopters a read-only way to diagnose health, discover the right command,

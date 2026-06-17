@@ -1,5 +1,5 @@
 <!--
-docs/01-prd.md — Required (application), Expected (data), Optional (library, infra)
+docs/01-prd.md — Required (application), Expected (data, documentation), Optional (library, infra)
 Product Requirements Document. Keep it lean. If the answer is "see discovery/", say so and link.
 -->
 

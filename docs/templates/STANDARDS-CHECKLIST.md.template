@@ -6,7 +6,7 @@ The CI standards check parses unchecked boxes — a missing reason fails the bui
 
 # Standards Checklist — <repo-name>
 
-**Profile:** <application | library | infra | data>
+**Profile:** <application | library | infra | data | documentation>
 **Kit version adopted:** <e.g. 0.1.0>
 **Last reviewed:** YYYY-MM-DD by <name>
 
@@ -48,7 +48,8 @@ The CI standards check parses unchecked boxes — a missing reason fails the bui
 
 <!-- library: docs/versioning-policy.md
      infra:   docs/environments.md
-     data:    docs/data-contracts/<dataset>.md (one or more) -->
+     data:    docs/data-contracts/<dataset>.md (one or more)
+     documentation: docs/source-map.md -->
 
 ## Notes
 

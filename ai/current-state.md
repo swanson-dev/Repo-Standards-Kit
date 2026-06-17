@@ -7,8 +7,8 @@ last_updated_by: codex
 
 ## What works
 
-- The kit ships a complete documentation standard for four repo profiles (application, library, infra, data) with a Required / Expected / Optional / N/A matrix.
-- 28 templates under `docs/templates/` cover every artifact the kit defines: ADR (MADR 3.0), RFC, discovery starters, optional knowledge-lane starters, 11 numbered-doc skeletons, 4 `ai/` starters, 3 profile extras, and 2 per-repo governance templates.
+- The kit ships a complete documentation standard for five repo profiles (application, library, infra, data, documentation) with a Required / Expected / Optional / N/A matrix.
+- 29 templates under `docs/templates/` cover every artifact the kit defines: ADR (MADR 3.0), RFC, discovery starters, optional knowledge-lane starters, 11 numbered-doc skeletons, 4 `ai/` starters, 4 profile extras, and 2 per-repo governance templates.
 - 6 bootstrap ADRs (`docs/decisions/0001`–`0006`) capture every Slice 1 decision in the kit's own format.
 - The kit applies its own `library` profile to itself: every Required and Expected doc is present, with waivers recorded for the genuinely-skipped ones.
 - `AGENTS.md` + thin `CLAUDE.md` + `.github/copilot-instructions.md` pattern is in place at the kit level.
@@ -40,12 +40,13 @@ last_updated_by: codex
 - **M4 release/reporting hygiene (v0.18.0 published).** The `v0.18.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. The tag-triggered release workflow creates/updates GitHub Releases, `standards-check` has opt-in `--external-links` and `--freshness-report` modes, historical changelog placeholder links are cleaned up, and `ai/` freshness now covers `current-state`, `next-actions`, and `handoff`.
 - **v1.0.0 published.** The `v1.0.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. Generated downstream fixture repos now validate all four profiles through `init`, `check`, `update`, and `check` again; release/kit-guard workflows run the v1 gate; the manual external-link workflow provides opt-in networked audits; docs now describe the stable SemVer baseline and published-package smoke.
 - **M6 adoption assistant + AI continuity (v1.1.0 published).** The CLI now includes `standards doctor [--recommend]`, `standards new-skill`, and `standards commands`; optional templates cover discovery notes, meetings, artifact indexes, design notes, incidents, troubleshooting, and guides. The AI surface also includes `standard-update-handoff`, `standard-get-session-context`, and `standard-compact-snapshot`, plus an advisory read-only SessionStart context hook. RFC-0004/ADR-0019 and RFC-0005/ADR-0020 record the decisions. The `v1.1.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. Published-package smoke passed from a clean temporary environment.
+- **Documentation profile (v1.2.0 ready).** `documentation` is now a supported profile for docs/spec repos whose implementation lives elsewhere. The profile keeps the universal core, adds `docs/source-map.md` as its profile extra, updates CLI/check/profile readiness plumbing, and records RFC-0006/ADR-0021.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| v1.1.0 post-release bookkeeping | codex/release-v1.1.0 | codex | merge/reconcile release branch |
+| v1.2.0 release | codex/release-v1.1.0 | codex | tag, publish, and verify release |
 
 ## What's blocked
 

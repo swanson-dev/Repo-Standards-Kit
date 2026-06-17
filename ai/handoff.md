@@ -1,6 +1,6 @@
 ---
-written: 2026-06-16T17:09:44-05:00
-written_by: codex
+written: 2026-06-16T19:10:08-05:00
+written_by: swanson-dev (via claude-code-assistant)
 for: next-session
 ---
 
@@ -8,27 +8,28 @@ for: next-session
 
 ## TL;DR
 
-Published v1.1.0 after implementing the adoption-assistant and AI-continuity slice: `standards doctor [--recommend]`, `standards new-skill`, `standards commands`, optional discovery/design/support templates, `standard-update-handoff`, `standard-get-session-context`, `standard-compact-snapshot`, and an advisory read-only SessionStart context hook. The `v1.1.0` tag deployed through GitHub Actions, published to PyPI, created the GitHub Release, and passed the clean installed-package smoke.
+Added the `documentation` repo profile for v1.2.0: documentation/spec repos whose implementation lives elsewhere. The profile keeps the full universal core, adds `docs/source-map.md` as its profile extra, and now passes CLI, standards-check, generated fixture readiness, full test, and version-coherence gates.
 
 ## Recently touched
 
-- `src/standards/cli.py` and `src/standards/doctor.py` add the new public CLI commands and read-only diagnostics.
-- `scripts/session-context/session_context.py` adds the read-only AI context brief used by the SessionStart hook and `standard-get-session-context`.
-- `scripts/update-handoff/update_handoff.py` adds `--compact-snapshot` for explicit pre-compaction handoff checkpoints.
-- `docs/templates/` adds optional lane templates for discovery notes, meetings, artifact indexes, design, incidents, troubleshooting, and guides.
-- `docs/STANDARDS.md`, `README.md`, `docs/04-api-and-integrations.md`, and `docs/discovery/README.md` document optional lanes and the pointer-first artifact policy.
-- `docs/rfcs/0004-.../rfc.md`, `docs/decisions/0019-...md`, RFC-0005, and ADR-0020 record the public CLI, optional-lane, and AI-continuity decisions.
-- `CHANGELOG.md`, `ai/current-state.md`, and `ai/next-actions.md` now describe v1.1.0 as published.
+- `src/standards/cli.py`, `src/standards/init.py`, `scripts/standards-check/checks/structural.py`, and `tools/check_v1_readiness.py` add `documentation` to profile plumbing and generated readiness.
+- `docs/STANDARDS.md`, downstream standards templates, numbered-doc templates, `README.md`, `docs/07-testing.md`, and `docs/versioning-policy.md` document the new profile.
+- `docs/templates/source-map-template.md` adds the documentation-profile extra for linked source repos, ownership, canonical references, and sync policy.
+- `docs/rfcs/0006-should-the-kit-add-a-documentation-repo-profile/rfc.md` and `docs/decisions/0021-add-a-documentation-repo-profile.md` record the decision.
+- `CHANGELOG.md`, `docs/05-implementation-plan.md`, `ai/current-state.md`, and `ai/next-actions.md` describe the v1.2.0 feature and next pilot step.
+
+Validation:
+- `python tools/run_tests.py`
+- `python tools/check_v1_readiness.py`
+- `python scripts/standards-check/check.py`
+- `python tools/check_version_coherence.py`
 
 ## Open threads
 
-- Merge/reconcile `codex/release-v1.1.0` into `main` if you want `main` to carry the release commit and post-release changelog link.
-- Pilot `standards doctor --recommend` in a real downstream repo to tune recommendation noise.
-- Pilot the SessionStart context brief in real work to tune summary noise.
+- Pilot `standards init --profile documentation` in a real docs-only repo and tune `docs/source-map.md` if the linked-repo fields feel too light or too heavy.
+- After the tag workflow publishes, update the `CHANGELOG.md` `[1.2.0]` link from the same-file anchor to the live GitHub Release URL.
 
 ## Don't do
 
-- Do not make optional knowledge lanes required or scaffold them by default.
-- Do not make the SessionStart hook blocking or mutating.
-- Do not store raw discovery binaries in git by default; use markdown artifact indexes that point to deliberate external storage.
-- Do not reintroduce the old capture/promote discovery lifecycle without a superseding ADR.
+- Do not scaffold `docs/source-map.md` by default; it is a profile extra template, like `versioning-policy`, `environments`, and `data-contracts`.
+- Do not edit accepted historical ADRs such as ADR-0003 or ADR-0018 just to update old "four profiles" wording.

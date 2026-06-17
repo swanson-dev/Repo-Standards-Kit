@@ -10,7 +10,7 @@ This repository follows the **Team Repository Standards Kit**.
 
 - **Kit version adopted:** <e.g. 0.1.0>
 - **Kit source of truth:** <link to the kit's docs/STANDARDS.md at the adopted tag>
-- **Profile:** application | library | infra | data
+- **Profile:** application | library | infra | data | documentation
 - **Last reviewed:** YYYY-MM-DD by <name>
 
 ## Local deviations

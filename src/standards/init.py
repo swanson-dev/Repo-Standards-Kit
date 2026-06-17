@@ -19,7 +19,7 @@ from standards.payload import payload_root
 
 ADOPT_REPORT_KEYS = ("added", "unchanged", "spliced", "conflicts", "scaffolded")
 
-PROFILE_PLACEHOLDER = "<application | library | infra | data>"
+PROFILE_PLACEHOLDER = "<application | library | infra | data | documentation>"
 
 _LEADING_COMMENT_RE = re.compile(r"\A\s*<!--.*?-->\s*", re.DOTALL)
 
