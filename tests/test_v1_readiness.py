@@ -26,18 +26,19 @@ class V1ReadinessTests(unittest.TestCase):
         self.assertIn("V1 readiness: OK", res.stdout)
 
     def test_profile_failure_includes_check_findings(self):
-        original = check_v1_readiness._seed_downstream_repo
+        original = check_v1_readiness.run_init
 
-        def missing_changelog(target: Path) -> None:
-            original(target)
+        def init_without_changelog(target: Path, **kwargs):
+            marker = original(target, **kwargs)
             (target / "CHANGELOG.md").unlink()
+            return marker
 
         with tempfile.TemporaryDirectory() as d:
             try:
-                check_v1_readiness._seed_downstream_repo = missing_changelog
+                check_v1_readiness.run_init = init_without_changelog
                 result = check_v1_readiness.validate_profile("library", Path(d))
             finally:
-                check_v1_readiness._seed_downstream_repo = original
+                check_v1_readiness.run_init = original
 
         self.assertFalse(result.ok)
         details = "\n".join(result.details)

@@ -2,7 +2,7 @@
 
 ## Roadmap
 
-> Active milestone: **None**. M7 ships in v1.2.0; choose the next milestone before new implementation begins.
+> Active milestone: **None**. M7 shipped in v1.2.0; maintenance release v1.3.0 ships README/CHANGELOG starters and changelog reminders.
 
 | Milestone                        | Outcome                                                                                  | Target   | Status  |
 |----------------------------------|------------------------------------------------------------------------------------------|----------|---------|
@@ -49,6 +49,12 @@
 | 1 | Add `documentation` to CLI/check/profile fixture plumbing | Shipped |
 | 2 | Add `docs/source-map.md` template and profile matrix/docs updates | Shipped |
 | 3 | Record RFC-0006 and ADR-0021 for the new profile | Shipped |
+
+### Unreleased maintenance
+
+| Slice | Scope | Status |
+|---|---|---|
+| 1 | Seed missing root `README.md`/`CHANGELOG.md` files during init/adopt and add advisory changelog reminders | Shipped in v1.3.0 |
 
 ## Approach
 

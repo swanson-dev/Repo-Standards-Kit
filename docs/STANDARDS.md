@@ -1,7 +1,7 @@
 # Team Repository Standards
 
-**Kit version:** 1.2.0
-**Status:** v1.2.0 documentation profile shipped; roadmap in `docs/05-implementation-plan.md`
+**Kit version:** 1.3.0
+**Status:** v1.3.0 adoption starter and changelog assist shipped; roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
 ## Purpose and precedence
@@ -303,6 +303,10 @@ hook may read `ai/handoff.md`, `ai/current-state.md`, `ai/next-actions.md`, and
 start and must not mutate files. Compact snapshots and handoff refreshes are
 explicit command/manual actions that write `ai/handoff.md`; they are not automatic
 SessionStart behavior.
+
+Stop hooks may also run advisory checks such as changelog reminders. These
+checks should exit successfully and print guidance instead of mutating files or
+blocking the session; explicit skill or slash-command surfaces handle the write.
 
 ## Waiver mechanism
 

@@ -12,6 +12,7 @@ class PayloadTests(unittest.TestCase):
         self.assertTrue((root / "docs" / "templates" / "adr-template.md").is_file())
         self.assertTrue((root / "docs" / "STANDARDS.md").is_file())
         self.assertTrue((root / "scripts" / "standards-check" / "check.py").is_file())
+        self.assertTrue((root / "scripts" / "changelog" / "check_changelog.py").is_file())
 
     def test_optional_lane_templates_are_payload(self):
         from standards.payload import payload_root

@@ -22,15 +22,6 @@ import check as check_mod  # noqa: E402
 
 PROFILES = ("application", "library", "infra", "data", "documentation")
 
-CHANGELOG_STUB = (
-    "# Changelog\n\n"
-    "All notable changes to this project are documented here.\n\n"
-    "## [0.1.0] - 2026-06-01\n\n"
-    "### Added\n"
-    "- Initial adoption of the Repo-Standards-Kit.\n"
-)
-
-
 @dataclass
 class ProfileResult:
     profile: str
@@ -39,9 +30,7 @@ class ProfileResult:
 
 
 def _seed_downstream_repo(target: Path) -> None:
-    """Seed files every realistic downstream repo is expected to own already."""
-    (target / "README.md").write_text("# Test repo\n", encoding="utf-8")
-    (target / "CHANGELOG.md").write_text(CHANGELOG_STUB, encoding="utf-8")
+    """Hook for future fixture-owned files; init now seeds README/CHANGELOG."""
 
 
 def _finding_details(target: Path) -> list[str]:

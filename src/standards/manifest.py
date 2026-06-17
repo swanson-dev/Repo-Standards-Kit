@@ -21,6 +21,7 @@ PAYLOAD_DIRS: tuple[str, ...] = (
     "docs/templates",
     "scripts/_doc_lib",
     "scripts/new-doc",
+    "scripts/changelog",
     "scripts/session-context",
     "scripts/standards-check",
     "scripts/update-handoff",
@@ -53,6 +54,8 @@ SCAFFOLD_ONCE: dict[str, str] = {
     "docs/templates/ai-starters/next-actions.md": "ai/next-actions.md",
     "docs/templates/ai-starters/open-questions.md": "ai/open-questions.md",
     "docs/templates/STANDARDS-CHECKLIST.md.template": "docs/STANDARDS-CHECKLIST.md",
+    "docs/templates/repo-readme-template.md": "README.md",
+    "docs/templates/changelog-template.md": "CHANGELOG.md",
     # Universal-core docs the adopter owns after seeding (templates carry author
     # guidance; the folder READMEs orient the decisions/discovery/rfcs trees).
     "docs/templates/overview-template.md": "docs/00-overview.md",

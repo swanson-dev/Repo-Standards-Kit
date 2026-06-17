@@ -1,9 +1,10 @@
 """Internal markdown link + anchor resolution.
 
-Scans every committed *.md (skipping .git/ and src/standards/_payload, which is a
-force-include duplicate of the source tree). Relative link targets must resolve
-to a real file; #anchor fragments must match a heading slug in the target file.
-External links (http/https/mailto/tel) are out of scope.
+Scans repo-authored *.md files, skipping common VCS, dependency, build, and cache
+directories plus src/standards/_payload, which is a force-include duplicate of
+the source tree. Relative link targets must resolve to a real file; #anchor
+fragments must match a heading slug in the target file. External links
+(http/https/mailto/tel) are out of scope.
 """
 from __future__ import annotations
 
@@ -24,7 +25,22 @@ _REFDEF_RE = re.compile(r"(?m)^\s{0,3}\[[^\]]+\]:\s*(\S+)")
 _HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+(.+?)\s*#*\s*$")
 _EXTERNAL_RE = re.compile(r"^(?:https?:|mailto:|tel:|//)", re.IGNORECASE)
 
-_SKIP_DIR_PARTS = {".git"}
+_SKIP_DIR_PARTS = {
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".next",
+    ".pytest_cache",
+    ".ruff_cache",
+    ".tox",
+    ".turbo",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+}
 _SKIP_PATH_PREFIXES = ("src/standards/_payload",)
 
 

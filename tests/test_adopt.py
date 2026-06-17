@@ -31,12 +31,31 @@ class AdoptTests(unittest.TestCase):
         import check as check_mod
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
-            _seed_repo(target)
             run_adopt(target, profile="library", adopted=date.today().isoformat())
             ctx = check_mod.build_context(target)
             findings = check_mod.run_checks(target, ctx)
             errors = [f for f in findings if f.severity == "error"]
             self.assertEqual(errors, [], "; ".join(f.message for f in errors))
+
+    def test_adopt_scaffolds_missing_readme_and_changelog(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            report = run_adopt(target, profile="documentation", adopted="2026-06-01")
+            self.assertTrue((target / "README.md").is_file())
+            self.assertTrue((target / "CHANGELOG.md").is_file())
+            self.assertIn("README.md", report["scaffolded"])
+            self.assertIn("CHANGELOG.md", report["scaffolded"])
+            self.assertIn("documentation", (target / "README.md").read_text(encoding="utf-8"))
+
+    def test_adopt_preserves_existing_readme_and_changelog(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            _seed_repo(target)
+            report = run_adopt(target, profile="library", adopted="2026-06-01")
+            self.assertEqual((target / "README.md").read_text(encoding="utf-8"), "# Existing repo\n")
+            self.assertEqual((target / "CHANGELOG.md").read_text(encoding="utf-8"), CHANGELOG_STUB)
+            self.assertNotIn("README.md", report["scaffolded"])
+            self.assertNotIn("CHANGELOG.md", report["scaffolded"])
 
     def test_adopt_preserves_conflicting_tracked_file(self):
         with tempfile.TemporaryDirectory() as d:

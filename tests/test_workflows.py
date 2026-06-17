@@ -26,10 +26,11 @@ class WorkflowTests(unittest.TestCase):
         data = json.loads((REPO / ".claude" / "settings.json").read_text(encoding="utf-8"))
         hooks = data["hooks"]
         session_start = hooks["SessionStart"][0]["hooks"][0]["command"]
-        stop = hooks["Stop"][0]["hooks"][0]["command"]
+        stop = [hook["command"] for hook in hooks["Stop"][0]["hooks"]]
 
         self.assertEqual(session_start, "python scripts/session-context/session_context.py --hook")
-        self.assertEqual(stop, "python scripts/update-handoff/update_handoff.py --check")
+        self.assertIn("python scripts/update-handoff/update_handoff.py --check", stop)
+        self.assertIn("python scripts/changelog/check_changelog.py --check", stop)
         self.assertNotIn("compact-snapshot", session_start)
         self.assertNotIn("--force", session_start)
 

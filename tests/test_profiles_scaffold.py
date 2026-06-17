@@ -1,7 +1,7 @@
 """Dogfooding gate: `standards init --profile X` must yield an error-clean repo.
 
-For every profile, scaffold into a temp dir (seeding the README/CHANGELOG a real
-repo always supplies) and assert the standards check reports zero ERROR findings.
+For every profile, scaffold into a temp dir and assert the standards check
+reports zero ERROR findings.
 This exercises all profiles end-to-end, not just the `library` profile the
 kit self-applies.
 """
@@ -22,22 +22,10 @@ import check as check_mod  # noqa: E402
 
 PROFILES = ("application", "library", "infra", "data", "documentation")
 
-CHANGELOG_STUB = (
-    "# Changelog\n\n"
-    "All notable changes to this project are documented here.\n\n"
-    "## [0.1.0] - 2026-06-01\n\n"
-    "### Added\n"
-    "- Initial adoption of the Repo-Standards-Kit.\n"
-)
-
-
 class ProfileScaffoldTests(unittest.TestCase):
     def _findings_for(self, profile: str):
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
-            # Adopter-supplied minimum that every real repo already has.
-            (target / "README.md").write_text("# Test repo\n", encoding="utf-8")
-            (target / "CHANGELOG.md").write_text(CHANGELOG_STUB, encoding="utf-8")
             # Adopt "today" so the ai/ freshness assertion stays robust over time.
             run_init(target, profile=profile, adopted=date.today().isoformat())
             ctx = check_mod.build_context(target)

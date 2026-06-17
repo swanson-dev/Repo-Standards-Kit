@@ -63,6 +63,7 @@ Pick the profile that fits the repo: `application` | `library` | `infra` | `data
 
 - **`init`** is for blank/clean repos; it refuses if kit-owned files already exist with different content (it points you at `adopt`).
 - **`adopt`** is for repos that already have their own README, docs, or CI; it never clobbers — it keeps your files, sidecars true conflicts, and appends/splices the kit's managed block into an existing `AGENTS.md`.
+- Both seed missing `README.md` and `CHANGELOG.md` starter files, but preserve existing ones.
 - Both write a `.standards-kit.json` marker so `standards update` can keep you current.
 
 ## What this kit gives you
@@ -76,10 +77,10 @@ Pick the profile that fits the repo: `application` | `library` | `infra` | `data
 7. A **PR template** that asks the right questions about documentation, ADRs, AI context, and operational impact.
 8. A **`STANDARDS-CHECKLIST.md`** with a waiver mechanism so absences are explicit, not silent.
 9. A **CI check** (`standards check`) that enforces the structural minimum plus content-level lints.
-10. **AI Skills + hooks** (Claude Code + Copilot) for ADRs, RFCs, handoffs, and running the check.
+10. **AI Skills + hooks** (Claude Code + Copilot) for ADRs, RFCs, handoffs, changelog reminders, and running the check.
 11. A read-only **adoption doctor** (`standards doctor`) for marker health, check findings, sidecar conflicts, managed-region drift, and optional lane recommendations.
 12. Optional **knowledge-lane templates** for discovery notes, meetings, artifact indexes, design notes, incidents, troubleshooting, and guides.
-13. Optional **AI continuity commands** for session context, compact snapshots, and standard handoff refreshes.
+13. Optional **AI continuity commands** for session context, compact snapshots, standard handoff refreshes, and changelog updates.
 
 ## The information flow
 
@@ -92,7 +93,7 @@ use cases               spawn-or-abandon        immutable               runbook,
 
 ## Adopting without the CLI
 
-If you'd rather adopt by hand (or want the full detail of what the CLI does), the manual process is documented in [`docs/STANDARDS.md`](./docs/STANDARDS.md): copy `docs/templates/`, pick a profile, fill in `docs/STANDARDS.md` + `docs/STANDARDS-CHECKLIST.md`, seed `ai/*.md` from `docs/templates/ai-starters/`, adopt the `.github/` workflow + PR template, and point your AI tools at `AGENTS.md`.
+If you'd rather adopt by hand (or want the full detail of what the CLI does), the manual process is documented in [`docs/STANDARDS.md`](./docs/STANDARDS.md): copy `docs/templates/`, pick a profile, fill in `docs/STANDARDS.md` + `docs/STANDARDS-CHECKLIST.md`, seed missing `README.md` and `CHANGELOG.md`, seed `ai/*.md` from `docs/templates/ai-starters/`, adopt the `.github/` workflow + PR template, and point your AI tools at `AGENTS.md`.
 
 For AI-assisted repos, use the agent-readiness checklist in [`docs/STANDARDS.md`](./docs/STANDARDS.md#agent-readiness-checklist) to confirm the agent contract, handoff files, skill pairs, and standards check are in a trustworthy state.
 

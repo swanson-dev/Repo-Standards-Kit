@@ -40,10 +40,12 @@ class PayloadIncludesChecksTests(unittest.TestCase):
         for expected in (
             ".claude/skills/standards-check/SKILL.md",
             ".claude/skills/standard-update-handoff/SKILL.md",
+            ".claude/skills/standard-update-changelog/SKILL.md",
             ".claude/skills/standard-get-session-context/SKILL.md",
             ".claude/skills/standard-compact-snapshot/SKILL.md",
             ".github/prompts/standards-check.prompt.md",
             ".github/prompts/standard-update-handoff.prompt.md",
+            ".github/prompts/standard-update-changelog.prompt.md",
             ".github/prompts/standard-get-session-context.prompt.md",
             ".github/prompts/standard-compact-snapshot.prompt.md",
             "docs/templates/skill-template.md",

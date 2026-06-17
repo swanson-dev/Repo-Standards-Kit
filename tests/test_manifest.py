@@ -22,6 +22,14 @@ class ManifestTests(unittest.TestCase):
             SCAFFOLD_ONCE["docs/templates/STANDARDS-CHECKLIST.md.template"],
             "docs/STANDARDS-CHECKLIST.md",
         )
+        self.assertEqual(
+            SCAFFOLD_ONCE["docs/templates/repo-readme-template.md"],
+            "README.md",
+        )
+        self.assertEqual(
+            SCAFFOLD_ONCE["docs/templates/changelog-template.md"],
+            "CHANGELOG.md",
+        )
 
     def test_ai_starters_dir_excluded_from_kit_tracked_copy(self):
         from standards.manifest import is_excluded_from_tracked

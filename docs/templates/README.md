@@ -64,6 +64,8 @@ to `AGENTS.md` `## Available skills` so agents can discover it. Example index
 row: ``| `review-docs` | Review docs before shipping |``.
 
 ### Per-repo governance
+- `repo-readme-template.md` → `README.md` (seeded automatically at adoption).
+- `changelog-template.md` → `CHANGELOG.md` (seeded automatically at adoption).
 - [`STANDARDS.md.template`](./STANDARDS.md.template) → `docs/STANDARDS.md`
 - `STANDARDS-CHECKLIST.md.template` → `docs/STANDARDS-CHECKLIST.md` (seeded automatically at adoption).
 

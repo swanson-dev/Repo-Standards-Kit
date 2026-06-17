@@ -1,9 +1,9 @@
 # AGENTS.md
 
-<!-- BEGIN kit-managed: agents-core (v1.2.0) -->
+<!-- BEGIN kit-managed: agents-core (v1.3.0) -->
 Single source of truth for AI agents working in this repository. Tool-specific files (`CLAUDE.md`, `.github/copilot-instructions.md`) are thin pointers to this document.
 
-- Kit version: **1.2.0**
+- Kit version: **1.3.0**
 
 ## Canonical reading order
 
@@ -57,6 +57,7 @@ Before you finish a session that produced meaningful change:
 | `update-handoff` | Writing the end-of-session handoff |
 | `standards-check` | Running the standards checks + fixing findings before pushing |
 | `standard-update-handoff` | Refreshing the standard end-of-session handoff |
+| `standard-update-changelog` | Reviewing meaningful changes and updating CHANGELOG.md |
 | `standard-get-session-context` | Reading the standard AI context brief |
 | `standard-compact-snapshot` | Capturing pre-compaction session state |
 

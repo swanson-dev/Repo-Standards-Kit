@@ -20,6 +20,7 @@ from standards.payload import payload_root
 ADOPT_REPORT_KEYS = ("added", "unchanged", "spliced", "conflicts", "scaffolded")
 
 PROFILE_PLACEHOLDER = "<application | library | infra | data | documentation>"
+ROOT_STARTER_DESTS = frozenset({"README.md", "CHANGELOG.md"})
 
 _LEADING_COMMENT_RE = re.compile(r"\A\s*<!--.*?-->\s*", re.DOTALL)
 
@@ -63,6 +64,17 @@ def _fill_checklist(content: str, *, profile: str, adopted: str, repo_name: str)
     return "".join(out)
 
 
+def _fill_root_starter(content: str, *, profile: str, adopted: str,
+                       repo_name: str) -> str:
+    """Fill starter README/CHANGELOG metadata without claiming repo specifics."""
+    return (
+        content.replace("<repo-name>", repo_name)
+        .replace("<profile>", profile)
+        .replace("<kit-version>", __version__)
+        .replace("<adopted-date>", adopted)
+    )
+
+
 def _seed_scaffold_once(target: Path, src_root: Path, *, profile: str,
                         adopted: str) -> list[str]:
     """Seed scaffold-once files into `target` (only those absent). Returns the
@@ -79,6 +91,9 @@ def _seed_scaffold_once(target: Path, src_root: Path, *, profile: str,
         if dest_rel in PROFILE_TEMPLATED:
             content = _fill_checklist(content, profile=profile, adopted=adopted,
                                       repo_name=repo_name)
+        elif dest_rel in ROOT_STARTER_DESTS:
+            content = _fill_root_starter(content, profile=profile, adopted=adopted,
+                                         repo_name=repo_name)
         elif dest_rel.startswith("ai/"):
             content = _stamp_ai_starter(content, adopted)
         dest.parent.mkdir(parents=True, exist_ok=True)

@@ -115,6 +115,13 @@ class RunTests(unittest.TestCase):
             self._write(root, "a.md", "# A\n")
             self.assertEqual(run(root, _ctx(root)), [])
 
+    def test_node_modules_skipped(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            self._write(root, "node_modules/pkg/README.md", "[gone](./nope.md)\n")
+            self._write(root, "a.md", "# A\n")
+            self.assertEqual(run(root, _ctx(root)), [])
+
     def test_angle_bracket_target_resolved(self):
         with tempfile.TemporaryDirectory() as d:
             root = Path(d)

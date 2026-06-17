@@ -18,6 +18,10 @@
           {
             "type": "command",
             "command": "python scripts/update-handoff/update_handoff.py --check"
+          },
+          {
+            "type": "command",
+            "command": "python scripts/changelog/check_changelog.py --check"
           }
         ]
       }

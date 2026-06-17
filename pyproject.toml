@@ -43,6 +43,7 @@ packages = ["src/standards"]
 "docs/rfcs/README.md" = "standards/_payload/docs/rfcs/README.md"
 "scripts/_doc_lib" = "standards/_payload/scripts/_doc_lib"
 "scripts/new-doc" = "standards/_payload/scripts/new-doc"
+"scripts/changelog" = "standards/_payload/scripts/changelog"
 "scripts/session-context" = "standards/_payload/scripts/session-context"
 "scripts/standards-check" = "standards/_payload/scripts/standards-check"
 "scripts/update-handoff" = "standards/_payload/scripts/update-handoff"
