@@ -8,8 +8,7 @@ from pathlib import Path
 # Make `_doc_lib` importable from this test file (sibling under scripts/).
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from _doc_lib.helpers import next_nnnn, slugify, fill_template, repo_root, RepoRootNotFound
-
+from _doc_lib.helpers import RepoRootNotFound, fill_template, next_nnnn, repo_root, slugify
 
 NNNN_PATTERN = re.compile(r"^(\d{4})-.*\.md$")
 

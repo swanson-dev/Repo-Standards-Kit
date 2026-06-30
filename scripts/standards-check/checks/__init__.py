@@ -7,7 +7,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict
 
 # "error" | "warn" | "info" - kept as plain str for 3.9 friendliness.
 Severity = str
@@ -26,7 +25,7 @@ class Context:
     """Resolved run context shared by all checks."""
     root: Path
     adopter_mode: bool                    # True iff .standards-kit.json present at root
-    overrides: Dict[str, Severity] = field(default_factory=dict)
+    overrides: dict[str, Severity] = field(default_factory=dict)
     external_links: bool = False          # Opt-in networked liveness check.
     freshness_report: bool = False        # Opt-in ai/ freshness status output.
 

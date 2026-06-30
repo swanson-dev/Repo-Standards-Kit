@@ -97,8 +97,8 @@ class InitTests(unittest.TestCase):
             self._run(target, profile="data", adopted="2026-05-29", force=True)
 
     def test_partial_files_recorded_in_managed_with_block_hash(self):
-        from standards.marker import read_marker
         from standards.managed import block_hash
+        from standards.marker import read_marker
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
             self._run(target, profile="library", adopted="2026-05-29")
@@ -142,8 +142,8 @@ class InitTests(unittest.TestCase):
     def test_partial_existing_preserves_downstream_content(self):
         # A pre-existing partial file with the SAME managed block but extra
         # downstream content must NOT be clobbered by the payload copy.
-        from standards.payload import payload_root
         from standards.marker import read_marker
+        from standards.payload import payload_root
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
             src = (payload_root() / "AGENTS.md").read_text(encoding="utf-8")

@@ -64,7 +64,7 @@ class ManifestTests(unittest.TestCase):
 
 
     def test_partial_files_classified_partial(self):
-        from standards.manifest import classify, PARTIAL_FILES
+        from standards.manifest import PARTIAL_FILES, classify
         self.assertIn("AGENTS.md", PARTIAL_FILES)
         self.assertIn("CLAUDE.md", PARTIAL_FILES)
         self.assertIn(".github/copilot-instructions.md", PARTIAL_FILES)

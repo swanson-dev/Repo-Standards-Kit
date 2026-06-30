@@ -10,7 +10,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable
 
 from . import Context, Finding, resolve_severity
 from ._text import strip_code_and_comments
@@ -54,7 +54,7 @@ def _request_status(url: str, method: str, timeout: float) -> int:
 def _open_url(
     url: str,
     timeout: float,
-    requester: Optional[Callable[[str, str, float], int]] = None,
+    requester: Callable[[str, str, float], int] | None = None,
 ) -> int:
     """Return the HTTP status for url, using GET as the final authority."""
     request_fn = requester or _request_status
@@ -75,8 +75,8 @@ def _strip_fragment(url: str) -> str:
 def check_url(
     url: str,
     timeout: float = DEFAULT_TIMEOUT,
-    opener: Optional[Callable[[str, float], int]] = None,
-) -> Optional[str]:
+    opener: Callable[[str, float], int] | None = None,
+) -> str | None:
     """Return None for live URLs, or a short reason for unreachable URLs."""
     probe = _strip_fragment(url)
     open_fn = opener or _open_url
@@ -92,7 +92,7 @@ def check_url(
 def run(
     root: Path,
     ctx: Context,
-    checker: Optional[Callable[[str], Optional[str]]] = None,
+    checker: Callable[[str], str | None] | None = None,
 ) -> list[Finding]:
     if not ctx.external_links:
         return []
@@ -109,7 +109,7 @@ def run(
         for line_no, url in extract_external_links(text):
             locations.setdefault(url, []).append((rel, line_no))
 
-    results: dict[str, Optional[str]] = {}
+    results: dict[str, str | None] = {}
     for url in sorted(locations):
         results[url] = checker(url) if checker else check_url(url)
 

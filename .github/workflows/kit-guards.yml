@@ -9,6 +9,21 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    name: Lint and type-check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
+      - name: Install dev tooling
+        run: python -m pip install --upgrade ruff mypy
+      - name: Ruff
+        run: python -m ruff check .
+      - name: Mypy
+        run: python -m mypy src/standards
+
   coherence:
     name: Version coherence
     runs-on: ubuntu-latest

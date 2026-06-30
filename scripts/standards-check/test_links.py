@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from checks import Context  # noqa: E402
-from checks.links import run, slugify, extract_links  # noqa: E402
+from checks.links import extract_links, run, slugify  # noqa: E402
 
 
 def _ctx(root: Path, adopter: bool = False, overrides=None) -> Context:
