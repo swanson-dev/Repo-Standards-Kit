@@ -8,6 +8,29 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+### Added
+- The kit now lints and type-checks its own code: `ruff` and `mypy` config in
+  `pyproject.toml`, a `dev` optional-dependency group, and a lint/type-check job
+  in the (non-shipped) `kit-guards.yml` workflow. Runtime stays zero-dependency.
+
+### Changed
+- Reused the manifest's managed-file list in `standards doctor` and removed an
+  empty readiness-fixture hook from the v1 gate.
+- `write_marker` now returns the marker dict it wrote, so `run_init` returns it
+  directly instead of re-reading the file.
+
+### Fixed
+- `standards adopt` / `init` now raise a clear, file-named error when a payload
+  partial file is missing its kit-managed block, instead of an opaque
+  `AttributeError`/`TypeError` deep in the copy loop.
+- Corrected stale "future Skill (Slice 2)" references in `docs/STANDARDS.md` and
+  `docs/templates/README.md` to point at the shipped `standards adopt` / `init`.
+
+### Removed
+- Removed the legacy `update-handoff` Claude/Copilot command aliases and the
+  legacy `discovery-meeting-notes.md` template; use `standard-update-handoff`
+  and `discovery-meeting-template.md` instead.
+
 ## [1.3.0] - 2026-06-17
 
 ### Added
