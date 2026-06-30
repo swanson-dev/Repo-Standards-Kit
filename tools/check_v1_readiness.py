@@ -16,9 +16,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT / "src"))
 sys.path.insert(0, str(REPO_ROOT / "scripts" / "standards-check"))
 
+import check as check_mod  # noqa: E402
+
 from standards.init import run_init  # noqa: E402
 from standards.update import run_update  # noqa: E402
-import check as check_mod  # noqa: E402
 
 PROFILES = ("application", "library", "infra", "data", "documentation")
 
@@ -27,10 +28,6 @@ class ProfileResult:
     profile: str
     ok: bool
     details: list[str]
-
-
-def _seed_downstream_repo(target: Path) -> None:
-    """Hook for future fixture-owned files; init now seeds README/CHANGELOG."""
 
 
 def _finding_details(target: Path) -> list[str]:
@@ -45,7 +42,6 @@ def _finding_details(target: Path) -> list[str]:
 def validate_profile(profile: str, root: Path) -> ProfileResult:
     target = root / profile
     target.mkdir(parents=True)
-    _seed_downstream_repo(target)
 
     run_init(target, profile=profile, adopted=date.today().isoformat())
     after_init = _finding_details(target)
