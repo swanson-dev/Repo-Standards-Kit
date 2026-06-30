@@ -330,7 +330,10 @@ Waivers are reviewed during the doc's review cycle (recorded in `docs/STANDARDS.
 
 ## Adopting the kit in a new repo
 
-1. Copy `docs/templates/` from this kit into your repo (eventually a Skill in Slice 2 will do this).
+The `standards adopt` (existing repos) and `standards init` (empty repos) commands automate the
+steps below — prefer them. The manual procedure is kept as a description of what those commands do.
+
+1. Copy `docs/templates/` from this kit into your repo (`standards adopt` does this for you).
 2. Decide the profile.
 3. Create `AGENTS.md` and `CLAUDE.md` from the kit's root copies (rewrite the "What this repo is" and "Local conventions" sections).
 4. Fill `docs/STANDARDS.md` from `docs/templates/STANDARDS.md.template`.
