@@ -22,7 +22,7 @@ def read_marker(root: Path) -> dict | None:
 
 
 def write_marker(root: Path, *, kit_version: str, profile: str, adopted: str,
-                 tracked: dict[str, str], managed: dict[str, str] | None = None) -> None:
+                 tracked: dict[str, str], managed: dict[str, str] | None = None) -> dict:
     data = {
         "kit_version": kit_version,
         "profile": profile,
@@ -33,3 +33,4 @@ def write_marker(root: Path, *, kit_version: str, profile: str, adopted: str,
     (Path(root) / MARKER_NAME).write_text(
         json.dumps(data, indent=2) + "\n", encoding="utf-8"
     )
+    return data
