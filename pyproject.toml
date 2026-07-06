@@ -22,6 +22,10 @@ classifiers = [
 ]
 dependencies = []   # runtime is stdlib-only by design
 
+[project.optional-dependencies]
+# Dev-only tooling. Runtime stays zero-dependency (see `dependencies` above).
+dev = ["ruff", "mypy"]
+
 [project.scripts]
 standards = "standards.cli:main"
 
@@ -57,3 +61,26 @@ packages = ["src/standards"]
 
 [tool.hatch.build.targets.sdist]
 exclude = ["/.git", "/dist", "/docs/superpowers"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+# Lint the package, the shipped payload scripts, and the maintenance tools.
+src = ["src", "scripts", "tools", "tests"]
+
+[tool.ruff.lint]
+# Pyflakes (F), pycodestyle (E/W), isort (I), pyupgrade (UP), flake8-bugbear (B).
+select = ["E", "W", "F", "I", "UP", "B"]
+# Line length is advisory only — no formatter is enforced, and wrapping working
+# lines purely to satisfy a column limit is churn for no behavioral gain.
+ignore = ["E501"]
+
+[tool.mypy]
+# Runtime floor is 3.9 (see requires-python), but mypy 2.x only analyzes >= 3.10.
+# 3.10 is the lowest it accepts; type-checking there still covers the 3.9 code paths.
+python_version = "3.10"
+files = ["src/standards"]
+check_untyped_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true

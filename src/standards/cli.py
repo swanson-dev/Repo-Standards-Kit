@@ -6,7 +6,6 @@ import subprocess
 import sys
 from datetime import date
 from pathlib import Path
-from typing import Tuple
 
 from standards.__about__ import __version__
 from standards.doctor import doctor_lines
@@ -15,7 +14,6 @@ from standards.payload import payload_root
 from standards.update import run_update
 
 PROFILES = ["application", "library", "infra", "data", "documentation"]
-HELP_TOPICS = ("init", "adopt", "update", "check", "doctor", "new-skill", "commands")
 
 COMMAND_ROWS = (
     ("init", "Adopt the kit into a new or clean repo.", "standards check ."),
@@ -31,7 +29,7 @@ def _parser_kwargs(**kwargs):
     return {"formatter_class": argparse.RawDescriptionHelpFormatter, **kwargs}
 
 
-def build_parser() -> Tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParser]]:
+def build_parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.ArgumentParser]]:
     parser = argparse.ArgumentParser(
         prog="standards",
         description="Adopt and maintain the Repo-Standards-Kit.",
@@ -195,7 +193,7 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         print(
             f"error: unknown help topic {topic!r}. Valid help topics: "
-            + ", ".join(HELP_TOPICS),
+            + ", ".join(help_parsers),
             file=sys.stderr,
         )
         return 2

@@ -9,17 +9,11 @@ from typing import Callable
 
 from standards.__about__ import __version__
 from standards.managed import block_hash
+from standards.manifest import PARTIAL_FILES
 from standards.marker import MARKER_NAME
 from standards.payload import payload_root
 
 CheckRunner = Callable[[Path], subprocess.CompletedProcess]
-
-
-PARTIAL_FILES = (
-    "AGENTS.md",
-    "CLAUDE.md",
-    ".github/copilot-instructions.md",
-)
 
 
 def _rel(path: Path, root: Path) -> str:

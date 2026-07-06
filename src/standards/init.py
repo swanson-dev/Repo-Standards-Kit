@@ -7,6 +7,7 @@ from pathlib import Path
 
 from standards.__about__ import __version__
 from standards.managed import (
+    Block,
     block_hash,
     extract_block,
     find_block,
@@ -23,6 +24,27 @@ PROFILE_PLACEHOLDER = "<application | library | infra | data | documentation>"
 ROOT_STARTER_DESTS = frozenset({"README.md", "CHANGELOG.md"})
 
 _LEADING_COMMENT_RE = re.compile(r"\A\s*<!--.*?-->\s*", re.DOTALL)
+
+
+def _require_block(text: str, file: str) -> Block:
+    """Return the lone kit-managed block, or fail loud naming the file.
+
+    Partial payload files always carry exactly one well-formed block; a None here
+    means a corrupt managed region, which must surface clearly rather than crash
+    with AttributeError deep in the copy loop.
+    """
+    block = find_block(text)
+    if block is None:
+        raise ValueError(f"{file}: expected exactly one kit-managed block, found none")
+    return block
+
+
+def _require_hash(text: str, file: str) -> str:
+    """Hash of the file's managed-block inner content, or fail loud naming the file."""
+    digest = block_hash(text)
+    if digest is None:
+        raise ValueError(f"{file}: expected exactly one kit-managed block, found none")
+    return digest
 
 
 def _stamp_ai_starter(content: str, adopted: str) -> str:
@@ -159,15 +181,14 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
         dest.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(full, dest)
         if cls == "partial":
-            managed[rel] = block_hash(dest.read_text(encoding="utf-8"))
+            managed[rel] = _require_hash(dest.read_text(encoding="utf-8"), rel)
         else:  # kit-tracked
             tracked[rel] = sha256_file(dest)
 
     _seed_scaffold_once(target, src_root, profile=profile, adopted=adopted)
 
-    write_marker(target, kit_version=__version__, profile=profile,
-                 adopted=adopted, tracked=tracked, managed=managed)
-    return read_marker(target)
+    return write_marker(target, kit_version=__version__, profile=profile,
+                        adopted=adopted, tracked=tracked, managed=managed)
 
 
 def run_adopt(target: Path, *, profile: str, adopted: str) -> dict[str, list[str]]:
@@ -215,11 +236,12 @@ def run_adopt(target: Path, *, profile: str, adopted: str) -> dict[str, list[str
             continue
 
         # partial: the kit owns a single managed block; the rest is the adopter's.
-        src_inner = find_block(full.read_text(encoding="utf-8")).inner
+        src_text = full.read_text(encoding="utf-8")
+        src_inner = _require_block(src_text, rel).inner
         if not dest.exists():
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(full, dest)
-            managed[rel] = block_hash(dest.read_text(encoding="utf-8"))
+            managed[rel] = _require_hash(dest.read_text(encoding="utf-8"), rel)
             report["added"].append(rel)
             continue
         cur_text = dest.read_text(encoding="utf-8")
@@ -230,12 +252,14 @@ def run_adopt(target: Path, *, profile: str, adopted: str) -> dict[str, list[str
             else:
                 dest.write_text(splice_block(cur_text, src_inner), encoding="utf-8")
                 report["spliced"].append(rel)
-            managed[rel] = block_hash(dest.read_text(encoding="utf-8"))
+            managed[rel] = _require_hash(dest.read_text(encoding="utf-8"), rel)
         elif not has_begin_marker(cur_text):  # plain file — append the kit block
-            kit_block = extract_block(full.read_text(encoding="utf-8"))
+            kit_block = extract_block(src_text)
+            if kit_block is None:
+                raise ValueError(f"{rel}: expected exactly one kit-managed block, found none")
             dest.write_text(cur_text.rstrip("\n") + "\n\n" + kit_block + "\n",
                             encoding="utf-8")
-            managed[rel] = block_hash(dest.read_text(encoding="utf-8"))
+            managed[rel] = _require_hash(dest.read_text(encoding="utf-8"), rel)
             report["spliced"].append(rel)
         else:  # malformed/duplicate markers — don't guess, sidecar
             sidecar = target / f"{rel}.kit-{__version__}"

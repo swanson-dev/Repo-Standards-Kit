@@ -33,8 +33,8 @@ The prior `written:` timestamp is parsed verbatim from frontmatter and handed to
 | Surface | File |
 |---|---|
 | Claude Code Stop hook | `.claude/settings.json` |
-| Claude Code slash command | `.claude/skills/update-handoff/SKILL.md`, `.claude/skills/standard-update-handoff/SKILL.md`, `.claude/skills/standard-compact-snapshot/SKILL.md` |
-| GitHub Copilot Chat | `.github/prompts/update-handoff.prompt.md`, `.github/prompts/standard-update-handoff.prompt.md`, `.github/prompts/standard-compact-snapshot.prompt.md` |
+| Claude Code slash command | `.claude/skills/standard-update-handoff/SKILL.md`, `.claude/skills/standard-compact-snapshot/SKILL.md` |
+| GitHub Copilot Chat | `.github/prompts/standard-update-handoff.prompt.md`, `.github/prompts/standard-compact-snapshot.prompt.md` |
 | Bash / Codex / manual | `python scripts/update-handoff/update_handoff.py` |
 
 The Stop hook calls `--check` (advisory only); slash commands call write modes.

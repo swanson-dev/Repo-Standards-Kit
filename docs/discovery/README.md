@@ -53,7 +53,6 @@ Git LFS.
 - [`../templates/discovery-note-template.md`](../templates/discovery-note-template.md) - soft-landing template for general notes.
 - [`../templates/discovery-meeting-template.md`](../templates/discovery-meeting-template.md) - soft-landing template for meeting notes.
 - [`../templates/discovery-artifact-template.md`](../templates/discovery-artifact-template.md) - pointer-first artifact index template.
-- [`../templates/discovery-meeting-notes.md`](../templates/discovery-meeting-notes.md) - legacy meeting-note starter.
 - [`../templates/discovery-use-case.md`](../templates/discovery-use-case.md) - soft-landing template for use cases.
 
 Neither template is required. Use them when they help, ignore them when stakeholder material has its own shape.

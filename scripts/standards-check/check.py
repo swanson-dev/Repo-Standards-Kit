@@ -7,15 +7,22 @@ and opt-in info lines are advisory and never fail the build.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
-import argparse
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from checks import Context  # noqa: E402
-from checks import structural, links, content, skills, external_links  # noqa: E402
+from checks import (  # noqa: E402
+    Context,  # noqa: E402
+    content,
+    external_links,
+    links,
+    skills,
+    structural,
+)
+
 # Re-exported so the unchanged test_check.py keeps importing it from `check`.
 from checks.structural import parse_frontmatter  # noqa: E402,F401
 

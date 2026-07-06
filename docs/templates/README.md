@@ -2,7 +2,7 @@
 
 Starter templates for every artifact the kit ships. Copy these into a downstream repo when adopting the kit; copy individual templates when authoring a new artifact in an already-adopted repo.
 
-A future Skill (Slice 2) will automate the copy + parametrize step.
+`standards adopt` (existing repos) and `standards init` (empty repos) automate the copy + parametrize step.
 
 ## What's here
 
@@ -14,7 +14,6 @@ A future Skill (Slice 2) will automate the copy + parametrize step.
 - [`discovery-note-template.md`](./discovery-note-template.md)
 - [`discovery-meeting-template.md`](./discovery-meeting-template.md)
 - [`discovery-artifact-template.md`](./discovery-artifact-template.md) — pointer-first index for external artifacts; do not commit raw binaries by default.
-- [`discovery-meeting-notes.md`](./discovery-meeting-notes.md) — legacy meeting-note starter kept for compatibility.
 - [`discovery-use-case.md`](./discovery-use-case.md)
 
 Hand-authored discovery notes from these templates are normal tracked markdown files under `docs/discovery/`. Link them from any structured doc, RFC, or ADR they later inform.

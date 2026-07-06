@@ -54,7 +54,6 @@ Before you finish a session that produced meaningful change:
 |---|---|
 | `new-adr` | Recording a material architecture decision |
 | `new-rfc` | Starting a time-boxed investigation |
-| `update-handoff` | Writing the end-of-session handoff |
 | `standards-check` | Running the standards checks + fixing findings before pushing |
 | `standard-update-handoff` | Refreshing the standard end-of-session handoff |
 | `standard-update-changelog` | Reviewing meaningful changes and updating CHANGELOG.md |

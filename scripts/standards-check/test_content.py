@@ -9,7 +9,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from checks import Context  # noqa: E402
-from checks.content import run, find_placeholders  # noqa: E402
+from checks.content import find_placeholders, run  # noqa: E402
 
 
 def _ctx(root: Path, adopter: bool = False, overrides=None) -> Context:

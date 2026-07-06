@@ -17,8 +17,9 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts" / "standards-check"))
 
-from standards.init import run_init  # noqa: E402
 import check as check_mod  # noqa: E402
+
+from standards.init import run_init  # noqa: E402
 
 PROFILES = ("application", "library", "infra", "data", "documentation")
 

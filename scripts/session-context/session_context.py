@@ -152,7 +152,7 @@ def build_brief(root: Path) -> list[str]:
 def main(argv: list[str]) -> int:
     parser = argparse.ArgumentParser(prog="session-context", description=__doc__)
     parser.add_argument("--hook", action="store_true", help="advisory hook mode; always exits 0")
-    args = parser.parse_args(argv[1:])
+    parser.parse_args(argv[1:])  # validate args / handle --help; --hook is a documented no-op
     try:
         root = repo_root(Path.cwd())
     except RepoRootNotFound:

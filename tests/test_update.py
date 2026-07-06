@@ -28,8 +28,8 @@ class UpdateTests(unittest.TestCase):
             self.assertNotIn("docs/STANDARDS.md", report["conflicts"])
 
     def test_edited_kit_tracked_produces_sidecar_not_overwrite(self):
-        from standards.update import run_update
         from standards.__about__ import __version__
+        from standards.update import run_update
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
             _adopt(target)
@@ -41,8 +41,8 @@ class UpdateTests(unittest.TestCase):
             self.assertTrue((target / f"docs/STANDARDS.md.kit-{__version__}").is_file())
 
     def test_partial_unedited_block_is_spliced(self):
-        from standards.update import run_update
         from standards.managed import find_block
+        from standards.update import run_update
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
             _adopt(target)
@@ -56,9 +56,9 @@ class UpdateTests(unittest.TestCase):
             self.assertIsNotNone(find_block(after))
 
     def test_partial_edited_block_produces_sidecar(self):
-        from standards.update import run_update
-        from standards.managed import splice_block
         from standards.__about__ import __version__
+        from standards.managed import splice_block
+        from standards.update import run_update
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
             _adopt(target)
@@ -70,8 +70,8 @@ class UpdateTests(unittest.TestCase):
             self.assertTrue((target / f"AGENTS.md.kit-{__version__}").is_file())
 
     def test_update_reports_removed_discovery_workflow_payload(self):
-        from standards.update import run_update
         from standards.marker import MARKER_NAME
+        from standards.update import run_update
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
             _adopt(target)
@@ -117,9 +117,9 @@ class UpdateTests(unittest.TestCase):
         return agents
 
     def test_migrates_untouched_markerless_partial_file(self):
-        from standards.update import run_update
         from standards.managed import find_block
         from standards.marker import read_marker
+        from standards.update import run_update
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
             _adopt(target)
@@ -133,8 +133,8 @@ class UpdateTests(unittest.TestCase):
             self.assertNotIn("AGENTS.md", m["tracked"])
 
     def test_edited_markerless_partial_file_is_a_conflict(self):
-        from standards.update import run_update
         from standards.__about__ import __version__
+        from standards.update import run_update
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
             _adopt(target)
