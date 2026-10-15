@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-10-14
+last_updated: 2026-10-15
 last_updated_by: claude
 ---
 
@@ -48,7 +48,7 @@ last_updated_by: claude
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| RFC-0007 automation engine (enforce-once Stop hooks, drift map, CI backstop) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; cross-host hook spike, then ADR-0023 |
+| RFC-0007 automation engine (enforce-once Stop hooks, drift map, CI backstop) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; spike verified on Claude Code and Codex; Copilot manual tests, then ADR-0023 |
 | RFC-0008 distribution (pip CLI for repo content + plugin for skills and hooks) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; cloud-agent and Codex checks, then ADR-0024 |
 | ADR-0022 daily changelog grouping + managed `AGENTS.md` simplification (parked, not merged) | feat/adr-0022-daily-changelog-grouping | Josh Swanson | land via PR |
 

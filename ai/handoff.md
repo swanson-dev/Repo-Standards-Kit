@@ -1,5 +1,5 @@
 ---
-written: 2026-10-14T21:25:00-05:00
+written: 2026-10-15T09:30:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -8,26 +8,32 @@ for: next-session
 
 ## TL;DR
 
-Reframed the cleanup around the kit's purpose: documentation and continuity
-upkeep should happen automatically, not as reminders. The user approved RFC-0007
-(automation engine) and chose a hybrid distribution: the pip CLI for repo content
-and CI, plus a plugin for skills, hooks, and setup. The user also approved
-RFC-0008 (distribution). Both RFCs are Open and uncommitted on
-`docs/rfc-0007-automation-engine`; each concludes after a short verification.
+The kit's direction is "automatic, not advisory." RFC-0007 (automation engine)
+and RFC-0008 (distribution: the pip CLI plus one plugin) are approved and
+committed on `docs/rfc-0007-automation-engine`. The RFC-0007 spike verified the
+block-once Stop hook on Claude Code and Codex; the Copilot hosts still need the
+owner's manual tests before RFC-0007 can conclude.
 
 ## Recently touched
 
-- Committed the parked work as `665f820` on `feat/adr-0022-daily-changelog-grouping`:
-  ADR-0022 daily changelog grouping, the managed `AGENTS.md` simplification, and
-  an `ai/` refresh. Not merged, not pushed.
-- `docs/rfcs/0007-how-should-the-kit-make-documentation-and-continuity-upkeep-automatic-instead-of-advisory/rfc.md`:
-  approved by the user, with the agreed changes folded in: a commit-aware
-  changelog rule (§2), hooks shipped in the plugin with a per-host adapter (§5),
-  `${CLAUDE_PLUGIN_ROOT}` for hook paths, and the wizard renumbered to RFC-0009.
-- `docs/rfcs/0008-how-should-the-kit-split-and-distribute-its-repo-content-and-agent-tooling/rfc.md`:
-  drafted from the plugin research and approved by the user.
+- `0216cfd`, fast-forwarded into `docs/rfc-0007-automation-engine`: the RFC-0007
+  spike (`artifacts/spike/stop_hook.py` with its test, per-host hook configs,
+  and `artifacts/spike-results.md`), plus a findings summary in the RFC.
+- Archived the spike session and deleted its merged branch
+  `CODE/eloquent-lovelace-ab5a30`. The app kept its worktree folder under
+  `.claude/worktrees/` (detached HEAD) so the session can be reopened.
+- Ignored `.archify/` (local diagram output) in `.gitignore`.
 - Refreshed `ai/current-state.md` and `ai/next-actions.md`.
-- Nothing is committed on this branch yet.
+
+## Spike results (RFC-0007)
+
+- Top-level `{"decision": "block", "reason": ...}` with exit 0 blocks once and
+  lets the second stop pass on Claude Code 2.1.286 and Codex CLI 0.159.3.
+- Adding VS Code's `hookSpecificOutput` wrapper to the same object works on
+  Claude Code, but Codex rejects the whole output (strict schema) and fails
+  open silently. One combined output for every host is ruled out.
+- Codex runs a project hook only when the repo and the hook are both trusted,
+  and gives no warning otherwise.
 
 ## Decisions made with the user
 
@@ -46,9 +52,10 @@ RFC-0008 (distribution). Both RFCs are Open and uncommitted on
 
 ## Open threads
 
-- RFC-0007: cross-host spike. Does Copilot in VS Code accept top-level
-  `decision`/`reason` on Stop, or only its `hookSpecificOutput` wrapper? Also
-  where the drift map lives, and how "docs unaffected" is recorded for CI.
+- RFC-0007: manual tests A–D in `artifacts/spike-results.md` (Copilot in VS
+  Code, Copilot CLI, the Copilot cloud agent, Codex's interactive trust flow).
+  Test A decides whether VS Code needs its own output variant. Also open: where
+  the drift map lives, and how "docs unaffected" is recorded for CI.
 - RFC-0008: does the Copilot cloud agent load skills from plugins declared in
   `.github/copilot/settings.json`, and does its `agentStop` hook fire? Do Codex
   marketplace-installed plugin hooks run? Do VS Code and Copilot CLI list
@@ -61,24 +68,26 @@ RFC-0008 (distribution). Both RFCs are Open and uncommitted on
   old single value. The setup flow may live in the plugin.
 - `scripts/new-doc/new-rfc.py --help` creates an RFC titled "help" because the
   script takes its first argument as the title.
-- `.archify/` (a diagram folder from this session) is untracked and not gitignored.
 
 ## Research notes
 
-Full findings and sources live in RFC-0007 (hooks) and RFC-0008 (plugins and
-skills). Local precedent: Anthropic's `ralph-loop` plugin blocks Stop with
-`{"decision": "block", "reason": ...}`, and the `remember` plugin ships Claude,
-Codex, and Gemini manifests plus a `pyproject.toml` from one repo.
+Full findings and sources live in RFC-0007 (hooks, plus the spike results) and
+RFC-0008 (plugins and skills). Local precedent: Anthropic's `ralph-loop` plugin
+blocks Stop with `{"decision": "block", "reason": ...}`, and the `remember`
+plugin ships Claude, Codex, and Gemini manifests plus a `pyproject.toml` from
+one repo.
 
 ## Validation
 
-- `python tools/run_tests.py` on this branch: 30/30 suites passed. The
-  intermediate `FAIL` lines come from `tests/test_run_tests.py` exercising a
-  deliberately failing fixture; trust the final summary.
+- `python tools/run_tests.py` on `docs/rfc-0007-automation-engine`: 30/30 suites
+  passed. The intermediate `FAIL` lines come from `tests/test_run_tests.py`
+  exercising a deliberately failing fixture; trust the final summary.
 - `python scripts/standards-check/check.py`: 0 errors, 0 warnings.
 
 ## Don't do
 
+- Don't emit top-level `decision`/`reason` and `hookSpecificOutput` in one
+  object: Codex rejects the whole output and the block is lost.
 - Don't let `new-adr.py` number ADRs on this branch: it would pick 0022, which
   the parked branch already uses. Use ADR-0023 for RFC-0007 and ADR-0024 for
   RFC-0008.
@@ -86,6 +95,6 @@ Codex, and Gemini manifests plus a `pyproject.toml` from one repo.
 - Don't delete `docs/superpowers/`, `docs/discovery/README.md`, or the
   `discovery-note`/`-meeting`/`-artifact` templates. Accepted ADRs cite the
   first, the payload ships the second, and tests assert the templates.
-- Don't delete files without asking; `rm` was declined twice this session.
+- Don't delete files without asking; `rm` was declined twice.
 - Don't edit accepted historical ADRs just to remove mentions of deleted
   legacy surfaces.
