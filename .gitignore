@@ -15,6 +15,7 @@ desktop.ini
 *.log
 .scratch/
 .tmp/
+.archify/
 
 # AI tool caches (not the committed ai/ context — that ships with the repo)
 .claude/cache/
