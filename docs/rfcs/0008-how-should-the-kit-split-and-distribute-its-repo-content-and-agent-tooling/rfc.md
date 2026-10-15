@@ -24,12 +24,11 @@ Today `standards init` copies everything into every adopter repo: the docs and t
 - Inspect plugins installed on the owner's machine for working precedent.
 - Compare against what the payload ships today (`src/standards/manifest.py`).
 
-The owner chose the hybrid direction (CLI plus plugin) and approved this design on 2026-10-14. Remaining before this RFC concludes:
+The owner chose the hybrid direction (CLI plus plugin) and approved this design on 2026-10-14, then chose this repo as the marketplace home on 2026-10-15 (see Proposed design). Remaining before this RFC concludes:
 
 - **Cloud agent.** Whether skills from plugins declared in `.github/copilot/settings.json` load in the Copilot cloud agent, and whether its `agentStop` hook fires.
 - **Codex plugin hooks.** Codex's docs conflict on whether hooks bundled in a marketplace-installed plugin run. Test on a real install.
 - **Prompt files.** Confirm that VS Code and Copilot CLI list `.claude/skills` skills as slash commands before retiring `.github/prompts` and its parity check.
-- **Marketplace home.** This repo (one repo for the pip package, the plugin, and `marketplace.json`) or a dedicated repo.
 
 ## Findings
 
@@ -83,6 +82,10 @@ Sources: [Claude Code plugins](https://code.claude.com/docs/en/plugins/component
 ### One engine, two front doors
 
 The plugin's hook scripts and the CLI's checks come from the same codebase and the same release. Each plugin hook reads the repo's kit version from `.standards-kit.json` and warns when the plugin and the repo disagree, so a hook and CI can't quietly judge drift by different rules.
+
+### Marketplace home
+
+Decided 2026-10-15: this repo. `.claude-plugin/marketplace.json` sits at the repo root and lists the plugin by relative path, so the pip package and the plugin ship from the same commit and their versions cannot drift apart. The `remember` plugin uses the same single-repo layout. Claude Code's docs say a relative-path plugin loads from the marketplace's own copy without a separate install step; that is not yet tested here.
 
 ### What stops being copied into repos
 

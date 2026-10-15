@@ -24,11 +24,9 @@ RFC-0008 (distribution: the CLI plus a plugin) and RFC-0009 (setup wizard and co
 - Map today's detection logic (`scripts/changelog/check_changelog.py`, `scripts/update-handoff/update_handoff.py --check`) onto a general "if X changed, Y must be updated" model.
 - Inventory what the payload ships per host today (`src/standards/manifest.py`).
 
-The owner approved this design on 2026-10-14. Remaining before this RFC concludes:
+The owner approved this design on 2026-10-14 and settled where the drift map lives (§2) and how "docs unaffected" is recorded (§4) on 2026-10-15. Remaining before this RFC concludes:
 
-- **Cross-host spike.** One stdlib script whose blocking output is accepted by all five hosts, or a small per-host output shim. The open point is whether VS Code accepts top-level `decision`/`reason` or only its `hookSpecificOutput` wrapper.
-- **Drift-map home.** `.standards-kit.json` or `docs/STANDARDS.md`.
-- **Recording "docs unaffected."** How an agent's or PR author's explanation is recorded so the CI check can honor it.
+- **Cross-host spike.** One stdlib script whose blocking output is accepted by all five hosts, or a small per-host output shim. Claude Code and Codex are verified. The open point is whether VS Code accepts top-level `decision`/`reason` or only its `hookSpecificOutput` wrapper, along with the other manual tests in `artifacts/spike-results.md`.
 
 ## Findings
 
@@ -92,7 +90,7 @@ Update the deployment doc, or reply with one line explaining why it is unaffecte
 
 ### 2. The drift map
 
-A per-repo list of rules: when these changes happen, this doc must move with them. The kit ships defaults the adopter can edit. Drift is measured since the doc was last updated, across both commits and uncommitted files, so an agent that commits partway through a session cannot slip past it. Sketch:
+A per-repo list of rules: when these changes happen, this doc must move with them. The kit ships its default rules in code, and a repo adds rules or overrides a default under a `drift` key in `.standards-kit.json` (decided 2026-10-15). That file already holds the adopter's `check` severity map, so every per-repo setting lives in one place, and `standards update` now keeps adopter-owned keys there. `docs/STANDARDS.md` was ruled out because it is kit-owned, so per-repo edits there would collide with updates. Drift is measured since the doc was last updated, across both commits and uncommitted files, so an agent that commits partway through a session cannot slip past it. Sketch:
 
 ```json
 "drift": [
@@ -133,7 +131,7 @@ The handoff stays a built-in rule (any meaningful session). Architecture decisio
 
 ### 4. CI backstop
 
-`standards check` gains a drift mode for pull requests. It compares the PR's changed files against the drift map and fails when a trigger changed without its doc. This holds for every agent and for humans. `repo-standards.yml` currently uses a default shallow checkout, so it needs `fetch-depth: 0` or an explicit base-ref fetch. Escape hatch: a PR-body line or commit trailer such as `Docs-Unaffected: deployment (renamed a job)`.
+`standards check` gains a drift mode for pull requests. It compares the PR's changed files against the drift map and fails when a trigger changed without its doc. This holds for every agent and for humans. `repo-standards.yml` currently uses a default shallow checkout, so it needs `fetch-depth: 0` or an explicit base-ref fetch. Escape hatch (decided 2026-10-15): a `Docs-Unaffected:` commit trailer naming the doc and the reason, such as `Docs-Unaffected: deployment (renamed a job)`. If a squash merge drops the trailer, the same line in the PR description counts. In a session, the agent's one-line reply satisfies the hook, and the agent adds the same trailer when it commits, so CI sees the same explanation. For the changelog, the commit type already does this job: a `chore:` or `refactor:` commit needs no entry.
 
 ### 5. Rollout and compatibility
 

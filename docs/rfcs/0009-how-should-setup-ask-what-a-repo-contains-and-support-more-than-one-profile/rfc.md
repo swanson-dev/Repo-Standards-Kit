@@ -29,10 +29,9 @@ The owner's biggest complaint about the kit is that setting it up isn't intuitiv
 - Design a terminal menu and setup wizard within the kit's zero-dependency rule.
 - Design combinable profiles that stay compatible with existing adopters.
 
-Remaining before this RFC concludes:
+On 2026-10-15 the owner decided that the profile matrix lives as data in the CLI, with a test that keeps the `docs/STANDARDS.md` table in sync. Parsing the table at setup time was ruled out because it breaks whenever an adopter edits or reformats their copy. Remaining before this RFC concludes:
 
-- **Prototype.** Build a throwaway version of the menu and wizard and have the owner try it.
-- **Matrix home.** Decide whether the profile matrix is encoded as data in the CLI (with a test that keeps the `docs/STANDARDS.md` table in sync) or parsed from `docs/STANDARDS.md` at setup time.
+- **Try the prototype.** A throwaway version of the menu and wizard is in [`artifacts/prototype/`](artifacts/prototype/NOTES.md). It departs from this RFC in two places, both listed in its notes. The owner tries it and records a verdict there.
 
 ## Findings
 
