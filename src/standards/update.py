@@ -125,5 +125,6 @@ def run_update(target: Path, *, dry_run: bool = False) -> dict[str, list[str]]:
 
     if not dry_run:
         write_marker(target, kit_version=__version__, profile=marker["profile"],
-                     adopted=marker["adopted"], tracked=tracked, managed=managed)
+                     adopted=marker["adopted"], tracked=tracked, managed=managed,
+                     keep=marker)
     return report

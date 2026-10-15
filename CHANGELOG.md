@@ -31,6 +31,9 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - The session-context brief (the SessionStart hook and
   `standard-get-session-context`) now lists only open questions. Answered and
   obsolete entries in `ai/open-questions.md` no longer appear as open.
+- `standards update` now keeps adopter-owned keys in `.standards-kit.json`, such
+  as the `check` severity map. It used to rewrite the marker with only the kit's
+  own fields, silently resetting escalated checks back to warnings.
 
 ### Removed
 - Removed the legacy `update-handoff` Claude/Copilot command aliases and the

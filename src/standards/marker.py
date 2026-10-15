@@ -22,14 +22,19 @@ def read_marker(root: Path) -> dict | None:
 
 
 def write_marker(root: Path, *, kit_version: str, profile: str, adopted: str,
-                 tracked: dict[str, str], managed: dict[str, str] | None = None) -> dict:
-    data = {
+                 tracked: dict[str, str], managed: dict[str, str] | None = None,
+                 keep: dict[str, object] | None = None) -> dict:
+    data: dict[str, object] = {
         "kit_version": kit_version,
         "profile": profile,
         "adopted": adopted,
         "tracked": dict(sorted(tracked.items())),
         "managed": dict(sorted((managed or {}).items())),
     }
+    # Carry adopter-owned keys (such as the `check` severity map) forward; the
+    # kit's own fields above always win.
+    for key, value in (keep or {}).items():
+        data.setdefault(key, value)
     (Path(root) / MARKER_NAME).write_text(
         json.dumps(data, indent=2) + "\n", encoding="utf-8"
     )
