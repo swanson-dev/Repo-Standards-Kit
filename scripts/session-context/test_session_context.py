@@ -54,6 +54,24 @@ class SessionContextTests(unittest.TestCase):
             self.assertIn("Pilot context hook", result.stdout)
             self.assertIn("Q-4: Should hooks be advisory?", result.stdout)
 
+    def test_only_open_questions_are_listed(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            write(
+                root / "ai" / "open-questions.md",
+                "# Open Questions\n\n"
+                "## Q-1: Already settled?\n\n- **Status:** answered\n\n"
+                "## Q-2: Still deciding?\n\n- **Status:** open       <!-- open | answered | obsolete -->\n\n"
+                "## Q-3: No longer relevant?\n\n- **Status:** obsolete\n",
+            )
+
+            result = run_context(root)
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("Q-2: Still deciding?", result.stdout)
+            self.assertNotIn("Q-1: Already settled?", result.stdout)
+            self.assertNotIn("Q-3: No longer relevant?", result.stdout)
+
     def test_missing_files_warn_but_exit_zero(self):
         with tempfile.TemporaryDirectory() as d:
             result = run_context(Path(d), "--hook")

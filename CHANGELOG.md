@@ -28,6 +28,9 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - `new-adr.py` and `new-rfc.py` now print usage for `-h`/`--help` instead of
   creating an ADR or RFC titled "--help", and reject any other title that starts
   with `-`.
+- The session-context brief (the SessionStart hook and
+  `standard-get-session-context`) now lists only open questions. Answered and
+  obsolete entries in `ai/open-questions.md` no longer appear as open.
 
 ### Removed
 - Removed the legacy `update-handoff` Claude/Copilot command aliases and the
