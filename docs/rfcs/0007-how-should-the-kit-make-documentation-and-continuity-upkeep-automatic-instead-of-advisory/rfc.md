@@ -60,6 +60,15 @@ Sources: [Codex hooks](https://developers.openai.com/codex/hooks), [VS Code hook
 - **Codex requires trust.** Project hooks load only after the user trusts the repo's `.codex/` layer, so a shipped Codex hook never runs silently.
 - **Only Claude Code gets hooks in adopter repos today.** The payload ships `.claude/`, but not `.codex/` (which this repo also gitignores) or `.github/hooks/`.
 
+### Cross-host spike (2026-10-14, partial)
+
+The spike ran a stdlib enforce-once Stop hook in throwaway repos. Full results, configs, and manual test steps are in [`artifacts/spike-results.md`](artifacts/spike-results.md).
+
+- **Verified in Claude Code 2.1.286 and Codex CLI 0.159.3:** exit 0 with top-level `decision: block` and `reason` blocks the first stop. The agent receives the reason and acts on it. The next stop arrives with `stop_hook_active: true`, the hook prints nothing, and the turn ends.
+- **One object carrying both shapes is ruled out.** Claude Code tolerates an added `hookSpecificOutput` wrapper, but Codex rejects any unknown field on Stop output and silently drops the block. So if VS Code needs its wrapper, that is a per-host shim, not a combined output.
+- **Codex trust is silent.** `codex exec` ran the project hook only when the repo was trusted and the hook was trusted (or `--dangerously-bypass-hook-trust` was set). Otherwise the hook was skipped with no warning.
+- **Pending (manual):** Copilot in VS Code, Copilot CLI, the Copilot cloud agent, and Codex's interactive trust flow. VS Code's own reference nests Stop's `decision` and `reason` in `hookSpecificOutput`, so the open point stands.
+
 ### Detection already exists for two rules
 
 `check_changelog.py` answers "did meaningful work happen since the changelog was last updated?" The ADR-0022 version, parked on branch `feat/adr-0022-daily-changelog-grouping`, also ignores `ai/`-only work and recognizes today's section. `update_handoff.py --check` answers the same question for `ai/handoff.md`, plus a 5-day staleness rule. Both have the same shape: trigger paths changed since the target doc was last touched. Generalizing that shape is the drift map.

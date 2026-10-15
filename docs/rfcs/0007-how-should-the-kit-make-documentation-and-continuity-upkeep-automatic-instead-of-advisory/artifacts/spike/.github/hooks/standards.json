@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "bash": "python3 stop_hook.py",
+        "powershell": "python stop_hook.py",
+        "command": "python stop_hook.py",
+        "cwd": ".",
+        "timeoutSec": 30
+      }
+    ]
+  }
+}
