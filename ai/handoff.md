@@ -1,5 +1,5 @@
 ---
-written: 2026-10-15T14:15:00-05:00
+written: 2026-10-15T17:15:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -13,7 +13,9 @@ and RFC-0008 (distribution: the pip CLI plus one plugin) are approved and
 committed on `docs/rfc-0007-automation-engine`. The RFC-0007 spike verified the
 block-once Stop hook on Claude Code and Codex; the Copilot hosts still need the
 owner's manual tests before RFC-0007 can conclude. RFC-0009 (setup wizard and
-combinable profiles) is drafted for review.
+combinable profiles) is drafted for review, and RFC-0010 (retrospectives) is
+drafted to build after the other three. The branch is pushed to origin, with no
+PR yet.
 
 ## Recently touched
 
@@ -36,6 +38,8 @@ combinable profiles) is drafted for review.
 - Built the RFC-0009 prototype in `artifacts/prototype/`: a pure
   `setup_logic.py` plus a throwaway terminal UI. It writes nothing; `NOTES.md`
   has the run command, things to try, and a verdict placeholder.
+- Drafted `docs/rfcs/0010-how-should-the-kit-turn-session-lessons-into-lasting-improvements/rfc.md`,
+  modeled on Matt Pocock's `retro` skill.
 - Refreshed `ai/current-state.md` and `ai/next-actions.md`.
 
 ## Spike results (RFC-0007)
@@ -65,6 +69,9 @@ combinable profiles) is drafted for review.
   trailer, with the PR description as the squash-merge fallback; the plugin
   marketplace lives in this repo; the profile matrix lives as data in the CLI,
   with a sync test against `docs/STANDARDS.md`.
+- Retrospectives (RFC-0010): a `standard-retro` skill the user runs; proposals
+  only, each citing evidence; output only to artifacts in git; built after
+  RFC-0007 to RFC-0009 conclude.
 - Approved deletions are untracked dead weight only (`_delete-me/`, `dist/`,
   tool caches). The `rm` was declined, so nothing has been deleted.
 
@@ -87,6 +94,8 @@ combinable profiles) is drafted for review.
   owner to try. It departs from the RFC in two places, listed in `NOTES.md`:
   Enter accepts the suggested default (`0` means documentation only), and
   "Update" shows only when the repo is behind.
+- RFC-0010 needs a trial retro on a real session, a threshold for promoting a
+  lesson into `AGENTS.md`, and a call on reading Claude Code transcripts.
 
 ## Research notes
 
@@ -105,6 +114,8 @@ one repo.
 
 ## Don't do
 
+- Don't open a PR for `docs/rfc-0007-automation-engine` yet; the owner asked
+  for the branch to be pushed only.
 - Don't separate profiles with commas in the checklist header. Older checkers
   keep only the first word, so `application, infra` reads as the invalid
   `application,`. Use `application + infra`.
