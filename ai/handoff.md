@@ -1,5 +1,5 @@
 ---
-written: 2026-10-15T09:45:00-05:00
+written: 2026-10-15T14:15:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -28,6 +28,14 @@ combinable profiles) is drafted for review.
 - Fixed test-first: `new-adr.py` and `new-rfc.py` print usage for `-h`/`--help`
   and reject titles that start with `-` (6 new cases in
   `scripts/new-doc/test_cli.py`, plus a `CHANGELOG.md` Fixed entry).
+- Fixed test-first: the session-context brief listed answered and obsolete
+  questions from `ai/open-questions.md` as open; it now lists only open ones.
+- Fixed test-first: `standards update` rewrote `.standards-kit.json` with only
+  the kit's fields, silently dropping adopter keys such as the `check` severity
+  map. `write_marker()` now takes `keep=` and `update` passes the old marker.
+- Built the RFC-0009 prototype in `artifacts/prototype/`: a pure
+  `setup_logic.py` plus a throwaway terminal UI. It writes nothing; `NOTES.md`
+  has the run command, things to try, and a verdict placeholder.
 - Refreshed `ai/current-state.md` and `ai/next-actions.md`.
 
 ## Spike results (RFC-0007)
@@ -52,6 +60,11 @@ combinable profiles) is drafted for review.
   composable profiles.
 - The changelog drift rule judges commits by conventional-commit type and falls
   back to paths for uncommitted work.
+- Decided 2026-10-15: drift rules live under a `drift` key in
+  `.standards-kit.json`; "docs unaffected" is a `Docs-Unaffected:` commit
+  trailer, with the PR description as the squash-merge fallback; the plugin
+  marketplace lives in this repo; the profile matrix lives as data in the CLI,
+  with a sync test against `docs/STANDARDS.md`.
 - Approved deletions are untracked dead weight only (`_delete-me/`, `dist/`,
   tool caches). The `rm` was declined, so nothing has been deleted.
 
@@ -59,21 +72,21 @@ combinable profiles) is drafted for review.
 
 - RFC-0007: manual tests A–D in `artifacts/spike-results.md` (Copilot in VS
   Code, Copilot CLI, the Copilot cloud agent, Codex's interactive trust flow).
-  Test A decides whether VS Code needs its own output variant. Also open: where
-  the drift map lives, and how "docs unaffected" is recorded for CI.
+  Test A decides whether VS Code needs its own output variant.
 - RFC-0008: does the Copilot cloud agent load skills from plugins declared in
   `.github/copilot/settings.json`, and does its `agentStop` hook fire? Do Codex
   marketplace-installed plugin hooks run? Do VS Code and Copilot CLI list
-  `.claude/skills` as slash commands (if so, retire `.github/prompts`)? Where
-  does the marketplace live?
+  `.claude/skills` as slash commands (if so, retire `.github/prompts`)?
 - RFC-0009 (draft): today the profile matrix is applied by hand (the checklist
   says to copy rows from `docs/STANDARDS.md`), and `docs/STANDARDS.md` allows
   exactly one profile. Proposal: a state-aware menu for bare `standards`, one
   non-destructive setup (adopt semantics), "what does this repo contain?" with
   suggestions, profiles combined by strongest tier with back-compatible marker
   (`profiles` plus `profile`) and checklist (`application + infra`) formats, and
-  setup creating the docs the profiles need. Remaining: a prototype for the
-  owner to try, and where the matrix lives.
+  setup creating the docs the profiles need. The prototype is ready for the
+  owner to try. It departs from the RFC in two places, listed in `NOTES.md`:
+  Enter accepts the suggested default (`0` means documentation only), and
+  "Update" shows only when the repo is behind.
 
 ## Research notes
 

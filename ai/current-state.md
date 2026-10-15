@@ -50,7 +50,7 @@ last_updated_by: claude
 |---|---|---|---|
 | RFC-0007 automation engine (enforce-once Stop hooks, drift map, CI backstop) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; spike verified on Claude Code and Codex; Copilot manual tests, then ADR-0023 |
 | RFC-0008 distribution (pip CLI for repo content + plugin for skills and hooks) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; cloud-agent and Codex checks, then ADR-0024 |
-| RFC-0009 setup wizard + combinable profiles | docs/rfc-0007-automation-engine | Josh Swanson | draft; owner review + menu/wizard prototype, then ADR-0025 |
+| RFC-0009 setup wizard + combinable profiles | docs/rfc-0007-automation-engine | Josh Swanson | draft; prototype ready for the owner to try, then ADR-0025 |
 | ADR-0022 daily changelog grouping + managed `AGENTS.md` simplification (parked, not merged) | feat/adr-0022-daily-changelog-grouping | Josh Swanson | land via PR |
 
 ## What's blocked
