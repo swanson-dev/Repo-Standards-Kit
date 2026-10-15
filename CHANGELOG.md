@@ -25,6 +25,9 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
   `AttributeError`/`TypeError` deep in the copy loop.
 - Corrected stale "future Skill (Slice 2)" references in `docs/STANDARDS.md` and
   `docs/templates/README.md` to point at the shipped `standards adopt` / `init`.
+- `new-adr.py` and `new-rfc.py` now print usage for `-h`/`--help` instead of
+  creating an ADR or RFC titled "--help", and reject any other title that starts
+  with `-`.
 
 ### Removed
 - Removed the legacy `update-handoff` Claude/Copilot command aliases and the
