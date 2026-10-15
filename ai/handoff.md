@@ -1,5 +1,5 @@
 ---
-written: 2026-10-15T09:30:00-05:00
+written: 2026-10-15T09:45:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -12,7 +12,8 @@ The kit's direction is "automatic, not advisory." RFC-0007 (automation engine)
 and RFC-0008 (distribution: the pip CLI plus one plugin) are approved and
 committed on `docs/rfc-0007-automation-engine`. The RFC-0007 spike verified the
 block-once Stop hook on Claude Code and Codex; the Copilot hosts still need the
-owner's manual tests before RFC-0007 can conclude.
+owner's manual tests before RFC-0007 can conclude. RFC-0009 (setup wizard and
+combinable profiles) is drafted for review.
 
 ## Recently touched
 
@@ -23,6 +24,10 @@ owner's manual tests before RFC-0007 can conclude.
   `CODE/eloquent-lovelace-ab5a30`. The app kept its worktree folder under
   `.claude/worktrees/` (detached HEAD) so the session can be reopened.
 - Ignored `.archify/` (local diagram output) in `.gitignore`.
+- Drafted `docs/rfcs/0009-how-should-setup-ask-what-a-repo-contains-and-support-more-than-one-profile/rfc.md`.
+- Fixed test-first: `new-adr.py` and `new-rfc.py` print usage for `-h`/`--help`
+  and reject titles that start with `-` (6 new cases in
+  `scripts/new-doc/test_cli.py`, plus a `CHANGELOG.md` Fixed entry).
 - Refreshed `ai/current-state.md` and `ai/next-actions.md`.
 
 ## Spike results (RFC-0007)
@@ -61,13 +66,14 @@ owner's manual tests before RFC-0007 can conclude.
   marketplace-installed plugin hooks run? Do VS Code and Copilot CLI list
   `.claude/skills` as slash commands (if so, retire `.github/prompts`)? Where
   does the marketplace live?
-- RFC-0009 is not drafted. Inputs from the user: bare `standards` opens a menu
-  (set up, check or fix, update, new skill); setup asks "what does this repo
-  contain?" as a multi-select where docs-only means no picks; init vs adopt is
-  picked automatically; the marker stores a profile list and still reads the
-  old single value. The setup flow may live in the plugin.
-- `scripts/new-doc/new-rfc.py --help` creates an RFC titled "help" because the
-  script takes its first argument as the title.
+- RFC-0009 (draft): today the profile matrix is applied by hand (the checklist
+  says to copy rows from `docs/STANDARDS.md`), and `docs/STANDARDS.md` allows
+  exactly one profile. Proposal: a state-aware menu for bare `standards`, one
+  non-destructive setup (adopt semantics), "what does this repo contain?" with
+  suggestions, profiles combined by strongest tier with back-compatible marker
+  (`profiles` plus `profile`) and checklist (`application + infra`) formats, and
+  setup creating the docs the profiles need. Remaining: a prototype for the
+  owner to try, and where the matrix lives.
 
 ## Research notes
 
@@ -86,6 +92,9 @@ one repo.
 
 ## Don't do
 
+- Don't separate profiles with commas in the checklist header. Older checkers
+  keep only the first word, so `application, infra` reads as the invalid
+  `application,`. Use `application + infra`.
 - Don't emit top-level `decision`/`reason` and `hookSpecificOutput` in one
   object: Codex rejects the whole output and the block is lost.
 - Don't let `new-adr.py` number ADRs on this branch: it would pick 0022, which
