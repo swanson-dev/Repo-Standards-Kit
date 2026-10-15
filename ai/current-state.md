@@ -1,6 +1,6 @@
 ---
-last_updated: 2026-06-19
-last_updated_by: codex
+last_updated: 2026-10-14
+last_updated_by: claude
 ---
 
 # Current State
@@ -48,7 +48,9 @@ last_updated_by: codex
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| v1.3.0 post-release bookkeeping | codex/release-v1.1.0 | codex | merge/reconcile release branch |
+| RFC-0007 automation engine (enforce-once Stop hooks, drift map, CI backstop) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; cross-host hook spike, then ADR-0023 |
+| RFC-0008 distribution (pip CLI for repo content + plugin for skills and hooks) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; cloud-agent and Codex checks, then ADR-0024 |
+| ADR-0022 daily changelog grouping + managed `AGENTS.md` simplification (parked, not merged) | feat/adr-0022-daily-changelog-grouping | Josh Swanson | land via PR |
 
 ## What's blocked
 
