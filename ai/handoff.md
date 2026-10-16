@@ -1,5 +1,5 @@
 ---
-written: 2026-10-15T23:00:00-05:00
+written: 2026-10-15T23:30:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -10,9 +10,10 @@ for: next-session
 
 RFC-0007 is concluded and ADR-0023 accepted: Stop hooks block once and then
 trust the agent, driven by per-repo drift rules, with a CI check as the
-backstop. M8 (automation engine) is active, and its first slice, the drift
-detection core in `scripts/drift/drift.py`, is built test-first, reviewed by
-Codex, and committed. RFC-0008 (distribution) and RFC-0009 (setup wizard) are
+backstop. M8 (automation engine) is active. Its first two slices are built
+test-first and reviewed by Codex: the drift detection core in
+`scripts/drift/drift.py`, and the block-once Stop hook (`--hook`) now wired into
+this repo's Claude Code Stop hooks. RFC-0008 (distribution) and RFC-0009 (setup wizard) are
 approved designs still Open; RFC-0010 (retrospectives) is drafted. Everything is
 on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 
@@ -24,7 +25,14 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
   plus a `drift` key in `.standards-kit.json`, conventional-commit types for the
   changelog, path globs with real `**`, `Docs-Unaffected:` waivers, and
   uncommitted files. Report only for now: `python scripts/drift/drift.py`.
-- A Codex review found six real issues, all fixed with regression tests: git
+- Stop hook: `drift.py --hook` blocks once with top-level `decision`/`reason` in
+  `enforce` mode, lets the next stop through, only reminds in `advise` mode, and
+  fails open on unreadable input, bad drift config, or git errors (a Codex review
+  found the first two, plus a Windows encoding bug in reading hook input). No marker means the kit's own repo, which enforces;
+  `init`/`adopt` write `hook_mode: "enforce"`, and markers without the key
+  advise. It replaced `check_changelog.py --check` in `.claude/settings.json`,
+  `scripts/drift` ships in the payload, and `docs/STANDARDS.md` documents it.
+- A Codex review of the core found six real issues, all fixed with regression tests: git
   errors and shallow clones now raise `DriftError` instead of reporting nothing
   behind, and changes made in merge commits (`--cc`), both sides of renames,
   `src/api/**` matching, and `BREAKING-CHANGE:` footers are handled.
@@ -58,15 +66,13 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 ## Open threads
 
 - M8 next slices:
-  1. Block-once Stop hook: an `enforce`/`advise` mode in the marker, top-level
-     JSON for Claude Code and Codex, failing open on `DriftError`, wired into
-     `.claude/settings.json` and `.codex/hooks.json`. Ship `scripts/drift` in the
-     payload (`PAYLOAD_DIRS` in `src/standards/manifest.py`) in the same change.
-  2. CI drift check: a drift mode in `standards check` over the PR range,
+  1. CI drift check: a drift mode in `standards check` over the PR range,
      honoring the `Docs-Unaffected:` trailer and the PR-description fallback,
      with `fetch-depth: 0` in `repo-standards.yml`.
-  3. Copilot adapters, shaped by manual tests A–C in RFC-0007's
+  2. Copilot adapters, shaped by manual tests A–C in RFC-0007's
      `artifacts/spike-results.md`; test D checks Codex's interactive trust flow.
+  3. Codex hook config isn't shipped: `.codex/` is gitignored here and not in
+     the payload. RFC-0008's plugin is the planned way to ship it.
 - RFC-0008 checks: does the Copilot cloud agent load skills from plugins declared
   in `.github/copilot/settings.json`, and does its `agentStop` hook fire? Do
   Codex marketplace-installed plugin hooks run? Do VS Code and Copilot CLI list
@@ -97,6 +103,9 @@ the `remember` plugin ships Claude, Codex, and Gemini manifests plus a
 
 ## Don't do
 
+- Don't be surprised when this repo's own Stop hook blocks once at the end of a
+  turn: with no marker the kit enforces, so update the named doc (usually
+  `CHANGELOG.md`) or say why it is unaffected.
 - Don't open a PR for `docs/rfc-0007-automation-engine` yet; the owner asked
   for the branch to be pushed only.
 - Don't build drift logic into `scripts/changelog/check_changelog.py` on this
