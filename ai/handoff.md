@@ -80,9 +80,9 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
   hook doesn't block. Test C2 confirmed the hook sees those env vars and that the
   job then succeeds. Codex found one issue in it, a `gettempdir()` failure escaping
   fail-open, and it's fixed with a test.
-- Throwaway evidence: the private repo `swanson-dev/rfc0007-hook-spike` (PRs 2 and
-  3 hold the pushed hook logs) and a local copy in the session scratchpad. The
-  owner deletes the repo when done.
+- Throwaway evidence: the cloud hook logs from PRs 2, 3, and 4 of the private
+  repo `swanson-dev/rfc0007-hook-spike` are saved in RFC-0007's
+  `artifacts/spike/logs/`, so the owner can delete that repo.
 - A Codex review of the CI slice found three real issues, all fixed with tests:
   false failures once the base branch moved on (the old single start point),
   "can't check" passing as an adopter warning, and description edits not
