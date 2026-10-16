@@ -1,5 +1,5 @@
 ---
-written: 2026-10-15T17:15:00-05:00
+written: 2026-10-15T22:25:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -71,7 +71,8 @@ PR yet.
   with a sync test against `docs/STANDARDS.md`.
 - Retrospectives (RFC-0010): a `standard-retro` skill the user runs; proposals
   only, each citing evidence; output only to artifacts in git; built after
-  RFC-0007 to RFC-0009 conclude.
+  RFC-0007 to RFC-0009 conclude. Lasting lessons go in `ai/gotchas.md`, which
+  `AGENTS.md` only points to and the session-start summary lists by title.
 - Approved deletions are untracked dead weight only (`_delete-me/`, `dist/`,
   tool caches). The `rm` was declined, so nothing has been deleted.
 
@@ -95,7 +96,7 @@ PR yet.
   Enter accepts the suggested default (`0` means documentation only), and
   "Update" shows only when the repo is behind.
 - RFC-0010 needs a trial retro on a real session, a threshold for promoting a
-  lesson into `AGENTS.md`, and a call on reading Claude Code transcripts.
+  lesson into `ai/gotchas.md`, and a call on reading Claude Code transcripts.
 
 ## Research notes
 
