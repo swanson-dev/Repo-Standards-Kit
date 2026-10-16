@@ -50,5 +50,6 @@ If a decision is the result of an RFC, the RFC's `Follow-ups → ADR to write` f
 | [0019](./0019-add-post-v1-adoption-assistant-commands-and-optional-knowledge-lanes.md) | Add post-v1 adoption assistant commands and optional knowledge lanes |
 | [0020](./0020-add-advisory-ai-continuity-hooks-and-standard-slash-commands.md) | Add advisory AI continuity hooks and standard slash commands |
 | [0021](./0021-add-a-documentation-repo-profile.md) | Add a documentation repo profile |
+| [0023](./0023-enforce-doc-and-continuity-upkeep-with-block-once-stop-hooks-and-a-drift-map.md) | Enforce doc and continuity upkeep with block-once Stop hooks and a drift map |
 
 (Index is maintained manually for now; Slice 4 may automate it.)

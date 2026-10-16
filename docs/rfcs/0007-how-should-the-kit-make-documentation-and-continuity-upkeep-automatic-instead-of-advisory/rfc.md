@@ -1,7 +1,7 @@
 ---
-status: Open
+status: Concluded
 opened: 2026-10-14
-closed:
+closed: 2026-10-15
 owner: Josh Swanson
 time_box: 2 days (cross-host hook spike + review)
 ---
@@ -24,9 +24,9 @@ RFC-0008 (distribution: the CLI plus a plugin) and RFC-0009 (setup wizard and co
 - Map today's detection logic (`scripts/changelog/check_changelog.py`, `scripts/update-handoff/update_handoff.py --check`) onto a general "if X changed, Y must be updated" model.
 - Inventory what the payload ships per host today (`src/standards/manifest.py`).
 
-The owner approved this design on 2026-10-14 and settled where the drift map lives (§2) and how "docs unaffected" is recorded (§4) on 2026-10-15. Remaining before this RFC concludes:
+The owner approved this design on 2026-10-14, settled where the drift map lives (§2) and how "docs unaffected" is recorded (§4) on 2026-10-15, and concluded the RFC the same day.
 
-- **Cross-host spike.** One stdlib script whose blocking output is accepted by all five hosts, or a small per-host output shim. Claude Code and Codex are verified. The open point is whether VS Code accepts top-level `decision`/`reason` or only its `hookSpecificOutput` wrapper, along with the other manual tests in `artifacts/spike-results.md`.
+The spike had already settled the design: one output that every host accepts is ruled out, so each host gets a small output adapter, with top-level `decision`/`reason` as the default. The remaining manual tests in `artifacts/spike-results.md` (Copilot in VS Code, Copilot CLI, the Copilot cloud agent, and Codex's interactive trust flow) only decide which shape each Copilot adapter emits, so they move to the implementation. If a host's hook cannot block at all, the CI drift check still catches the missed update.
 
 ## Findings
 
@@ -144,11 +144,11 @@ Reuse the existing severity model: error in the kit, warn by default for adopter
 
 ## Recommendation
 
-Adopt enforce-once Stop hooks driven by a per-repo drift map, using a portable exit-0 JSON contract, with the changelog rule judged by conventional-commit type. Ship the hooks in the kit's plugin with a small adapter per host, plus a repo-level hook file for the Copilot cloud agent. Add a CI drift check as the agent-agnostic backstop, and keep the existing warn-by-default rollout for current adopters. This supersedes ADR-0008's "always exits 0" contract while keeping its core rule that hooks never write files. Conclude once the cross-host spike confirms one output format is accepted by all five hosts, or settles on per-host shims.
+Adopt enforce-once Stop hooks driven by a per-repo drift map, using a portable exit-0 JSON contract, with the changelog rule judged by conventional-commit type. Ship the hooks in the kit's plugin with a small adapter per host, plus a repo-level hook file for the Copilot cloud agent. Add a CI drift check as the agent-agnostic backstop, and keep the existing warn-by-default rollout for current adopters. This supersedes ADR-0008's "always exits 0" contract while keeping its core rule that hooks never write files. Concluded 2026-10-15: the spike settled on per-host output adapters.
 
 ## Follow-ups
 
-- **ADR to write:** yes. ADR-0023 supersedes ADR-0008's check-mode exit contract and amends ADR-0020's non-blocking rule. ADR-0022 is already taken by the parked changelog branch.
-- **Implementation plan changes:** on conclusion, add an "Automation engine" milestone to `docs/05-implementation-plan.md`, followed by RFC-0008 (distribution: the CLI plus a plugin) and RFC-0009 (setup wizard and composable profiles).
-- **New open questions:** none; the remaining items are tracked under Approach until this RFC concludes.
+- **ADR to write:** yes, [ADR-0023](../../decisions/0023-enforce-doc-and-continuity-upkeep-with-block-once-stop-hooks-and-a-drift-map.md). It supersedes ADR-0008 and amends ADR-0020's non-blocking rule. ADR-0022 is taken by the parked changelog branch.
+- **Implementation plan changes:** added "M8 — Automation engine" to `docs/05-implementation-plan.md`; RFC-0008 (distribution) and RFC-0009 (setup wizard and composable profiles) follow it.
+- **New open questions:** none; the Copilot adapter tests move to the implementation.
 - **Discovery to promote:** none
