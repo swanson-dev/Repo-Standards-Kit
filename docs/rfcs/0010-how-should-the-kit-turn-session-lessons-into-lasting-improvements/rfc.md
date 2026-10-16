@@ -28,10 +28,10 @@ The owner proposed a retrospective feature modeled on Matt Pocock's `retro` skil
 - Test the idea against this repo's own session of 2026-10-14 and 2026-10-15.
 - Map each kind of finding onto an artifact the kit already has.
 
-Remaining before this RFC concludes:
+On 2026-10-15 the owner chose to keep lasting lessons in `ai/gotchas.md`, with `AGENTS.md` only pointing to it (Proposed design §5). Remaining before this RFC concludes:
 
 - **Trial run.** Draft the skill and run one retro on a real session. Check that the findings cite evidence and land in the right place.
-- **Promotion threshold.** Decide how often a lesson must recur before it moves from the handoff's "Don't do" list into `AGENTS.md`.
+- **Promotion threshold.** Decide how often a lesson must recur before it moves from the handoff's "Don't do" list into `ai/gotchas.md`.
 - **Past sessions.** Decide whether the retro may also read Claude Code's local transcripts, which no other host offers in the same form, or stays with inputs every host has.
 
 ## Findings
@@ -54,11 +54,21 @@ The session that produced RFC-0007 through RFC-0009 is a fair test:
 - **A wrong claim from not looking first.** The agent called the discovery templates unused, but the payload manifest and the tests said otherwise. A pointer to check `src/standards/manifest.py` and the tests first would have prevented it. *(finding things)*
 - **A personal preference that must not reach the repo.** The owner declined `rm` commands. That belongs in the owner's own agent memory, not in a file every teammate's agent reads. *(boundary)*
 
+### The handoff's "Don't do" list does three jobs
+
+This repo's own `ai/handoff.md` shows the gap. Its "Don't do" list mixes:
+
+- **Lasting traps**, such as separating profiles with commas in the checklist header, the combined hook output Codex rejects, and deleting `docs/superpowers/`, which accepted ADRs cite.
+- **Temporary notes**, such as not opening a PR yet and the reserved ADR numbers.
+- **A personal preference**: the owner declining `rm`, which doesn't belong in the repo at all.
+
+The handoff is rewritten every session, so lasting traps survive only if each agent remembers to copy them forward.
+
 ### Boundaries
 
 - **Shared, not personal.** The kit's retro writes only to artifacts in git, so every agent and teammate benefits. Personal lessons belong in personal memory tools, such as the `remember` plugin or Claude Code's own memory.
 - **Self-improving, not self-healing.** Fixing out-of-date docs right now is RFC-0007's job: its hooks make the agent repair docs before finishing. Changing the rules so a problem doesn't come back is this RFC's job.
-- **Outside the kit's section of `AGENTS.md`.** The kit owns a protected section of `AGENTS.md`. Retro edits must land outside it, or `standards update` will report a conflict.
+- **Retros don't edit `AGENTS.md`.** The kit owns a protected section of `AGENTS.md`, so retro edits there would collide with `standards update`. Lasting lessons go in `ai/gotchas.md` instead, and the pointer to it ships in the kit's own section.
 
 ### Risks
 
@@ -89,21 +99,43 @@ Findings are ranked by severity. The user approves each one, and the agent appli
 | Docs fell out of date | a drift-map rule (RFC-0007) |
 | A decision was made | an ADR |
 | An unresolved disagreement | `ai/open-questions.md` |
-| A dead end that keeps coming back | the handoff's "Don't do" list, then `AGENTS.md` if it keeps happening |
+| A dead end that keeps coming back | the handoff's "Don't do" list, then `ai/gotchas.md` if it keeps happening |
 | An out-of-date or useless instruction | deleted |
 | Something was hard to find | a pointer in `docs/00-overview.md` |
 | A personal preference | not written to the repo; suggested for the user's own memory |
 | A bug in the kit itself | an issue or a fix in the kit's repo |
 
-### 5. Guarding against bloat
+### 5. Lasting lessons live in `ai/gotchas.md`
+
+`AGENTS.md` loads into every agent's context, so it stays short. Lessons that keep recurring go in `ai/gotchas.md`. `AGENTS.md` carries one pointer to that file, in the kit's own section, so every adopter gets the pointer and a retro never edits `AGENTS.md`.
+
+- **Titles in every session.** A link alone gets skipped, because an agent reads a linked file only if it decides to. The session-start summary lists each gotcha's title, which costs a few lines, and the agent opens the file when a title matches its task.
+- **Numbered entries.** Gotchas are numbered like `ai/open-questions.md` (G-1, G-2, and so on), so commits and docs can refer to them.
+- **A way out.** Every gotcha says what would retire it, usually a check that catches the trap. Once that check exists, the gotcha is deleted.
+- **No staleness check.** Unlike the handoff and current-state files, a gotcha isn't out of date just because nobody edited it recently.
+- **Why `ai/`.** It sits next to the handoff that lessons graduate from, and the session-start summary already reads that folder.
+- **Shipped as a starter.** `standards init` and `adopt` seed an empty `ai/gotchas.md` that shows the format:
+
+```markdown
+## G-1: Windows checkouts use CRLF
+- **When:** scripting edits to tracked files on Windows
+- **Trap:** core.autocrlf=true checks files out with \r\n, so matches on \n fail
+- **Instead:** handle both line endings
+- **Retire when:** a .gitattributes normalizes line endings
+- **Seen:** 2026-10-15
+```
+
+A lesson's path: the handoff's "Don't do" list (this session), then `ai/gotchas.md` (it keeps happening), then a check or test (automated), and finally the gotcha is deleted.
+
+### 6. Guarding against bloat
 
 - Prefer a check or a deletion over new text.
-- Move a lesson into `AGENTS.md` only when it keeps recurring.
-- Every retro also looks for instructions to remove.
+- Move a lesson into `ai/gotchas.md` only when it keeps recurring, and never into `AGENTS.md`.
+- Every retro also looks for gotchas and instructions to remove.
 
 ## Recommendation
 
-Add a `standard-retro` skill that the user runs. It turns evidence-backed session lessons into ranked proposals, sends each to an artifact the kit already has, and changes nothing without approval. Keep its output shared through git, prefer checks and deletions over new rules, and build it after RFC-0007 through RFC-0009 conclude. Conclude this RFC after a trial retro on a real session.
+Add a `standard-retro` skill that the user runs. It turns evidence-backed session lessons into ranked proposals, sends each to an artifact the kit already has, and changes nothing without approval. Keep lasting lessons in `ai/gotchas.md`, which `AGENTS.md` points to and the session-start summary lists by title, and retire each gotcha once a check catches it. Keep the output shared through git, prefer checks and deletions over new rules, and build it after RFC-0007 through RFC-0009 conclude. Conclude this RFC after a trial retro on a real session.
 
 ## Follow-ups
 
