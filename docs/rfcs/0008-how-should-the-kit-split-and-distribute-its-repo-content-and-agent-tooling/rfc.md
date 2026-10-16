@@ -29,6 +29,7 @@ The owner chose the hybrid direction (CLI plus plugin) and approved this design 
 - **Cloud agent.** Whether skills from plugins declared in `.github/copilot/settings.json` load in the Copilot cloud agent, and whether its `agentStop` hook fires.
 - **Codex plugin hooks.** Codex's docs conflict on whether hooks bundled in a marketplace-installed plugin run. Test on a real install.
 - **Prompt files.** Confirm that VS Code and Copilot CLI list `.claude/skills` skills as slash commands before retiring `.github/prompts` and its parity check.
+- **Double hook runs.** Every Copilot host also reads `.claude/settings.json` (RFC-0007 test B2), and VS Code and the Copilot CLI run a hook once per file that defines it. If the plugin carries the hooks while the repo keeps hook config for the cloud agent, those two hosts would run each hook twice. Decide which file the cloud agent gets without that.
 
 ## Findings
 
@@ -49,7 +50,7 @@ Sources: [Claude Code plugins](https://code.claude.com/docs/en/plugins/component
 
 - **No always-on instructions.** A plugin's root `CLAUDE.md` is not loaded; plugins offer skills (loaded when relevant), hooks, and SessionStart context. `AGENTS.md` therefore stays in the repo, where every host reads it (Claude Code through the `CLAUDE.md` pointer).
 - **No CI.** GitHub Actions has no agent, so `standards check` and RFC-0007's drift check stay in the CLI.
-- **No portable hooks.** Event names and output shapes differ between hosts, so each needs a small adapter (RFC-0007). The Copilot cloud agent loads hooks only from the repo's `.github/hooks/*.json`, and Codex never auto-trusts plugin hooks.
+- **No portable hooks.** Event names and output shapes differ between hosts, so each needs a small adapter (RFC-0007). The Copilot cloud agent runs repo hooks from `.github/hooks/*.json` and, per RFC-0007's test B2, from `.claude/settings.json` too. Codex never auto-trusts plugin hooks.
 
 ### Updates and team rollout
 
@@ -74,7 +75,7 @@ Sources: [Claude Code plugins](https://code.claude.com/docs/en/plugins/component
 |---|---|---|
 | `AGENTS.md`, the `CLAUDE.md` pointer, docs structure, `ai/` starters, `CHANGELOG.md`, checklist, `.standards-kit.json` | repo, scaffolded by the CLI | every host, every human, CI |
 | CI workflow that runs a pinned CLI | repo, scaffolded by the CLI | GitHub Actions |
-| `.github/hooks/standards.json` | repo, scaffolded by the CLI | Copilot cloud agent |
+| Hook config: `.claude/settings.json`, or `.github/hooks/standards.json` in Copilot-only repos (never both) | repo, scaffolded by the CLI | Copilot cloud agent |
 | Plugin and marketplace declarations (`.claude/settings.json`, `.github/copilot/settings.json`) | repo, scaffolded by the CLI | Claude Code, Copilot cloud agent |
 | Skills, hooks, and the setup skill | the kit's plugin, in Claude's `.claude-plugin/` format | Claude Code, Codex CLI, Copilot in VS Code and the CLI |
 | `standards` CLI: `init`, `adopt`, `update`, `check`, `doctor` | PyPI | humans, CI, the plugin |

@@ -34,8 +34,11 @@ Per-host config, written so the contents of `spike/` can be copied into the root
 | Copilot in VS Code | top-level + wrapper | | | | | Not run: top-level works, so VS Code doesn't need the wrapper |
 | Copilot CLI 1.0.98 (interactive) | top-level | yes | yes | yes, `SPIKE-ACK top-level Stop` | yes | **Verified** (2026-10-16, manual test B) |
 | Copilot CLI | top-level + wrapper | | | | | Not run: no Copilot host needs the wrapper, so whether the CLI tolerates it doesn't matter |
+| Copilot CLI 1.0.98 (`-p`), hook only in `.claude/settings.json` (test B2) | top-level | yes | yes | yes, `SPIKE-ACK top-level Stop` | yes | **Verified** (2026-10-16) |
+| Copilot CLI 1.0.98 (`-p`), hook in both `.claude/settings.json` and `.github/hooks/` | top-level | yes, **twice per stop** | yes | yes | yes | **Verified: both files run** (2026-10-16) |
 | Copilot cloud agent | top-level | yes, `python3` on Linux | yes | yes: replied right after each block (text not in the logs) | yes, within each turn | **Verified, but it re-blocks on every agent turn, which failed the job** (2026-10-16, manual test C) |
 | Copilot cloud agent, once per session (test C2) | top-level | yes | yes | yes, one block | yes | **Verified: one block, and the job succeeded** (2026-10-16) |
+| Copilot cloud agent, hook only in `.claude/settings.json` (test B2) | top-level | yes, plain `python` | yes | yes, one block | yes | **Verified: one block, and the job succeeded** (2026-10-16) |
 | Copilot cloud agent | top-level + wrapper | | | | | Not run: no Copilot host needs the wrapper |
 
 ### Claude Code details
@@ -65,6 +68,9 @@ Per-host config, written so the contents of `spike/` can be copied into the root
 - The CLI sends the same Stop input fields as VS Code, all in snake_case, with `hook_event_name: "Stop"` and `stop_reason: "end_turn"`. The PascalCase `Stop` key in `.github/hooks/standards.json` was enough, so the `agentStop` fallback wasn't needed.
 - First stop: `stop_hook_active: false`, so the hook blocked. Second stop: `stop_hook_active: true`, no output, and the session went idle. The CLI shows the block reason in the transcript before the agent replies.
 - The run used the interactive `copilot` session in a trusted folder, with `.claude/` and `.codex/` still moved aside from test A.
+- **Test B2: the CLI also reads `.claude/settings.json`.** In a repo whose only hook file was `.claude/settings.json` (Claude's format, `python stop_hook.py`), `copilot -p` ran the Stop hook, blocked once, and passed the second stop. The input was the same as from `.github/hooks/`. In a repo with both files, it ran the hook from each, so two blocks with one timestamp, then two passes.
+- Repo hooks load only in a trusted folder. In `-p` mode, `COPILOT_ALLOW_ALL=true` trusts the working folder for one run without changing config; `--add-dir` trusts only skills and agents. The B2 runs used it with `--available-tools ""`, so the agent had no tools.
+- **SessionStart from `.github/hooks/`**: the CLI ran a PascalCase `SessionStart` hook (input `source: "new"` and `initial_prompt`), but its plain-text stdout never reached the agent, which couldn't repeat a codeword the hook printed.
 
 ### Copilot cloud agent details
 
@@ -76,6 +82,7 @@ Per-host config, written so the contents of `spike/` can be copied into the root
 - What this means for the drift hook: in the cloud agent, a hook that keeps blocking fails the job, because the block lands on the engine's own follow-up turns. If the agent fixes the drift in its main turn, the next stops pass. If the drift persists, every PR-description attempt is hijacked.
 - `python3` and the PascalCase `Stop` key both work in the cloud agent; `agentStop` wasn't needed.
 - **Test C2, once per session.** The spike hook got a guard: when `GITHUB_ACTIONS` is `true`, it blocks once per `session_id` and records the block in `RUNNER_TEMP`. The task ran from a branch (`gh agent-task create --base`), so the default branch wasn't touched. Hooks see `GITHUB_ACTIONS=true`, `RUNNER_TEMP=/home/runner/work/_temp`, and about 40 `COPILOT_*` variables, including `COPILOT_AGENT_SESSION_ID`. The session blocked once (the 118-char message), and the next stop passed. The PR-description turn then went through without a block, and the job succeeded with a real PR description.
+- **Test B2 in the cloud.** A branch whose only hook file was `.claude/settings.json`, running the C2 hook as `python stop_hook.py` (with a fallback that would log a missing `python`). The cloud agent ran it with plain `python`, blocked once, passed the next stop, and the job succeeded with a real PR description. The input had the same fields as the other Copilot hosts.
 
 ### What this settles, and what it leaves open
 
@@ -90,6 +97,7 @@ Per-host config, written so the contents of `spike/` can be copied into the root
 | needs wrapper | no | The shared file cannot serve both. The hook must detect VS Code at runtime, or VS Code gets its hook another way (for example the plugin, or `.claude/settings.json` with `chat.useClaudeHooks`). Needs a further test. |
 
 4. **Tests A to C settle it: top-level output everywhere, so no output adapter.** VS Code, the Copilot CLI, and the cloud agent all accept top-level output. They also send the same snake_case input, with `stop_hook_active`. The one Copilot-specific behavior is that the cloud agent's engine reprompts the session, so `drift.py --hook` blocks at most once per session on CI runners (test C2).
+5. **Test B2 settles the hook file: one per repo.** Every Copilot host also reads `.claude/settings.json`, so a repo that uses Claude ships its hooks only there; adding `.github/hooks/` runs each hook twice. A Copilot-only repo uses `.github/hooks/standards.json`, which Claude Code doesn't read. The repo records the choice as `agents` in `.standards-kit.json`, and `standards init`/`adopt --agents` set it.
 
 ## Manual tests for the owner
 

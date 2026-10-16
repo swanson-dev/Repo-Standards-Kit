@@ -110,6 +110,8 @@ What does this repo contain? (comma-separated, or Enter for documentation only)
 
 Scripts and CI keep using flags, and `--profile` now accepts a comma list: `standards adopt --profile application,infra .`
 
+Setup also asks which agents the team uses (Claude, Copilot), suggesting the ones it finds on this machine, and records the answer as `agents` in `.standards-kit.json`. The answer picks the repo's one hook file: `.claude/settings.json` when Claude is in the list, since every Copilot host reads it too, or `.github/hooks/standards.json` for Copilot alone (RFC-0007 test B2). The owner asked for this on 2026-10-16; `init` and `adopt` already take it as `--agents claude,copilot`, with detection as the default.
+
 ### 4. Combinable profiles
 
 - **Marker.** Write `"profiles": ["application", "infra"]` and keep `"profile"` as the first entry, so older CLIs still read a valid single profile. Read `profiles` when present, otherwise `[profile]`.
