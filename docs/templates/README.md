@@ -62,6 +62,12 @@ same one-line description, and the same core invocation guidance. Add the name
 to `AGENTS.md` `## Available skills` so agents can discover it. Example index
 row: ``| `review-docs` | Review docs before shipping |``.
 
+### Hook config
+- `copilot-hooks.json` → `.github/hooks/standards.json`, only when the repo's
+  `agents` is just `copilot`. Repos that use Claude get `.claude/settings.json`
+  instead, which Copilot also reads. See `docs/STANDARDS.md` § "Optional AI
+  continuity hooks".
+
 ### Per-repo governance
 - `repo-readme-template.md` → `README.md` (seeded automatically at adoption).
 - `changelog-template.md` → `CHANGELOG.md` (seeded automatically at adoption).

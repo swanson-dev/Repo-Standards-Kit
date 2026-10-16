@@ -64,6 +64,27 @@ class ManifestTests(unittest.TestCase):
         self.assertFalse(any(r.endswith(".pyc") for r in rels))
 
 
+    def test_copilot_hook_file_ships_from_a_template_source(self):
+        from standards.manifest import is_excluded_from_tracked, iter_payload
+        from standards.payload import payload_root
+        sources = {rel: full for full, rel in iter_payload(payload_root())}
+        self.assertEqual(sources[".github/hooks/standards.json"].name, "copilot-hooks.json")
+        self.assertTrue(is_excluded_from_tracked("docs/templates/copilot-hooks.json"))
+
+    def test_agents_choice_ships_one_hook_file(self):
+        from standards.manifest import iter_payload
+        from standards.payload import payload_root
+
+        def rels(agents):
+            return {rel for _full, rel in iter_payload(payload_root(), agents=agents)}
+
+        for agents in (["claude"], ["claude", "copilot"]):
+            self.assertIn(".claude/settings.json", rels(agents))
+            self.assertNotIn(".github/hooks/standards.json", rels(agents))
+        self.assertIn(".github/hooks/standards.json", rels(["copilot"]))
+        self.assertNotIn(".claude/settings.json", rels(["copilot"]))
+        self.assertIn(".claude/skills/standards-check/SKILL.md", rels(["copilot"]))
+
     def test_partial_files_classified_partial(self):
         from standards.manifest import PARTIAL_FILES, classify
         self.assertIn("AGENTS.md", PARTIAL_FILES)

@@ -53,6 +53,27 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn("compact-snapshot", session_start)
         self.assertNotIn("--force", session_start)
 
+    def test_kit_repo_wires_hooks_only_through_claude_settings(self):
+        # Every Copilot host also reads .claude/settings.json (RFC-0007 test B2), so a
+        # .github/hooks/ copy here would run each hook twice.
+        self.assertFalse((REPO / ".github" / "hooks").exists())
+
+    def test_copilot_hook_file_runs_the_claude_stop_hooks(self):
+        claude = json.loads((REPO / ".claude" / "settings.json").read_text(encoding="utf-8"))
+        copilot = json.loads(
+            (REPO / "docs" / "templates" / "copilot-hooks.json").read_text(encoding="utf-8"))
+        expected = [hook["command"] for hook in claude["hooks"]["Stop"][0]["hooks"]]
+        stop = copilot["hooks"]["Stop"]
+
+        self.assertEqual(copilot["version"], 1)
+        # Copilot runs SessionStart hooks but drops their plain-text output.
+        self.assertEqual(list(copilot["hooks"]), ["Stop"])
+        self.assertEqual([hook["command"] for hook in stop], expected)
+        self.assertEqual([hook["powershell"] for hook in stop], expected)
+        self.assertEqual([hook["bash"] for hook in stop],
+                         [command.replace("python ", "python3 ", 1) for command in expected])
+        self.assertTrue(all(hook["type"] == "command" and hook["cwd"] == "." for hook in stop))
+
 
 if __name__ == "__main__":
     unittest.main()

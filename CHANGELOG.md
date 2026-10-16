@@ -37,6 +37,15 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
   warning by default for adopters (`"check": {"drift": "error"}` in
   `.standards-kit.json` escalates it); history that can't be read is always an
   error.
+- Copilot-only repos get Copilot's own hook file. `standards init` and `standards
+  adopt` take `--agents claude,copilot`, detect this machine's agents without
+  the flag, and record the choice as `agents` in `.standards-kit.json`; `standards
+  update` follows it. A repo that uses Claude keeps its hooks in
+  `.claude/settings.json`, which Copilot in VS Code, the Copilot CLI, and the
+  Copilot cloud agent also read. A Copilot-only repo gets
+  `.github/hooks/standards.json` with the same Stop hooks instead. A repo never
+  gets both, because every Copilot host would run each hook twice. Markers
+  without `agents` keep `.claude/settings.json`.
 
 ### Changed
 - The Claude Code Stop hook now runs the drift check instead of

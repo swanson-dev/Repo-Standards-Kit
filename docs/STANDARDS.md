@@ -325,6 +325,20 @@ override rules under a `drift` key in the same file. A `Docs-Unaffected:` commit
 trailer, such as `Docs-Unaffected: deployment (renamed a job)`, waives a commit.
 Codex runs a repo's hooks only after you trust the repo and review its hooks.
 
+A repo keeps its hooks in one file, picked by `agents` in `.standards-kit.json`.
+`standards init` and `standards adopt` set it with `--agents claude,copilot`, or
+detect this machine's agents without the flag. With `claude` in the list, the
+hooks live in `.claude/settings.json`, which Copilot in VS Code, the Copilot CLI,
+and the Copilot cloud agent also read. With `copilot` alone, they live in
+`.github/hooks/standards.json`, Copilot's own format, which Claude Code doesn't
+read. Never keep both: every Copilot host would run each hook twice. `standards
+update` follows the recorded choice; to switch, edit `agents`, run `standards
+update`, and delete the old file. Pick for the whole team, not one machine: a
+Copilot-only choice leaves teammates who use Claude without hooks. The Copilot CLI
+runs a repo's hooks only in a folder you trust. Copilot runs SessionStart hooks
+but doesn't show their output to the agent, so the Copilot file carries only the
+Stop hooks.
+
 CI applies the same rules to every pull request: `repo-standards.yml` runs
 `python scripts/standards-check/check.py --drift-base origin/main` (or `standards
 check --drift-base origin/main` locally), with the PR's target in place of `main`.

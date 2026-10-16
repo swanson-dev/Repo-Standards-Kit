@@ -33,6 +33,18 @@ class AdoptTests(unittest.TestCase):
             run_adopt(target, profile="library", adopted=date.today().isoformat())
             self.assertEqual(read_marker(target)["hook_mode"], "enforce")
 
+    def test_copilot_only_adopt_keeps_an_existing_claude_settings_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / ".claude").mkdir()
+            (target / ".claude" / "settings.json").write_text("{}\n", encoding="utf-8")
+            report = run_adopt(target, profile="library", adopted=date.today().isoformat(),
+                               agents=["copilot"])
+            self.assertIn(".github/hooks/standards.json", report["added"])
+            self.assertNotIn(".claude/settings.json", report["conflicts"])
+            self.assertFalse((target / f".claude/settings.json.kit-{__version__}").exists())
+            self.assertEqual(read_marker(target)["agents"], ["copilot"])
+
     def test_adopt_blank_repo_is_check_clean(self):
         import check as check_mod
         with tempfile.TemporaryDirectory() as d:
