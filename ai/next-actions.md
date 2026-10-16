@@ -1,10 +1,10 @@
 ---
-last_updated: 2026-10-15
+last_updated: 2026-10-16
 ---
 
 # Next Actions
 
-1. **Finish M8, the automation engine (ADR-0023)** - built: the drift core and block-once Stop hook (`scripts/drift/drift.py`, wired into `.claude/settings.json`) and the CI drift check (`standards check --drift-base`, run on PRs by `repo-standards.yml`). Left: the Copilot adapters, shaped by manual tests A–C in RFC-0007's `artifacts/spike-results.md` (test D checks Codex's interactive trust flow), and shipping Codex hook config, which waits on RFC-0008's plugin.
+1. **Finish M8, the automation engine (ADR-0023)** - built: the drift core and block-once Stop hook (`scripts/drift/drift.py`, wired into `.claude/settings.json`), the CI drift check (`standards check --drift-base`, run on PRs by `repo-standards.yml`), and the Copilot results: manual tests A–C in RFC-0007's `artifacts/spike-results.md` showed every Copilot host takes the top-level output, and on CI runners the hook now blocks once per session (test C2). Left: ship Copilot hook config (`.github/hooks/`) without VS Code running the hook twice, since VS Code also reads `.claude/settings.json`. Test D (Codex's interactive trust flow) is still pending. Shipping Codex hook config waits on RFC-0008's plugin.
 2. **Run RFC-0008's checks** - cloud-agent plugin skills and `agentStop`, Codex marketplace-plugin hooks, and whether `.claude/skills` show as slash commands in VS Code and Copilot CLI. Then conclude RFC-0008 and write ADR-0024.
 3. **Land the parked ADR-0022 branch** - open a PR for `feat/adr-0022-daily-changelog-grouping`. It also carries the managed `AGENTS.md` simplification; split it first if atomic history matters.
 4. **Try the RFC-0009 prototype and review the RFC** - run command and things to try are in `docs/rfcs/0009-how-should-setup-ask-what-a-repo-contains-and-support-more-than-one-profile/artifacts/prototype/NOTES.md`; record a verdict there. Then conclude RFC-0009 and write ADR-0025.

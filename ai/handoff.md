@@ -1,5 +1,5 @@
 ---
-written: 2026-10-15T23:55:00-05:00
+written: 2026-10-16T10:15:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -14,7 +14,11 @@ backstop. M8 (automation engine) is active, with three slices built test-first
 and reviewed by Codex: the drift detection core in `scripts/drift/drift.py`, the
 block-once Stop hook (`--hook`) wired into this repo's Claude Code Stop hooks, and
 the CI drift check (`standards check --drift-base`) that `repo-standards.yml`
-runs on pull requests. RFC-0008 (distribution) and RFC-0009 (setup wizard) are
+runs on pull requests. Manual tests A–C then showed every Copilot host (VS Code,
+the CLI, the cloud agent) takes the same top-level output and input, so no output
+adapter is needed. The cloud agent's engine reprompts a session for its PR
+description, so on CI runners the hook now blocks once per session.
+RFC-0008 (distribution) and RFC-0009 (setup wizard) are
 approved designs still Open; RFC-0010 (retrospectives) is drafted. Everything is
 on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 
@@ -22,7 +26,7 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 
 - Concluded RFC-0007 and wrote ADR-0023; ADR-0008 is now "Superseded by 0023".
   Added "M8 — Automation engine" (active) to `docs/05-implementation-plan.md`.
-- `scripts/drift/drift.py` with `test_drift.py` (45 tests): default rules in code
+- `scripts/drift/drift.py` with `test_drift.py` (52 tests): default rules in code
   plus a `drift` key in `.standards-kit.json`, conventional-commit types for the
   changelog, path globs with real `**`, `Docs-Unaffected:` waivers, and
   uncommitted files. Report only for now: `python scripts/drift/drift.py`.
@@ -42,6 +46,19 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
   Drift is an error in the kit and warn by default for adopters; unreadable
   history is always an error. `repo-standards.yml` checks out full history, runs
   it on pull requests, and re-runs it when the PR description is edited.
+- Copilot results (RFC-0007 manual tests A–C, recorded in `artifacts/spike-results.md`):
+  VS Code 1.141.2, Copilot CLI 1.0.98, and the cloud agent all accept top-level
+  `decision`/`reason`, and they all send snake_case input with `stop_hook_active`.
+  The cloud agent reprompts the same session for the PR description, so `drift.py
+  --hook` blocked again on each of those turns, and that failed the job. The fix is
+  `ci_block_used`: when `GITHUB_ACTIONS=true`, a session blocks once, recorded as a
+  file in `RUNNER_TEMP` (outside the repo). If the record can't be written, the
+  hook doesn't block. Test C2 confirmed the hook sees those env vars and that the
+  job then succeeds. Codex found one issue in it, a `gettempdir()` failure escaping
+  fail-open, and it's fixed with a test.
+- Throwaway evidence: the private repo `swanson-dev/rfc0007-hook-spike` (PRs 2 and
+  3 hold the pushed hook logs) and a local copy in the session scratchpad. The
+  owner deletes the repo when done.
 - A Codex review of the CI slice found three real issues, all fixed with tests:
   false failures once the base branch moved on (the old single start point),
   "can't check" passing as an adopter warning, and description edits not
@@ -80,8 +97,12 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 ## Open threads
 
 - M8, what's left:
-  1. Copilot adapters, shaped by manual tests A–C in RFC-0007's
-     `artifacts/spike-results.md`; test D checks Codex's interactive trust flow.
+  1. Ship Copilot hook config. The kit has no `.github/hooks/` file yet, so the
+     Copilot CLI and cloud agent don't run the drift hook. VS Code reads both
+     `.github/hooks/` and `.claude/settings.json` by default, so shipping both
+     makes it list the hook twice. Unknown: whether the CLI and cloud agent read
+     `.claude/settings.json` (optional test B2). Test D (Codex's interactive
+     trust flow) is still pending.
   2. Codex hook config isn't shipped: `.codex/` is gitignored here and not in
      the payload. RFC-0008's plugin is the planned way to ship it.
   3. The CI check hasn't run on GitHub yet; it runs on the first PR. Locally,
@@ -109,7 +130,8 @@ the `remember` plugin ships Claude, Codex, and Gemini manifests plus a
 
 ## Validation
 
-- `python tools/run_tests.py`: 32/32 suites passed, including both drift suites.
+- `python tools/run_tests.py`: 32/32 suites passed, including both drift suites
+  (52 tests in `test_drift.py`).
   The intermediate `FAIL` lines come from `tests/test_run_tests.py` exercising a
   deliberately failing fixture; trust the final summary.
 - `python scripts/standards-check/check.py`: 0 errors, 0 warnings.
@@ -139,5 +161,8 @@ the `remember` plugin ships Claude, Codex, and Gemini manifests plus a
   `discovery-note`/`-meeting`/`-artifact` templates. Accepted ADRs cite the
   first, the payload ships the second, and tests assert the templates.
 - Don't delete files without asking; `rm` was declined twice.
+- Don't let a Stop hook write into the working tree: the Copilot cloud agent
+  commits whatever is there into its PR. The CI-runner block record lives in
+  `RUNNER_TEMP`.
 - Don't edit accepted historical ADRs just to remove mentions of deleted
   legacy surfaces.
