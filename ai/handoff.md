@@ -22,7 +22,7 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 
 - Concluded RFC-0007 and wrote ADR-0023; ADR-0008 is now "Superseded by 0023".
   Added "M8 — Automation engine" (active) to `docs/05-implementation-plan.md`.
-- `scripts/drift/drift.py` with `test_drift.py` (25 tests): default rules in code
+- `scripts/drift/drift.py` with `test_drift.py` (45 tests): default rules in code
   plus a `drift` key in `.standards-kit.json`, conventional-commit types for the
   changelog, path globs with real `**`, `Docs-Unaffected:` waivers, and
   uncommitted files. Report only for now: `python scripts/drift/drift.py`.
@@ -109,7 +109,7 @@ the `remember` plugin ships Claude, Codex, and Gemini manifests plus a
 
 ## Validation
 
-- `python tools/run_tests.py`: 31/31 suites passed, including the drift suite.
+- `python tools/run_tests.py`: 32/32 suites passed, including both drift suites.
   The intermediate `FAIL` lines come from `tests/test_run_tests.py` exercising a
   deliberately failing fixture; trust the final summary.
 - `python scripts/standards-check/check.py`: 0 errors, 0 warnings.
