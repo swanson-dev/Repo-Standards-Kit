@@ -1,5 +1,5 @@
 ---
-written: 2026-10-16T10:15:00-05:00
+written: 2026-10-16T12:45:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -18,12 +18,36 @@ runs on pull requests. Manual tests A–C then showed every Copilot host (VS Cod
 the CLI, the cloud agent) takes the same top-level output and input, so no output
 adapter is needed. The cloud agent's engine reprompts a session for its PR
 description, so on CI runners the hook now blocks once per session.
+Test B2 then showed every Copilot host also reads `.claude/settings.json`, so a
+repo gets one hook file, picked by a new `agents` choice in `.standards-kit.json`
+(`init`/`adopt --agents`, detected by default): Claude's file when the team uses
+Claude, `.github/hooks/standards.json` for Copilot-only teams.
 RFC-0008 (distribution) and RFC-0009 (setup wizard) are
 approved designs still Open; RFC-0010 (retrospectives) is drafted. Everything is
 on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 
 ## Recently touched
 
+- Copilot hook config (owner's rule, 2026-10-16): `standards init`/`adopt` take
+  `--agents claude,copilot`, record `agents` in `.standards-kit.json`, and with
+  no flag reuse a recorded choice (force re-init) or detect the machine
+  (`detect_agents` in `cli.py`: `claude`/`copilot` on PATH, `~/.claude`,
+  `~/.copilot`, or a VS Code `github.copilot*` extension). `update` follows the
+  marker; a missing or broken `agents` keeps the Claude file. One hook file per
+  repo (`manifest.hook_file`): `.claude/settings.json` if Claude is listed, else
+  `.github/hooks/standards.json`, whose source is
+  `docs/templates/copilot-hooks.json` (`PAYLOAD_SOURCES`) so the kit's own repo
+  never has a live `.github/hooks/`. That file carries only the two Stop hooks.
+  `init --force` refuses to switch while the old tracked hook file exists. Codex
+  found two bugs (force re-init switching, misspelled `agents`), both fixed with
+  tests. Docs: `docs/STANDARDS.md`, `docs/templates/README.md`, RFC-0007's
+  `spike-results.md` (B2 rows), RFC-0008 (corrected the cloud agent claim, added
+  a double-run check), RFC-0009 (its setup asks the agents question).
+- Test B2 (2026-10-16): Copilot CLI 1.0.98 runs Stop hooks from
+  `.claude/settings.json`, and with `.github/hooks/` too it runs each twice. The
+  cloud agent runs `.claude/settings.json` hooks with plain `python` (branch
+  `spike/b2-claude-settings`, PR 4 in the throwaway repo). Copilot runs
+  SessionStart hooks but drops their plain stdout.
 - Concluded RFC-0007 and wrote ADR-0023; ADR-0008 is now "Superseded by 0023".
   Added "M8 — Automation engine" (active) to `docs/05-implementation-plan.md`.
 - `scripts/drift/drift.py` with `test_drift.py` (52 tests): default rules in code
@@ -87,6 +111,10 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 - Drift rules live under a `drift` key in `.standards-kit.json`; "docs
   unaffected" is a `Docs-Unaffected:` commit trailer, with the PR description as
   the squash-merge fallback.
+- Hook config (2026-10-16): "If the user only has Copilot it should use .github
+  but if the user has claude and copilot it should use the claude hook for both."
+  The choice is recorded in the repo, with machine detection only as the default,
+  and RFC-0009's setup will ask it.
 - Retrospectives (RFC-0010): a `standard-retro` skill the user runs; proposals
   only, each citing evidence; output only to artifacts in git. Lasting lessons go
   in `ai/gotchas.md`, which `AGENTS.md` only points to.
@@ -97,12 +125,8 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 ## Open threads
 
 - M8, what's left:
-  1. Ship Copilot hook config. The kit has no `.github/hooks/` file yet, so the
-     Copilot CLI and cloud agent don't run the drift hook. VS Code reads both
-     `.github/hooks/` and `.claude/settings.json` by default, so shipping both
-     makes it list the hook twice. Unknown: whether the CLI and cloud agent read
-     `.claude/settings.json` (optional test B2). Test D (Codex's interactive
-     trust flow) is still pending.
+  1. Test D (Codex's interactive trust flow) is still pending. The Copilot hook
+     config is done.
   2. Codex hook config isn't shipped: `.codex/` is gitignored here and not in
      the payload. RFC-0008's plugin is the planned way to ship it.
   3. The CI check hasn't run on GitHub yet; it runs on the first PR. Locally,
@@ -111,7 +135,16 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 - RFC-0008 checks: does the Copilot cloud agent load skills from plugins declared
   in `.github/copilot/settings.json`, and does its `agentStop` hook fire? Do
   Codex marketplace-installed plugin hooks run? Do VS Code and Copilot CLI list
-  `.claude/skills` as slash commands (if so, retire `.github/prompts`)?
+  `.claude/skills` as slash commands (if so, retire `.github/prompts`)? New:
+  if the plugin carries the hooks while the repo keeps hook config for the cloud
+  agent, VS Code and the Copilot CLI run each hook twice; RFC-0008 now lists it.
+- `iter_payload` walks all of `.claude/`, so `standards init` run from a source
+  checkout copies `.claude/settings.local.json` and `.claude/worktrees/` into the
+  adopter, and a local wheel build would bundle them. CI builds from a clean
+  checkout, so releases are fine so far. Not fixed on this branch.
+- The SessionStart context brief doesn't reach Copilot agents: Copilot runs the
+  hook but drops plain stdout. Needs Copilot's structured output, then a
+  SessionStart entry in `docs/templates/copilot-hooks.json`.
 - RFC-0009: the owner tries the prototype in its `artifacts/prototype/` and
   records a verdict in `NOTES.md`.
 - RFC-0010 needs a trial retro on a real session, a threshold for promoting a
@@ -130,12 +163,15 @@ the `remember` plugin ships Claude, Codex, and Gemini manifests plus a
 
 ## Validation
 
-- `python tools/run_tests.py`: 32/32 suites passed, including both drift suites
-  (52 tests in `test_drift.py`).
+- `python tools/run_tests.py`: 32/32 suites passed after the agents change
+  (2026-10-16), including both drift suites (52 tests in `test_drift.py`).
   The intermediate `FAIL` lines come from `tests/test_run_tests.py` exercising a
   deliberately failing fixture; trust the final summary.
 - `python scripts/standards-check/check.py`: 0 errors, 0 warnings.
 - `ruff check .` and `mypy src/standards`: clean.
+- `python scripts/standards-check/check.py --drift-base main`: 0 errors, 0 warnings.
+- Not run locally: a wheel build. The Copilot file's source rides the existing
+  `docs/templates` force-include; CI's `build-smoke` job is the first real check.
 
 ## Don't do
 
@@ -161,6 +197,12 @@ the `remember` plugin ships Claude, Codex, and Gemini manifests plus a
   `discovery-note`/`-meeting`/`-artifact` templates. Accepted ADRs cite the
   first, the payload ships the second, and tests assert the templates.
 - Don't delete files without asking; `rm` was declined twice.
+- Don't ship hooks in both `.claude/settings.json` and `.github/hooks/`: every
+  Copilot host reads both and runs each hook twice. Don't create a live
+  `.github/hooks/` in the kit's own repo; the Copilot file's source is
+  `docs/templates/copilot-hooks.json`.
+- Don't add `SessionStart` to the Copilot hook file until `session_context.py`
+  emits output Copilot passes to the agent; plain stdout is dropped.
 - Don't let a Stop hook write into the working tree: the Copilot cloud agent
   commits whatever is there into its PR. The CI-runner block record lives in
   `RUNNER_TEMP`.
