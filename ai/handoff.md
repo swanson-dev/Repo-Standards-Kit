@@ -1,5 +1,5 @@
 ---
-written: 2026-10-15T23:30:00-05:00
+written: 2026-10-15T23:55:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -10,10 +10,11 @@ for: next-session
 
 RFC-0007 is concluded and ADR-0023 accepted: Stop hooks block once and then
 trust the agent, driven by per-repo drift rules, with a CI check as the
-backstop. M8 (automation engine) is active. Its first two slices are built
-test-first and reviewed by Codex: the drift detection core in
-`scripts/drift/drift.py`, and the block-once Stop hook (`--hook`) now wired into
-this repo's Claude Code Stop hooks. RFC-0008 (distribution) and RFC-0009 (setup wizard) are
+backstop. M8 (automation engine) is active, with three slices built test-first
+and reviewed by Codex: the drift detection core in `scripts/drift/drift.py`, the
+block-once Stop hook (`--hook`) wired into this repo's Claude Code Stop hooks, and
+the CI drift check (`standards check --drift-base`) that `repo-standards.yml`
+runs on pull requests. RFC-0008 (distribution) and RFC-0009 (setup wizard) are
 approved designs still Open; RFC-0010 (retrospectives) is drafted. Everything is
 on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 
@@ -32,6 +33,19 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
   `init`/`adopt` write `hook_mode: "enforce"`, and markers without the key
   advise. It replaced `check_changelog.py --check` in `.claude/settings.json`,
   `scripts/drift` ships in the payload, and `docs/STANDARDS.md` documents it.
+- CI drift check: `checks/doc_drift.py` (check id `drift`), opt-in with
+  `--drift-base REF` on `check.py` and `standards check`. A commit is behind
+  when no later doc update descends from it: HEAD's history minus everything
+  reachable from the base or from any (non-merge) commit that updated the doc.
+  That holds up for GitHub's synthetic merge checkout and for PRs that merge the
+  base in. PR-description waivers arrive through the `STANDARDS_PR_BODY` env var.
+  Drift is an error in the kit and warn by default for adopters; unreadable
+  history is always an error. `repo-standards.yml` checks out full history, runs
+  it on pull requests, and re-runs it when the PR description is edited.
+- A Codex review of the CI slice found three real issues, all fixed with tests:
+  false failures once the base branch moved on (the old single start point),
+  "can't check" passing as an adopter warning, and description edits not
+  re-running the check.
 - A Codex review of the core found six real issues, all fixed with regression tests: git
   errors and shallow clones now raise `DriftError` instead of reporting nothing
   behind, and changes made in merge commits (`--cc`), both sides of renames,
@@ -65,14 +79,14 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 
 ## Open threads
 
-- M8 next slices:
-  1. CI drift check: a drift mode in `standards check` over the PR range,
-     honoring the `Docs-Unaffected:` trailer and the PR-description fallback,
-     with `fetch-depth: 0` in `repo-standards.yml`.
-  2. Copilot adapters, shaped by manual tests A–C in RFC-0007's
+- M8, what's left:
+  1. Copilot adapters, shaped by manual tests A–C in RFC-0007's
      `artifacts/spike-results.md`; test D checks Codex's interactive trust flow.
-  3. Codex hook config isn't shipped: `.codex/` is gitignored here and not in
+  2. Codex hook config isn't shipped: `.codex/` is gitignored here and not in
      the payload. RFC-0008's plugin is the planned way to ship it.
+  3. The CI check hasn't run on GitHub yet; it runs on the first PR. Locally,
+     `python scripts/standards-check/check.py --drift-base main` passes once the
+     changelog is current.
 - RFC-0008 checks: does the Copilot cloud agent load skills from plugins declared
   in `.github/copilot/settings.json`, and does its `agentStop` hook fire? Do
   Codex marketplace-installed plugin hooks run? Do VS Code and Copilot CLI list
