@@ -2,7 +2,7 @@
 
 ## Roadmap
 
-> Active milestone: **None**. M7 shipped in v1.2.0; maintenance release v1.3.0 ships README/CHANGELOG starters and changelog reminders.
+> Active milestone: **M8 — Automation engine** (RFC-0007, ADR-0023). M7 shipped in v1.2.0; maintenance release v1.3.0 ships README/CHANGELOG starters and changelog reminders.
 
 | Milestone                        | Outcome                                                                                  | Target   | Status  |
 |----------------------------------|------------------------------------------------------------------------------------------|----------|---------|
@@ -13,6 +13,7 @@
 | M5 — v1.0.0 readiness | Generated four-profile downstream validation, manual external-link workflow, stable SemVer docs | v1.0.0 | shipped |
 | M6 — Adoption assistant + AI continuity | `standards doctor`, public `new-skill`, command discovery, optional knowledge-lane templates, and standard AI continuity commands | v1.1.0 | shipped |
 | M7 — Documentation profile | First-class profile for documentation/spec repos linked to implementation elsewhere | v1.2.0 | shipped |
+| M8 — Automation engine | Block-once Stop hooks, per-repo drift rules, a commit-type changelog rule, and a CI drift check | v1.4.0 | active |
 
 ### Shipped slices (M1 — Foundation)
 
