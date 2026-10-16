@@ -48,7 +48,7 @@ last_updated_by: claude
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| RFC-0007 automation engine (enforce-once Stop hooks, drift map, CI backstop) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; spike verified on Claude Code and Codex; Copilot manual tests, then ADR-0023 |
+| M8 automation engine (RFC-0007 concluded, ADR-0023) | docs/rfc-0007-automation-engine | Josh Swanson | building: drift core done; next the block-once Stop hook, then the CI drift check |
 | RFC-0008 distribution (pip CLI for repo content + plugin for skills and hooks) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; cloud-agent and Codex checks, then ADR-0024 |
 | RFC-0009 setup wizard + combinable profiles | docs/rfc-0007-automation-engine | Josh Swanson | draft; prototype ready for the owner to try, then ADR-0025 |
 | RFC-0010 retrospectives (`standard-retro` skill) | docs/rfc-0007-automation-engine | Josh Swanson | draft; build after RFC-0007 to RFC-0009, then ADR-0026 |
