@@ -12,6 +12,12 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - The kit now lints and type-checks its own code: `ruff` and `mypy` config in
   `pyproject.toml`, a `dev` optional-dependency group, and a lint/type-check job
   in the (non-shipped) `kit-guards.yml` workflow. Runtime stays zero-dependency.
+- `scripts/drift/drift.py` reports which docs have fallen behind the changes that
+  should move them (ADR-0023). Default rules live in code, and a repo can add or
+  override them under a `drift` key in `.standards-kit.json`. The changelog rule
+  judges commits by conventional-commit type, and a `Docs-Unaffected:` commit
+  trailer waives a commit. It only reports for now; the block-once Stop hook and
+  the CI check build on it.
 
 ### Changed
 - Reused the manifest's managed-file list in `standards doctor` and removed an
