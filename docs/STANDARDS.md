@@ -309,9 +309,13 @@ ADR-0023). It finds docs that are behind the changes that should update them,
 such as a `feat` commit with no changelog entry. In `enforce` mode it blocks the
 agent once, naming each doc and the commits behind it; the next stop goes
 through, so the agent either updates the doc or says why it is unaffected. In
-`advise` mode it only prints a reminder. Hooks never write files, and never block
-when their input, their config, or git history can't be read; the agent makes the
-update.
+`advise` mode it only prints a reminder. Hooks never write to the repo, and never
+block when their input, their config, or git history can't be read; the agent
+makes the update. On CI runners (`GITHUB_ACTIONS=true`, such as the Copilot cloud
+agent) the hook blocks at most once per session. The cloud agent's engine
+reprompts the same session to write the PR description, and a block there would
+replace it. The hook records the block in `RUNNER_TEMP`; if it can't, it doesn't
+block, and the CI drift check covers what's left.
 
 Set the mode with `hook_mode` (`"enforce"` or `"advise"`) in `.standards-kit.json`.
 New adoptions start with `enforce`; a marker without `hook_mode` advises. The

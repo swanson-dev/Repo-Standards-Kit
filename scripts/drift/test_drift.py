@@ -1,12 +1,16 @@
 """Tests for scripts/drift/drift.py (ADR-0023 drift detection)."""
 from __future__ import annotations
 
+import contextlib
+import io
 import json
+import os
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -293,15 +297,18 @@ class PullRequestRangeTests(unittest.TestCase):
                 drift.find_drift(root, base="no-such-branch")
 
 
-def run_hook(cwd: Path, stdin: str) -> subprocess.CompletedProcess:
+def run_hook(cwd: Path, stdin: str, env: dict | None = None) -> subprocess.CompletedProcess:
     # Hosts send UTF-8 JSON, unescaped, whatever the Windows code page is.
+    # Drop GITHUB_ACTIONS so the suite behaves the same locally and in CI.
+    base = {k: v for k, v in os.environ.items() if k != "GITHUB_ACTIONS"}
     return subprocess.run([sys.executable, str(SCRIPT), "--hook"], cwd=cwd, input=stdin,
-                          capture_output=True, encoding="utf-8", errors="replace")
+                          capture_output=True, encoding="utf-8", errors="replace",
+                          env={**base, **(env or {})})
 
 
-def stop_input(root: Path, active: bool = False) -> str:
-    return json.dumps({"hook_event_name": "Stop", "cwd": str(root), "stop_hook_active": active},
-                      ensure_ascii=False)
+def stop_input(root: Path, active: bool = False, session: str = "s1") -> str:
+    return json.dumps({"hook_event_name": "Stop", "cwd": str(root), "stop_hook_active": active,
+                       "session_id": session}, ensure_ascii=False)
 
 
 def drifting_repo(d: str) -> Path:
@@ -399,6 +406,70 @@ class HookTests(unittest.TestCase):
             result = run_hook(root, stop_input(root))
             self.assertEqual((result.returncode, result.stdout), (0, ""))
             self.assertIn("CHANGELOG.md", result.stderr)
+
+    def test_local_hosts_block_again_on_a_new_turn(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            for _ in range(2):
+                self.assertEqual(json.loads(run_hook(root, stop_input(root)).stdout)["decision"], "block")
+
+
+class CiRunnerHookTests(unittest.TestCase):
+    """On CI runners (the Copilot cloud agent) the engine reprompts the same session for
+    the PR description, and a block there replaces it, so block once per session."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.env = {"GITHUB_ACTIONS": "true", "RUNNER_TEMP": self.tmp.name}
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def stop(self, root: Path, session: str = "s1") -> subprocess.CompletedProcess:
+        return run_hook(root, stop_input(root, session=session), self.env)
+
+    def test_blocks_only_once_per_session(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            self.assertEqual(json.loads(self.stop(root).stdout)["decision"], "block")
+            later = self.stop(root)  # the engine's PR-description turn
+            self.assertEqual((later.returncode, later.stdout), (0, ""))
+
+    def test_each_session_gets_its_own_block(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            self.stop(root, session="s1")
+            self.assertEqual(json.loads(self.stop(root, session="s2").stdout)["decision"], "block")
+
+    def test_a_stop_with_nothing_behind_does_not_use_up_the_block(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            self.assertEqual(self.stop(root).stdout, "")
+            write_commit(root, "src/a.py", "feat: add a")
+            self.assertEqual(json.loads(self.stop(root).stdout)["decision"], "block")
+
+    def test_hostile_session_id_stays_inside_runner_temp(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            self.assertEqual(json.loads(self.stop(root, session="../../escape").stdout)["decision"], "block")
+            self.assertEqual([p.parent for p in Path(self.tmp.name).iterdir()], [Path(self.tmp.name)])
+            self.assertFalse((Path(self.tmp.name).parent.parent / "escape").exists())
+
+    def test_cannot_record_the_block_so_does_not_block(self):
+        # Blocking without a record would block again on every later turn.
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            self.env["RUNNER_TEMP"] = str(Path(self.tmp.name) / "missing")
+            result = self.stop(root)
+            self.assertEqual((result.returncode, result.stdout), (0, ""))
+            self.assertIn("not blocking", result.stderr)
+
+    def test_no_usable_temp_folder_does_not_block_or_crash(self):
+        with mock.patch.dict(os.environ, {"GITHUB_ACTIONS": "true"}), \
+                mock.patch("drift.tempfile.gettempdir", side_effect=FileNotFoundError("no temp")), \
+                contextlib.redirect_stderr(io.StringIO()):
+            os.environ.pop("RUNNER_TEMP", None)
+            self.assertTrue(drift.ci_block_used({"session_id": "s1"}))
 
 
 if __name__ == "__main__":

@@ -19,9 +19,12 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
   trailer waives a commit.
 - A Stop hook (`python scripts/drift/drift.py --hook`) acts on that report. In
   `enforce` mode it blocks the agent once, naming the docs that are behind, with
-  top-level `decision`/`reason` JSON that Claude Code and Codex both accept; the
-  next stop goes through. In `advise` mode it only prints a reminder, and it never
-  blocks when its input, its config, or git history can't be read. New adoptions
+  top-level `decision`/`reason` JSON that Claude Code, Codex, and Copilot (VS
+  Code, the CLI, and the cloud agent) all accept; the next stop goes through. On
+  CI runners such as the Copilot cloud agent it blocks at most once per session,
+  because that agent's engine reprompts the session for the PR description and a
+  block there failed the job. In `advise` mode it only prints a reminder, and it
+  never blocks when its input, its config, or git history can't be read. New adoptions
   write `hook_mode: "enforce"` to
   `.standards-kit.json`; existing adopters keep advising until they set it.
   `scripts/drift` now ships in the payload.

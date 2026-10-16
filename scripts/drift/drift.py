@@ -17,15 +17,18 @@ Usage:
 
 As a Stop hook it blocks once in `enforce` mode, printing top-level
 {"decision": "block", "reason": ...}, and lets the next stop through
-(`stop_hook_active`). In `advise` mode it only prints a reminder. It never
-fails closed: if git can't be read, it says why on stderr and lets the turn end.
+(`stop_hook_active`). On CI runners (the Copilot cloud agent) it blocks at most
+once per session. In `advise` mode it only prints a reminder. It never fails
+closed: if git can't be read, it says why on stderr and lets the turn end.
 """
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass, field
 from functools import cache
 from pathlib import Path
@@ -249,6 +252,24 @@ def block_reason(found: dict[str, list[str]]) -> str:
     return "\n".join(lines)
 
 
+def ci_block_used(payload: dict) -> bool:
+    """On CI runners the Copilot cloud agent reprompts the same session for the PR
+    description, each reprompt a new turn, and a block there replaces the description
+    and fails the job. So a session blocks once; the CI drift check covers the rest."""
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        return False
+    session = re.sub(r"[^A-Za-z0-9-]", "", str(payload.get("session_id", ""))) or "unknown"
+    try:
+        folder = os.environ.get("RUNNER_TEMP") or tempfile.gettempdir()
+        (Path(folder) / f"standards-drift-{session}").touch(exist_ok=False)
+    except FileExistsError:
+        return True
+    except OSError as exc:  # blocking without a record would block on every later turn
+        print(f"drift: can't record the block, so not blocking: {exc}", file=sys.stderr)
+        return True
+    return False
+
+
 def run_hook(stdin_text: str, fallback: Path) -> int:
     try:
         payload = json.loads(stdin_text)
@@ -272,6 +293,8 @@ def run_hook(stdin_text: str, fallback: Path) -> int:
     if not found:
         return 0
     if mode == "enforce":
+        if ci_block_used(payload):
+            return 0
         print(json.dumps({"decision": "block", "reason": block_reason(found)}))
     else:
         print(block_reason(found), file=sys.stderr)
