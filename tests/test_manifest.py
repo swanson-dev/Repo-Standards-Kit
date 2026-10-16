@@ -85,6 +85,26 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn(".claude/settings.json", rels(["copilot"]))
         self.assertIn(".claude/skills/standards-check/SKILL.md", rels(["copilot"]))
 
+    def test_iter_payload_skips_machine_local_claude_files(self):
+        import tempfile
+
+        from standards.manifest import iter_payload
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in (
+                ".claude/settings.json",
+                ".claude/skills/standards-check/SKILL.md",
+                ".claude/settings.local.json",
+                ".claude/worktrees/wt/AGENTS.md",
+            ):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                (root / rel).write_text("x\n", encoding="utf-8")
+            rels = {rel for _full, rel in iter_payload(root)}
+        self.assertIn(".claude/settings.json", rels)
+        self.assertIn(".claude/skills/standards-check/SKILL.md", rels)
+        self.assertNotIn(".claude/settings.local.json", rels)
+        self.assertFalse(any(r.startswith(".claude/worktrees/") for r in rels))
+
     def test_partial_files_classified_partial(self):
         from standards.manifest import PARTIAL_FILES, classify
         self.assertIn("AGENTS.md", PARTIAL_FILES)

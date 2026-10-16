@@ -71,6 +71,11 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - `standards update` now keeps adopter-owned keys in `.standards-kit.json`, such
   as the `check` severity map. It used to rewrite the marker with only the kit's
   own fields, silently resetting escalated checks back to warnings.
+- The payload now ships only `.claude/settings.json` and `.claude/skills/`
+  instead of all of `.claude/`. Run from a source checkout, `standards init`,
+  `adopt`, and `update` copied machine-local files into adopters, such as
+  `.claude/settings.local.json` and whole worktree checkouts under
+  `.claude/worktrees/`, and a wheel built from such a checkout bundled them.
 
 ### Removed
 - Removed the legacy `update-handoff` Claude/Copilot command aliases and the

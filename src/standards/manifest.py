@@ -27,7 +27,9 @@ PAYLOAD_DIRS: tuple[str, ...] = (
     "scripts/standards-check",
     "scripts/update-handoff",
     ".github/prompts",
-    ".claude",
+    # Not all of .claude: it also holds machine-local files (settings.local.json,
+    # worktrees/) that must never reach adopters.
+    ".claude/skills",
 )
 
 # Individual payload files (relative to payload root).
@@ -38,6 +40,7 @@ PAYLOAD_FILES: tuple[str, ...] = (
     ".github/pull_request_template.md",
     "AGENTS.md",
     "CLAUDE.md",
+    ".claude/settings.json",
     ".github/hooks/standards.json",
 )
 

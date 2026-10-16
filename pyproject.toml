@@ -56,7 +56,8 @@ packages = ["src/standards"]
 ".github/prompts" = "standards/_payload/.github/prompts"
 ".github/copilot-instructions.md" = "standards/_payload/.github/copilot-instructions.md"
 ".github/pull_request_template.md" = "standards/_payload/.github/pull_request_template.md"
-".claude" = "standards/_payload/.claude"
+".claude/settings.json" = "standards/_payload/.claude/settings.json"
+".claude/skills" = "standards/_payload/.claude/skills"
 "AGENTS.md" = "standards/_payload/AGENTS.md"
 "CLAUDE.md" = "standards/_payload/CLAUDE.md"
 
