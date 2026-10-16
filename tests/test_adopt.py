@@ -27,6 +27,12 @@ def _seed_repo(target: Path) -> None:
 
 
 class AdoptTests(unittest.TestCase):
+    def test_adopt_enforces_the_stop_hook(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            run_adopt(target, profile="library", adopted=date.today().isoformat())
+            self.assertEqual(read_marker(target)["hook_mode"], "enforce")
+
     def test_adopt_blank_repo_is_check_clean(self):
         import check as check_mod
         with tempfile.TemporaryDirectory() as d:

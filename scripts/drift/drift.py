@@ -12,9 +12,13 @@ If git history can't be read, or the clone is shallow, detection raises
 DriftError instead of reporting that nothing is behind.
 
 Usage:
-  python scripts/drift/drift.py [repo]
+  python scripts/drift/drift.py [repo]   report which docs are behind
+  python scripts/drift/drift.py --hook   Stop hook; reads the hook's JSON on stdin
 
-This slice only reports. The block-once Stop hook and the CI mode build on it.
+As a Stop hook it blocks once in `enforce` mode, printing top-level
+{"decision": "block", "reason": ...}, and lets the next stop through
+(`stop_hook_active`). In `advise` mode it only prints a reminder. It never
+fails closed: if git can't be read, it says why on stderr and lets the turn end.
 """
 from __future__ import annotations
 
@@ -116,11 +120,22 @@ def rule_drift(rule: dict, commits: list[Commit], uncommitted: list[str],
     return reasons
 
 
+def valid_rule(rule: object) -> bool:
+    if not isinstance(rule, dict) or not isinstance(rule.get("update"), str):
+        return False
+    lists = [rule.get(key, []) for key in ("when", "when_commits")]
+    return all(isinstance(v, list) and all(isinstance(s, str) for s in v) for v in lists)
+
+
 def load_rules(marker: dict | None) -> list[dict]:
-    """Defaults, with the marker's `drift` rules replacing same-doc defaults or adding new ones."""
+    """Defaults, with the marker's `drift` rules replacing same-doc defaults or adding new ones.
+
+    Malformed marker rules are ignored, so a typo can't break or disable the defaults.
+    """
     rules = {r["update"]: r for r in DEFAULT_RULES}
-    for rule in (marker or {}).get("drift", []):
-        if isinstance(rule, dict) and isinstance(rule.get("update"), str):
+    extra = (marker or {}).get("drift")
+    for rule in extra if isinstance(extra, list) else []:
+        if valid_rule(rule):
             rules[rule["update"]] = rule
     return list(rules.values())
 
@@ -201,7 +216,58 @@ def find_drift(root: Path, waivers: list[str] | tuple = ()) -> dict[str, list[st
     return out
 
 
+def hook_mode(root: Path) -> str:
+    """Only `standards init`/`adopt` write a marker, so no marker means the kit's own
+    repo, which enforces. Adopters without `hook_mode` predate ADR-0023 and advise."""
+    if not (root / MARKER).exists():
+        return "enforce"
+    mode = (read_marker(root) or {}).get("hook_mode", "advise")
+    return mode if mode in ("advise", "enforce") else "advise"
+
+
+def block_reason(found: dict[str, list[str]]) -> str:
+    lines = ["Not done yet: these docs are behind the changes that should update them."]
+    lines += [f"- {doc}: " + "; ".join(reasons) for doc, reasons in found.items()]
+    lines.append("Update each doc now, or reply in one line why it is unaffected and add a "
+                 "`Docs-Unaffected: doc-name (reason)` trailer when you commit.")
+    return "\n".join(lines)
+
+
+def run_hook(stdin_text: str, fallback: Path) -> int:
+    try:
+        payload = json.loads(stdin_text)
+    except ValueError:
+        payload = None
+    if not isinstance(payload, dict):
+        # Without readable input there's no stop_hook_active guard, so blocking could loop.
+        print("drift: unreadable hook input, so not blocking", file=sys.stderr)
+        return 0
+    if payload.get("stop_hook_active"):
+        return 0  # the agent already had its chance this turn
+    cwd = payload.get("cwd")
+    start = Path(cwd) if isinstance(cwd, str) and cwd else fallback
+    try:
+        root = Path(git(start, "rev-parse", "--show-toplevel").strip())
+        found = find_drift(root)
+        mode = hook_mode(root)
+    except Exception as exc:  # a hook must never fail closed
+        print(f"drift: can't check, so not blocking: {exc}", file=sys.stderr)
+        return 0
+    if not found:
+        return 0
+    if mode == "enforce":
+        print(json.dumps({"decision": "block", "reason": block_reason(found)}))
+    else:
+        print(block_reason(found), file=sys.stderr)
+    return 0
+
+
 def main(argv: list[str]) -> int:
+    for stream in (sys.stdout, sys.stderr):  # hosts and pipes read UTF-8
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+    if "--hook" in argv[1:]:
+        return run_hook(sys.stdin.buffer.read().decode("utf-8", errors="replace"), Path.cwd())
     start = Path(argv[1]) if len(argv) > 1 else Path.cwd()
     try:
         top = git(start, "rev-parse", "--show-toplevel").strip()

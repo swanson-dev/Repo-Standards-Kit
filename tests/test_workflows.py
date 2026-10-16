@@ -30,7 +30,9 @@ class WorkflowTests(unittest.TestCase):
 
         self.assertEqual(session_start, "python scripts/session-context/session_context.py --hook")
         self.assertIn("python scripts/update-handoff/update_handoff.py --check", stop)
-        self.assertIn("python scripts/changelog/check_changelog.py --check", stop)
+        self.assertIn("python scripts/drift/drift.py --hook", stop)
+        # The drift hook covers the changelog; a second changelog reminder would just repeat it.
+        self.assertNotIn("python scripts/changelog/check_changelog.py --check", stop)
         self.assertNotIn("compact-snapshot", session_start)
         self.assertNotIn("--force", session_start)
 

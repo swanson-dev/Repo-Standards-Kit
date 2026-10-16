@@ -50,6 +50,7 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("docs/templates/guide-template.md", rels)
         self.assertIn("scripts/_doc_lib/helpers.py", rels)
         self.assertIn("scripts/session-context/session_context.py", rels)
+        self.assertIn("scripts/drift/drift.py", rels)
         self.assertIn("docs/STANDARDS.md", rels)
         self.assertIn("scripts/standards-check/check.py", rels)
         self.assertNotIn("docs/discovery/captured/README.md", rels)

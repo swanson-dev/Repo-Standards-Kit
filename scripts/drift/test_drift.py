@@ -12,6 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import drift  # noqa: E402
 
+SCRIPT = Path(__file__).resolve().parent / "drift.py"
 CHANGELOG_RULE = {"update": "CHANGELOG.md", "when_commits": ["feat", "fix", "perf", "revert", "!"],
                   "when": ["src/**", "scripts/**"]}
 DEPLOY_RULE = {"update": "docs/09-deployment.md", "when": [".github/workflows/**", "Dockerfile"]}
@@ -125,6 +126,13 @@ class LoadRulesTests(unittest.TestCase):
         marker = {"drift": [{"update": "docs/runbook.md", "when": ["ops/**"]}]}
         self.assertIn("docs/runbook.md", [r["update"] for r in drift.load_rules(marker)])
 
+    def test_malformed_marker_rules_are_ignored(self):
+        defaults = drift.load_rules(None)
+        self.assertEqual(drift.load_rules({"drift": None}), defaults)
+        bad = {"drift": [{"update": "CHANGELOG.md", "when": "src/**"},
+                         {"update": "docs/x.md", "when_commits": "feat"}]}
+        self.assertEqual(drift.load_rules(bad), defaults)
+
 
 class FindDriftTests(unittest.TestCase):
     def test_feat_after_changelog_is_drift_until_changelog_updated(self):
@@ -198,6 +206,114 @@ class FindDriftTests(unittest.TestCase):
             self.assertEqual(drift.find_drift(root), {"CHANGELOG.md": ["uncommitted: src/old.py"]})
             git(root, "commit", "-q", "-m", "Move module")
             self.assertEqual(drift.find_drift(root), {"CHANGELOG.md": ["Move module"]})
+
+
+def run_hook(cwd: Path, stdin: str) -> subprocess.CompletedProcess:
+    # Hosts send UTF-8 JSON, unescaped, whatever the Windows code page is.
+    return subprocess.run([sys.executable, str(SCRIPT), "--hook"], cwd=cwd, input=stdin,
+                          capture_output=True, encoding="utf-8", errors="replace")
+
+
+def stop_input(root: Path, active: bool = False) -> str:
+    return json.dumps({"hook_event_name": "Stop", "cwd": str(root), "stop_hook_active": active},
+                      ensure_ascii=False)
+
+
+def drifting_repo(d: str) -> Path:
+    root = make_repo(d)
+    write_commit(root, "src/a.py", "feat: add a")
+    return root
+
+
+def set_marker(root: Path, data: dict) -> None:
+    (root / ".standards-kit.json").write_text(json.dumps(data), encoding="utf-8")
+
+
+class HookTests(unittest.TestCase):
+    def test_kit_repo_without_a_marker_blocks_once(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            result = run_hook(root, stop_input(root))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            out = json.loads(result.stdout)
+            # Top-level fields only: Codex rejects unknown keys and drops the block.
+            self.assertEqual(set(out), {"decision", "reason"})
+            self.assertEqual(out["decision"], "block")
+            self.assertIn("CHANGELOG.md", out["reason"])
+            self.assertIn("feat: add a", out["reason"])
+
+    def test_second_stop_is_allowed(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            result = run_hook(root, stop_input(root, active=True))
+            self.assertEqual((result.returncode, result.stdout), (0, ""))
+
+    def test_existing_adopters_default_to_advise(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            set_marker(root, {"kit_version": "1.3.0", "profile": "library"})
+            result = run_hook(root, stop_input(root))
+            self.assertEqual((result.returncode, result.stdout), (0, ""))
+            self.assertIn("CHANGELOG.md", result.stderr)
+
+    def test_adopters_can_opt_into_enforce(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            set_marker(root, {"hook_mode": "enforce"})
+            result = run_hook(root, stop_input(root))
+            self.assertEqual(json.loads(result.stdout)["decision"], "block")
+
+    def test_nothing_behind_lets_the_turn_end(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            result = run_hook(root, stop_input(root))
+            self.assertEqual((result.returncode, result.stdout), (0, ""))
+
+    def test_git_errors_fail_open(self):
+        with tempfile.TemporaryDirectory() as d:
+            result = run_hook(Path(d), stop_input(Path(d)))
+            self.assertEqual((result.returncode, result.stdout), (0, ""))
+            self.assertIn("can't check", result.stderr)
+
+    def test_reads_the_repo_from_hook_input(self):
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as elsewhere:
+            root = drifting_repo(d)
+            result = run_hook(Path(elsewhere), stop_input(root))
+            self.assertEqual(json.loads(result.stdout)["decision"], "block")
+
+    def test_unreadable_hook_input_never_blocks(self):
+        # Without readable input there's no stop_hook_active guard, so blocking could loop.
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            for stdin in ("not json", "[1, 2]", ""):
+                with self.subTest(stdin=stdin):
+                    result = run_hook(root, stdin)
+                    self.assertEqual((result.returncode, result.stdout), (0, ""))
+
+    def test_bad_drift_config_never_breaks_the_hook(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = drifting_repo(d)
+            set_marker(root, {"hook_mode": "enforce", "drift": None})
+            result = run_hook(root, stop_input(root))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout)["decision"], "block")  # defaults still apply
+
+    def test_non_ascii_repo_path_in_hook_input(self):
+        with tempfile.TemporaryDirectory() as d:
+            folder = Path(d) / "dépôt-漢字"
+            folder.mkdir()
+            root = drifting_repo(str(folder))
+            result = run_hook(Path(d), stop_input(root))
+            self.assertEqual(json.loads(result.stdout)["decision"], "block")
+
+    def test_advisory_output_survives_non_ascii_subjects(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            write_commit(root, "src/a.py", "feat: 漢字の機能")
+            set_marker(root, {"profile": "library"})
+            result = run_hook(root, stop_input(root))
+            self.assertEqual((result.returncode, result.stdout), (0, ""))
+            self.assertIn("CHANGELOG.md", result.stderr)
 
 
 if __name__ == "__main__":

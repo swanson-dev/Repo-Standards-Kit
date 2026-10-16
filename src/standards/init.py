@@ -22,6 +22,9 @@ ADOPT_REPORT_KEYS = ("added", "unchanged", "spliced", "conflicts", "scaffolded")
 
 PROFILE_PLACEHOLDER = "<application | library | infra | data | documentation>"
 ROOT_STARTER_DESTS = frozenset({"README.md", "CHANGELOG.md"})
+# ADR-0023: new adoptions enforce the drift Stop hook. Markers written before it
+# have no `hook_mode`, so existing adopters keep advising until they opt in.
+NEW_ADOPTION_KEYS: dict[str, object] = {"hook_mode": "enforce"}
 
 _LEADING_COMMENT_RE = re.compile(r"\A\s*<!--.*?-->\s*", re.DOTALL)
 
@@ -188,7 +191,8 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
     _seed_scaffold_once(target, src_root, profile=profile, adopted=adopted)
 
     return write_marker(target, kit_version=__version__, profile=profile,
-                        adopted=adopted, tracked=tracked, managed=managed)
+                        adopted=adopted, tracked=tracked, managed=managed,
+                        keep=NEW_ADOPTION_KEYS)
 
 
 def run_adopt(target: Path, *, profile: str, adopted: str) -> dict[str, list[str]]:
@@ -271,5 +275,6 @@ def run_adopt(target: Path, *, profile: str, adopted: str) -> dict[str, list[str
                                                adopted=adopted)
 
     write_marker(target, kit_version=__version__, profile=profile,
-                 adopted=adopted, tracked=tracked, managed=managed)
+                 adopted=adopted, tracked=tracked, managed=managed,
+                 keep=NEW_ADOPTION_KEYS)
     return report

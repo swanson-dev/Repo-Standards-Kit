@@ -304,9 +304,22 @@ start and must not mutate files. Compact snapshots and handoff refreshes are
 explicit command/manual actions that write `ai/handoff.md`; they are not automatic
 SessionStart behavior.
 
-Stop hooks may also run advisory checks such as changelog reminders. These
-checks should exit successfully and print guidance instead of mutating files or
-blocking the session; explicit skill or slash-command surfaces handle the write.
+Stop hooks may run the drift check (`python scripts/drift/drift.py --hook`,
+ADR-0023). It finds docs that are behind the changes that should update them,
+such as a `feat` commit with no changelog entry. In `enforce` mode it blocks the
+agent once, naming each doc and the commits behind it; the next stop goes
+through, so the agent either updates the doc or says why it is unaffected. In
+`advise` mode it only prints a reminder. Hooks never write files, and never block
+when their input, their config, or git history can't be read; the agent makes the
+update.
+
+Set the mode with `hook_mode` (`"enforce"` or `"advise"`) in `.standards-kit.json`.
+New adoptions start with `enforce`; a marker without `hook_mode` advises. The
+default drift rules cover `CHANGELOG.md`, `docs/09-deployment.md`, and
+`docs/04-api-and-integrations.md`, each only when the repo keeps that doc; add or
+override rules under a `drift` key in the same file. A `Docs-Unaffected:` commit
+trailer, such as `Docs-Unaffected: deployment (renamed a job)`, waives a commit.
+Codex runs a repo's hooks only after you trust the repo and review its hooks.
 
 ## Waiver mechanism
 

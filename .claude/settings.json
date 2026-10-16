@@ -21,7 +21,7 @@
           },
           {
             "type": "command",
-            "command": "python scripts/changelog/check_changelog.py --check"
+            "command": "python scripts/drift/drift.py --hook"
           }
         ]
       }

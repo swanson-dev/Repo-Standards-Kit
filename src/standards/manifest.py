@@ -22,6 +22,7 @@ PAYLOAD_DIRS: tuple[str, ...] = (
     "scripts/_doc_lib",
     "scripts/new-doc",
     "scripts/changelog",
+    "scripts/drift",
     "scripts/session-context",
     "scripts/standards-check",
     "scripts/update-handoff",

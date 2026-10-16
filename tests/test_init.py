@@ -11,6 +11,13 @@ class InitTests(unittest.TestCase):
         from standards.init import run_init
         return run_init(target, **kw)
 
+    def test_new_adoption_enforces_the_stop_hook(self):
+        from standards.marker import read_marker
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="library", adopted="2026-05-29")
+            self.assertEqual(read_marker(target)["hook_mode"], "enforce")
+
     def test_copies_tracked_and_writes_marker(self):
         from standards.marker import read_marker
         with tempfile.TemporaryDirectory() as d:

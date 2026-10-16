@@ -16,10 +16,20 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
   should move them (ADR-0023). Default rules live in code, and a repo can add or
   override them under a `drift` key in `.standards-kit.json`. The changelog rule
   judges commits by conventional-commit type, and a `Docs-Unaffected:` commit
-  trailer waives a commit. It only reports for now; the block-once Stop hook and
-  the CI check build on it.
+  trailer waives a commit.
+- A Stop hook (`python scripts/drift/drift.py --hook`) acts on that report. In
+  `enforce` mode it blocks the agent once, naming the docs that are behind, with
+  top-level `decision`/`reason` JSON that Claude Code and Codex both accept; the
+  next stop goes through. In `advise` mode it only prints a reminder, and it never
+  blocks when its input, its config, or git history can't be read. New adoptions
+  write `hook_mode: "enforce"` to
+  `.standards-kit.json`; existing adopters keep advising until they set it.
+  `scripts/drift` now ships in the payload.
 
 ### Changed
+- The Claude Code Stop hook now runs the drift check instead of
+  `scripts/changelog/check_changelog.py --check`; the drift check's changelog
+  rule covers what that reminder did.
 - Reused the manifest's managed-file list in `standards doctor` and removed an
   empty readiness-fixture hook from the v1 gate.
 - `write_marker` now returns the marker dict it wrote, so `run_init` returns it
