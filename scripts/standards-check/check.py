@@ -17,6 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from checks import (  # noqa: E402
     Context,  # noqa: E402
     content,
+    doc_drift,
     external_links,
     links,
     skills,
@@ -26,7 +27,7 @@ from checks import (  # noqa: E402
 # Re-exported so the unchanged test_check.py keeps importing it from `check`.
 from checks.structural import parse_frontmatter  # noqa: E402,F401
 
-CHECKS = [structural.run, links.run, content.run, skills.run, external_links.run]
+CHECKS = [structural.run, links.run, content.run, skills.run, external_links.run, doc_drift.run]
 
 
 def find_repo_root(start: Path) -> Path:
@@ -36,7 +37,8 @@ def find_repo_root(start: Path) -> Path:
     raise SystemExit("Could not locate repo root (no docs/STANDARDS.md above this script).")
 
 
-def build_context(root: Path, external_links: bool = False, freshness_report: bool = False) -> Context:
+def build_context(root: Path, external_links: bool = False, freshness_report: bool = False,
+                  drift_base: str | None = None) -> Context:
     """Detect adopter mode + parse the optional severity-override map.
 
     Kit repos have no .standards-kit.json (only `standards init` writes one), so
@@ -50,6 +52,7 @@ def build_context(root: Path, external_links: bool = False, freshness_report: bo
             overrides={},
             external_links=external_links,
             freshness_report=freshness_report,
+            drift_base=drift_base,
         )
     overrides = {}
     try:
@@ -65,6 +68,7 @@ def build_context(root: Path, external_links: bool = False, freshness_report: bo
         overrides=overrides,
         external_links=external_links,
         freshness_report=freshness_report,
+        drift_base=drift_base,
     )
 
 
@@ -94,6 +98,11 @@ def main(argv: list | None = None) -> int:
         action="store_true",
         help="Print ai/ freshness status for current-state, next-actions, and handoff.",
     )
+    parser.add_argument(
+        "--drift-base",
+        metavar="REF",
+        help="Opt in to the pull-request drift check against this base ref (e.g. origin/main).",
+    )
     parsed = parser.parse_args(args)
     # Optional target: detect the repo root by walking up from it. Absent, keep
     # the historical behavior (walk up from this script) so the vendored
@@ -104,6 +113,7 @@ def main(argv: list | None = None) -> int:
         root,
         external_links=parsed.external_links,
         freshness_report=parsed.freshness_report,
+        drift_base=parsed.drift_base,
     )
     findings = run_checks(root, ctx)
     errors = [f for f in findings if f.severity == "error"]

@@ -321,6 +321,17 @@ override rules under a `drift` key in the same file. A `Docs-Unaffected:` commit
 trailer, such as `Docs-Unaffected: deployment (renamed a job)`, waives a commit.
 Codex runs a repo's hooks only after you trust the repo and review its hooks.
 
+CI applies the same rules to every pull request: `repo-standards.yml` runs
+`python scripts/standards-check/check.py --drift-base origin/main` (or `standards
+check --drift-base origin/main` locally), with the PR's target in place of `main`.
+Only the PR's own commits count, so drift already on the base branch isn't blamed
+on the PR. A `Docs-Unaffected:` line in the PR description waives a doc for the
+whole PR, which also survives a squash merge, and editing the description re-runs
+the check. It needs full history (`fetch-depth: 0`); a shallow clone or an unknown
+base is always an error, never a pass. Drift itself is an error
+in the kit and a warning by default in adopter repos; set
+`"check": {"drift": "error"}` in `.standards-kit.json` to make it fail the build.
+
 ## Waiver mechanism
 
 A waiver records an explicit, justified absence of a Required or Expected doc.

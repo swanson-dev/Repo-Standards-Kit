@@ -112,7 +112,8 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
         description="Run the standards check against a repo.",
         epilog="""Examples:
   standards check .
-  standards check C:\\path\\to\\repo""",
+  standards check C:\\path\\to\\repo
+  standards check --drift-base origin/main .""",
         **_parser_kwargs(),
     )
     p_check.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
@@ -125,6 +126,11 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
         "--freshness-report",
         action="store_true",
         help="Print ai/ freshness status for current-state, next-actions, and handoff.",
+    )
+    p_check.add_argument(
+        "--drift-base",
+        metavar="REF",
+        help="Opt in to the pull-request drift check against this base ref (e.g. origin/main).",
     )
     parsers["check"] = p_check
 
@@ -266,6 +272,8 @@ def main(argv: list[str] | None = None) -> int:
             cmd.append("--external-links")
         if args.freshness_report:
             cmd.append("--freshness-report")
+        if args.drift_base:
+            cmd += ["--drift-base", args.drift_base]
         cmd.append(str(args.target))
         return subprocess.run(cmd).returncode
 

@@ -208,6 +208,91 @@ class FindDriftTests(unittest.TestCase):
             self.assertEqual(drift.find_drift(root), {"CHANGELOG.md": ["Move module"]})
 
 
+def branch_off(root: Path) -> str:
+    """Start a `pr` branch and return the name of the branch it came from."""
+    base = subprocess.run(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=root,
+                          capture_output=True, text=True, check=True).stdout.strip()
+    git(root, "checkout", "-q", "-b", "pr")
+    return base
+
+
+class PullRequestRangeTests(unittest.TestCase):
+    def test_ignores_drift_already_on_the_base_branch(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            write_commit(root, "src/old.py", "feat: old change with no entry")
+            base = branch_off(root)
+            write_commit(root, "docs/x.md", "docs: tweak")
+            self.assertEqual(drift.find_drift(root),
+                             {"CHANGELOG.md": ["feat: old change with no entry"]})
+            self.assertEqual(drift.find_drift(root, base=base), {})
+
+    def test_counts_the_prs_own_commits(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            base = branch_off(root)
+            write_commit(root, "src/new.py", "feat: new")
+            self.assertEqual(drift.find_drift(root, base=base), {"CHANGELOG.md": ["feat: new"]})
+
+    def test_doc_updated_later_in_the_pr_is_current(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            base = branch_off(root)
+            write_commit(root, "src/new.py", "feat: new")
+            write_commit(root, "CHANGELOG.md", "docs: note new")
+            self.assertEqual(drift.find_drift(root, base=base), {})
+
+    def test_pr_description_waiver_covers_the_whole_pr(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            base = branch_off(root)
+            write_commit(root, "src/new.py", "feat: internal helper")
+            found = drift.find_drift(root, waivers=["changelog (internal only)"], base=base)
+            self.assertEqual(found, {})
+
+    def test_doc_update_still_counts_after_the_base_moves_on(self):
+        # GitHub checks out a synthetic merge of the PR into the latest base.
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            base = branch_off(root)
+            write_commit(root, "src/new.py", "feat: new")
+            write_commit(root, "CHANGELOG.md", "docs: note new")
+            git(root, "checkout", "-q", base)
+            write_commit(root, "docs/other.md", "docs: unrelated base change")
+            git(root, "checkout", "-q", "--detach", base)
+            git(root, "merge", "-q", "--no-ff", "pr", "-m", "Merge pr into base")
+            self.assertEqual(drift.find_drift(root, base=base), {})
+
+    def test_doc_update_still_counts_after_merging_the_base_in(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            base = branch_off(root)
+            write_commit(root, "src/new.py", "feat: new")
+            write_commit(root, "CHANGELOG.md", "docs: note new")
+            git(root, "checkout", "-q", base)
+            write_commit(root, "docs/other.md", "docs: unrelated base change")
+            git(root, "checkout", "-q", "pr")
+            git(root, "merge", "-q", "--no-ff", base, "-m", "Merge base into pr")
+            self.assertEqual(drift.find_drift(root, base=base), {})
+
+    def test_base_branch_doc_updates_dont_cover_the_prs_changes(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            base = branch_off(root)
+            write_commit(root, "src/new.py", "feat: new")
+            git(root, "checkout", "-q", base)
+            write_commit(root, "CHANGELOG.md", "docs: base changelog entry")
+            git(root, "checkout", "-q", "--detach", base)
+            git(root, "merge", "-q", "--no-ff", "pr", "-m", "Merge pr into base")
+            self.assertEqual(drift.find_drift(root, base=base), {"CHANGELOG.md": ["feat: new"]})
+
+    def test_unknown_base_is_an_error_not_a_pass(self):
+        with tempfile.TemporaryDirectory() as d:
+            root = make_repo(d)
+            with self.assertRaises(drift.DriftError):
+                drift.find_drift(root, base="no-such-branch")
+
+
 def run_hook(cwd: Path, stdin: str) -> subprocess.CompletedProcess:
     # Hosts send UTF-8 JSON, unescaped, whatever the Windows code page is.
     return subprocess.run([sys.executable, str(SCRIPT), "--hook"], cwd=cwd, input=stdin,

@@ -25,6 +25,15 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
   write `hook_mode: "enforce"` to
   `.standards-kit.json`; existing adopters keep advising until they set it.
   `scripts/drift` now ships in the payload.
+- A pull-request drift check: `standards check --drift-base origin/main` flags
+  docs that a PR's own commits left behind, ignoring drift already on the base
+  branch. A `Docs-Unaffected:` line in the PR description waives a doc for the
+  whole PR, and editing the description re-runs the check. `repo-standards.yml`
+  now checks out full history and runs it on pull requests, passing the PR
+  description through an environment variable. Drift is an error in the kit and a
+  warning by default for adopters (`"check": {"drift": "error"}` in
+  `.standards-kit.json` escalates it); history that can't be read is always an
+  error.
 
 ### Changed
 - The Claude Code Stop hook now runs the drift check instead of

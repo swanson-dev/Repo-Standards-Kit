@@ -140,9 +140,9 @@ def load_rules(marker: dict | None) -> list[dict]:
     return list(rules.values())
 
 
-def git(root: Path, *args: str) -> str:
+def git(root: Path, *args: str, stdin: str | None = None) -> str:
     try:
-        result = subprocess.run(["git", "-c", "core.quotePath=false", *args], cwd=root,
+        result = subprocess.run(["git", "-c", "core.quotePath=false", *args], cwd=root, input=stdin,
                                 capture_output=True, text=True, encoding="utf-8", errors="replace")
     except OSError as exc:
         raise DriftError(f"could not run git: {exc}") from exc
@@ -159,20 +159,28 @@ def has_commits(root: Path) -> bool:
     return True
 
 
-def last_touch(root: Path, doc: str) -> str | None:
-    return git(root, "log", "-1", "--format=%H", "--", doc).strip() or None
+def doc_updates(root: Path, doc: str, base_point: str | None) -> list[str]:
+    """Commits that updated `doc`, after the base when there is one. Merges don't count:
+    combining branches isn't a deliberate doc update."""
+    since = [f"^{base_point}"] if base_point else []
+    return git(root, "rev-list", "--full-history", "--no-merges", "HEAD", *since,
+               "--", doc).split()
 
 
-def commits_since(root: Path, sha: str | None) -> list[Commit]:
-    """Commits after `sha` up to HEAD, oldest first, with the paths each one changed.
+def uncovered_commits(root: Path, doc: str, base_point: str | None) -> list[Commit]:
+    """Commits no later update of `doc` covers, oldest first, with the paths each changed.
 
-    `--no-renames` keeps both sides of a move; `--cc` shows changes made in a
-    merge commit itself without repeating what the merged branch already did.
+    That is HEAD's history minus everything reachable from the base or from any
+    commit that updated the doc, so it holds up across merges in either direction.
+    `--no-renames` keeps both sides of a move; `--cc` shows changes made in a merge
+    commit itself without repeating what the merged branch already did.
     """
-    if sha is None:
-        return []
+    updates = doc_updates(root, doc, base_point)
+    if not updates and base_point is None:
+        return []  # the doc has no history to measure from
+    revs = ["HEAD", *(f"^{sha}" for sha in updates), *([f"^{base_point}"] if base_point else [])]
     out = git(root, "log", "--reverse", "--no-renames", "--cc", "--name-only",
-              "--format=%x1e%H%x1f%s%x1f%b%x1f", f"{sha}..HEAD")
+              "--format=%x1e%H%x1f%s%x1f%b%x1f", "--stdin", stdin="\n".join(revs) + "\n")
     commits = []
     for record in out.split("\x1e"):
         parts = record.split("\x1f")
@@ -197,19 +205,27 @@ def read_marker(root: Path) -> dict | None:
     return data if isinstance(data, dict) else None
 
 
-def find_drift(root: Path, waivers: list[str] | tuple = ()) -> dict[str, list[str]]:
-    """Doc -> reasons it is behind, for every rule whose doc this repo keeps."""
+def find_drift(root: Path, waivers: list[str] | tuple = (),
+               base: str | None = None) -> dict[str, list[str]]:
+    """Doc -> reasons it is behind, for every rule whose doc this repo keeps.
+
+    A commit is behind when no later update of the doc descends from it. With
+    `base` (a pull request's target, such as `origin/main`), only commits after
+    the merge-base count, so drift already on the base branch isn't blamed on
+    the PR, and base-branch doc updates don't cover the PR's changes.
+    """
     root = Path(root)
     uncommitted = uncommitted_paths(root)
     if git(root, "rev-parse", "--is-shallow-repository").strip() == "true":
         raise DriftError("shallow clone: drift needs the full history (in CI, use fetch-depth: 0)")
     history = has_commits(root)
+    base_point = git(root, "merge-base", base, "HEAD").strip() if base else None
     out: dict[str, list[str]] = {}
     for rule in load_rules(read_marker(root)):
         doc = rule["update"]
         if not (root / doc).is_file():
             continue  # this repo doesn't keep that doc
-        commits = commits_since(root, last_touch(root, doc)) if history else []
+        commits = uncovered_commits(root, doc, base_point) if history else []
         reasons = rule_drift(rule, commits, uncommitted, waivers)
         if reasons:
             out[doc] = reasons

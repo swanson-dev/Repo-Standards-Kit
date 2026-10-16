@@ -22,6 +22,23 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn("pull_request:", text)
         self.assertIn("python scripts/standards-check/check.py --external-links", text)
 
+    def test_standards_check_runs_drift_on_pull_requests(self):
+        text = (REPO / ".github" / "workflows" / "repo-standards.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("fetch-depth: 0", text)
+        self.assertIn("--drift-base", text)
+        # Editing a Docs-Unaffected waiver into the PR description must re-run the check,
+        # without re-running the test matrix and build on every description edit.
+        self.assertIn("types: [opened, synchronize, reopened, edited]", text)
+        self.assertEqual(text.count("if: github.event.action != 'edited'"), 2)
+        # The PR body is untrusted: it may reach the script only through env, never
+        # interpolated into a shell command.
+        body_lines = [line.strip() for line in text.splitlines()
+                      if "github.event.pull_request.body" in line]
+        self.assertEqual(body_lines,
+                         ["STANDARDS_PR_BODY: ${{ github.event.pull_request.body }}"])
+
     def test_claude_hooks_include_read_only_session_start_and_stop_check(self):
         data = json.loads((REPO / ".claude" / "settings.json").read_text(encoding="utf-8"))
         hooks = data["hooks"]

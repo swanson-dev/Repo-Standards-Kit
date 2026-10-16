@@ -6,6 +6,7 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "src"))  # in-process imports use this checkout, not an installed kit
 
 
 class CliTests(unittest.TestCase):
@@ -47,6 +48,17 @@ class CliTests(unittest.TestCase):
         res = self._run("help", "check", cwd=REPO)
         self.assertEqual(res.returncode, 0, res.stderr)
         self.assertIn("--external-links", res.stdout)
+
+    def test_check_help_lists_drift_base_flag(self):
+        res = self._run("help", "check", cwd=REPO)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("--drift-base", res.stdout)
+
+    def test_check_parses_drift_base(self):
+        from standards.cli import build_parser
+        parser, _ = build_parser()
+        args = parser.parse_args(["check", "--drift-base", "origin/main", "."])
+        self.assertEqual(args.drift_base, "origin/main")
 
     def test_check_help_lists_freshness_report_flag(self):
         res = self._run("help", "check", cwd=REPO)
