@@ -18,7 +18,8 @@ The owner's biggest complaint about the kit is that setting it up isn't intuitiv
 
 - Running `standards` with no arguments exits with an error instead of offering choices.
 - `init` and `adopt` both require `--profile` with exactly one of five names, and the names are hard to remember.
-- [`docs/STANDARDS.md`](../../STANDARDS.md) says "Each repo declares exactly one profile," but real repos often hold an application plus its infrastructure.
+- [`docs/STANDARDS.md`](../../STANDARDS.md) says "Each repo declares exactly one profile," but real repos often hold more than one kind of content, such as an application plus its data pipelines.
+- Application and infrastructure are separate profiles, although most infrastructure lives beside the app it deploys.
 - After setup, the adopter still copies their profile's rows from the `docs/STANDARDS.md` matrix into `docs/STANDARDS-CHECKLIST.md` by hand.
 
 [RFC-0008](../0008-how-should-the-kit-split-and-distribute-its-repo-content-and-agent-tooling/rfc.md) puts the setup flow in the plugin as well as the CLI, so both front doors need one design. This RFC follows RFC-0007 (automation) and RFC-0008 (distribution).
@@ -29,7 +30,7 @@ The owner's biggest complaint about the kit is that setting it up isn't intuitiv
 - Design a terminal menu and setup wizard within the kit's zero-dependency rule.
 - Design combinable profiles that stay compatible with existing adopters.
 
-On 2026-10-15 the owner decided that the profile matrix lives as data in the CLI, with a test that keeps the `docs/STANDARDS.md` table in sync. Parsing the table at setup time was ruled out because it breaks whenever an adopter edits or reformats their copy. Remaining before this RFC concludes:
+On 2026-10-15 the owner decided that the profile matrix lives as data in the CLI, with a test that keeps the `docs/STANDARDS.md` table in sync. Parsing the table at setup time was ruled out because it breaks whenever an adopter edits or reformats their copy. On 2026-10-17 the owner merged the `infra` profile into `application`, leaving four profiles; see design section 4. Remaining before this RFC concludes:
 
 - **Try the prototype.** A throwaway version of the menu and wizard is in [`artifacts/prototype/`](artifacts/prototype/NOTES.md). It departs from this RFC in two places, both listed in its notes. The owner tries it and records a verdict there.
 
@@ -95,28 +96,28 @@ For a repo that is already set up, the choices become: check / fix, update to th
 
 ```text
 What does this repo contain? (comma-separated, or Enter for documentation only)
-  1) Application     a deployable app or service
+  1) Application     an app, service, or IaC
   2) Library         a reusable package others import
-  3) Infrastructure  IaC, deployment, environments
-  4) Data            pipelines, models, data contracts
-  Suggested from this repo: 1, 3   (Dockerfile, infra/main.tf)
+  3) Data            pipelines, models, data contracts
+  Suggested from this repo: 1   (Dockerfile, infra/main.tf)
 >
 ```
 
-- Every repo already gets the documentation core, so "documentation plus an application plus infrastructure" is `1, 3`.
+- Every repo already gets the documentation core, so "documentation plus an application plus data pipelines" is `1, 3`.
 - Enter means documentation only: the code lives elsewhere, so the repo also gets `docs/source-map.md`. Documentation only cannot be combined with the others.
-- Suggestions come from a few file signals, such as a `Dockerfile` or Terraform files for infrastructure, or `dbt_project.yml` for data. The user confirms them; nothing is applied silently.
+- Suggestions come from a few file signals, such as a `Dockerfile` or Terraform files for an application, or `dbt_project.yml` for data. The user confirms them; nothing is applied silently.
 - Setup shows a one-screen summary before writing anything.
 
-Scripts and CI keep using flags, and `--profile` now accepts a comma list: `standards adopt --profile application,infra .`
+Scripts and CI keep using flags, and `--profile` now accepts a comma list: `standards adopt --profile application,data .`
 
 Setup also asks which agents the team uses (Claude, Copilot), suggesting the ones it finds on this machine, and records the answer as `agents` in `.standards-kit.json`. The answer picks the repo's one hook file: `.claude/settings.json` when Claude is in the list, since every Copilot host reads it too, or `.github/hooks/standards.json` for Copilot alone (RFC-0007 test B2). The owner asked for this on 2026-10-16; `init` and `adopt` already take it as `--agents claude,copilot`, with detection as the default.
 
-### 4. Combinable profiles
+### 4. Four profiles, and they combine
 
-- **Marker.** Write `"profiles": ["application", "infra"]` and keep `"profile"` as the first entry, so older CLIs still read a valid single profile. Read `profiles` when present, otherwise `[profile]`.
-- **Checklist header.** Write `**Profile:** application + infra`. Older checkers keep only the first word and still see a valid profile; newer ones parse the whole list.
-- **Requirements combine by strongest tier.** Required beats Expected, which beats Optional, which beats N/A. For an application plus infrastructure, `01-prd.md` is Required (application) even though it is Optional for infrastructure. Profile extras add up.
+- **Infra merges into application.** The owner decided on 2026-10-17 that infrastructure isn't a separate profile; the wizard's "Application" means an app, service, or IaC. The profiles become application, library, data, and documentation. The application column of the matrix is unchanged, and `docs/environments.md` becomes an application extra. An IaC-only repo now takes application's tiers, so `01-prd.md`, `04-api-and-integrations.md`, and `07-testing.md` become Required for it; the owner accepted that cost for one fewer choice.
+- **Marker.** Write `"profiles": ["application", "data"]` and keep `"profile"` as the first entry, so older CLIs still read a valid single profile. Read `profiles` when present, otherwise `[profile]`.
+- **Checklist header.** Write `**Profile:** application + data`. Older checkers keep only the first word and still see a valid profile; newer ones parse the whole list.
+- **Requirements combine by strongest tier.** Required beats Expected, which beats Optional, which beats N/A. For a library plus data, `01-prd.md` is Expected (data) even though it is Optional for a library. Profile extras add up.
 - **`doctor`** checks whether the profiles overlap its sets instead of whether one profile is in them.
 - **`docs/STANDARDS.md`** changes "Each repo declares exactly one profile" to one or more, with documentation only as the exclusive choice.
 
@@ -137,6 +138,7 @@ Per RFC-0008, the plugin's setup skill inspects the repo, proposes what it conta
 
 - Old markers with a single `profile` keep working, and new markers stay readable by older CLIs.
 - `--profile` still accepts a single name.
+- `infra` stays accepted as an alias for `application` in `--profile`, markers, and checklist headers, so existing infra adopters keep working; `update` rewrites it to `application`.
 - Allowing more than one profile is additive, so this ships as a minor release.
 
 ## Recommendation
@@ -145,7 +147,7 @@ Give bare `standards` a state-aware menu, replace the init-versus-adopt choice w
 
 ## Follow-ups
 
-- **ADR to write:** yes. ADR-0025 amends the one-profile rule in `docs/STANDARDS.md` and records the setup flow. ADR-0022 to ADR-0024 are already reserved.
+- **ADR to write:** yes. ADR-0025 supersedes ADR-0003 (the profile model, which defined `infra`), amends the one-profile rule in `docs/STANDARDS.md`, and records the setup flow. ADR-0021 (the documentation profile) stands. ADR-0022 to ADR-0024 are already reserved.
 - **Implementation plan changes:** on conclusion, add a "Setup wizard" milestone to `docs/05-implementation-plan.md` after the distribution milestone (RFC-0008).
 - **New open questions:** none; the remaining items are tracked under Approach until this RFC concludes.
 - **Discovery to promote:** none

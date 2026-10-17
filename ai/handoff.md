@@ -98,8 +98,11 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 
 ## Decisions made with the user
 
-- Keep all five profiles, all hooks, and all skills. The user wants to lean
-  more on hooks, not less, and relies on the agent to trigger ADRs and plans.
+- Keep all hooks and all skills. The user wants to lean more on hooks, not less,
+  and relies on the agent to trigger ADRs and plans. Profiles: on 2026-10-17 the
+  user merged `infra` into `application`, leaving four (application, library,
+  data, documentation). This is recorded in RFC-0009, and ADR-0025 will supersede
+  ADR-0003. Nothing in the code changes until RFC-0009 concludes.
 - RFC-0007 concluded on 2026-10-15 on the spike's evidence: per-host output
   adapters, top-level `decision`/`reason` by default. The Copilot adapter shapes
   are verified during the build.

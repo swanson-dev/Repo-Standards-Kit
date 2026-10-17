@@ -7,34 +7,34 @@ from __future__ import annotations
 
 from fnmatch import fnmatch
 
-# Wizard choices 1-4, in this order. Documentation only is choice 0 and never combines.
+# Wizard choices 1-3, in this order. Documentation only is choice 0 and never combines.
+# Owner decision 2026-10-17: infra merged into application (IaC repos pick application).
 PROFILES = {
-    "application": "a deployable app or service",
+    "application": "an app, service, or IaC",
     "library": "a reusable package others import",
-    "infra": "IaC, deployment, environments",
     "data": "pipelines, models, data contracts",
 }
 CHOICES = list(PROFILES)
 DOCS_ONLY = "documentation"
 
 TIERS = ["N/A", "Optional", "Expected", "Required"]  # weakest to strongest
-COLUMNS = ["application", "library", "infra", "data", "documentation"]
+COLUMNS = ["application", "library", "data", "documentation"]
 
 # The docs/STANDARDS.md profile matrix as data; conditional notes are dropped.
 MATRIX = {
-    "01-prd.md": ("Required", "Optional", "Optional", "Expected", "Expected"),
-    "02-architecture.md": ("Required", "Expected", "Required", "Required", "Expected"),
-    "03-data-model.md": ("Expected", "N/A", "Optional", "Required", "Optional"),
-    "04-api-and-integrations.md": ("Required", "Required", "Expected", "Required", "Required"),
-    "05-implementation-plan.md": ("Expected", "Optional", "Expected", "Expected", "Expected"),
-    "06-runbook.md": ("Required", "N/A", "Required", "Required", "N/A"),
-    "07-testing.md": ("Required", "Required", "Expected", "Required", "Required"),
-    "08-security-and-compliance.md": ("Required", "Expected", "Required", "Required", "Expected"),
-    "09-deployment.md": ("Required", "N/A", "Required", "Required", "Optional"),
+    "01-prd.md": ("Required", "Optional", "Expected", "Expected"),
+    "02-architecture.md": ("Required", "Expected", "Required", "Expected"),
+    "03-data-model.md": ("Expected", "N/A", "Required", "Optional"),
+    "04-api-and-integrations.md": ("Required", "Required", "Required", "Required"),
+    "05-implementation-plan.md": ("Expected", "Optional", "Expected", "Expected"),
+    "06-runbook.md": ("Required", "N/A", "Required", "N/A"),
+    "07-testing.md": ("Required", "Required", "Required", "Required"),
+    "08-security-and-compliance.md": ("Required", "Expected", "Required", "Expected"),
+    "09-deployment.md": ("Required", "N/A", "Required", "Optional"),
 }
 EXTRAS = {
+    "application": "docs/environments.md",
     "library": "docs/versioning-policy.md",
-    "infra": "docs/environments.md",
     "data": "docs/data-contracts/ (one per dataset)",
     "documentation": "docs/source-map.md",
 }
@@ -43,9 +43,9 @@ EXTRAS = {
 # matches a file name.
 SIGNALS = {
     "application": ["Dockerfile", "docker-compose.yml", "compose.yaml", "manage.py",
-                    "next.config.*", "vite.config.*", "Program.cs", "Procfile"],
+                    "next.config.*", "vite.config.*", "Program.cs", "Procfile",
+                    "*.tf", "*.bicep", "Pulumi.yaml", "cdk.json", "Chart.yaml", "kustomization.yaml"],
     "library": ["pyproject.toml", "setup.py", "Cargo.toml", "*.csproj", "package.json"],
-    "infra": ["*.tf", "*.bicep", "Pulumi.yaml", "cdk.json", "Chart.yaml", "kustomization.yaml"],
     "data": ["dbt_project.yml", "dags/", "*.ipynb"],
 }
 
