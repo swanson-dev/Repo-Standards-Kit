@@ -14,6 +14,7 @@
 | M6 — Adoption assistant + AI continuity | `standards doctor`, public `new-skill`, command discovery, optional knowledge-lane templates, and standard AI continuity commands | v1.1.0 | shipped |
 | M7 — Documentation profile | First-class profile for documentation/spec repos linked to implementation elsewhere | v1.2.0 | shipped |
 | M8 — Automation engine | Block-once Stop hooks, per-repo drift rules, a commit-type changelog rule, and a CI drift check | v1.4.0 | active |
+| M9 — Setup wizard | A state-aware `standards` menu, a setup wizard that asks what a repo contains, and four combinable profiles (RFC-0009, ADR-0025) | v1.5.0 | planned |
 
 ### Shipped slices (M1 — Foundation)
 

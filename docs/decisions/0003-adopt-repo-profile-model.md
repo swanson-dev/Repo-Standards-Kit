@@ -1,5 +1,5 @@
 ---
-status: Accepted
+status: Superseded by 0025
 date: 2026-05-28
 deciders: josh
 consulted: claude-code-assistant

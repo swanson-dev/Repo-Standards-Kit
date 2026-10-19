@@ -1,7 +1,7 @@
 ---
-status: Open
+status: Concluded
 opened: 2026-10-15
-closed:
+closed: 2026-10-17
 owner: Josh Swanson
 time_box: 2 days (prototype the menu and wizard + review)
 ---
@@ -30,9 +30,7 @@ The owner's biggest complaint about the kit is that setting it up isn't intuitiv
 - Design a terminal menu and setup wizard within the kit's zero-dependency rule.
 - Design combinable profiles that stay compatible with existing adopters.
 
-On 2026-10-15 the owner decided that the profile matrix lives as data in the CLI, with a test that keeps the `docs/STANDARDS.md` table in sync. Parsing the table at setup time was ruled out because it breaks whenever an adopter edits or reformats their copy. On 2026-10-17 the owner merged the `infra` profile into `application`, leaving four profiles; see design section 4. Remaining before this RFC concludes:
-
-- **Try the prototype.** A throwaway version of the menu and wizard is in [`artifacts/prototype/`](artifacts/prototype/NOTES.md). It departs from this RFC in two places, both listed in its notes. The owner tries it and records a verdict there.
+On 2026-10-15 the owner decided that the profile matrix lives as data in the CLI, with a test that keeps the `docs/STANDARDS.md` table in sync. Parsing the table at setup time was ruled out because it breaks whenever an adopter edits or reformats their copy. On 2026-10-17 the owner merged the `infra` profile into `application`, leaving four profiles (see design section 4). The same day the owner tried the throwaway prototype in [`artifacts/prototype/`](artifacts/prototype/NOTES.md) and approved the menu. The owner kept both places where the prototype had departed from this RFC, which the design below now includes, and concluded the RFC.
 
 ## Findings
 
@@ -86,7 +84,7 @@ This repo isn't set up yet.
 >
 ```
 
-For a repo that is already set up, the choices become: check / fix, update to the installed kit version (recommended when the repo is behind), change what this repo contains, and create an AI skill.
+For a repo that is already set up, the choices become: check / fix, update to the installed kit version (shown, and recommended, only when the repo is behind), change what this repo contains, and create an AI skill.
 
 ### 2. One setup, no init-versus-adopt choice
 
@@ -95,16 +93,19 @@ For a repo that is already set up, the choices become: check / fix, update to th
 ### 3. Ask what the repo contains
 
 ```text
-What does this repo contain? (comma-separated, or Enter for documentation only)
+What does this repo contain? (pick any, comma-separated)
+  0) Documentation only
   1) Application     an app, service, or IaC
   2) Library         a reusable package others import
   3) Data            pipelines, models, data contracts
   Suggested from this repo: 1   (Dockerfile, infra/main.tf)
+> [1]
 >
 ```
 
 - Every repo already gets the documentation core, so "documentation plus an application plus data pipelines" is `1, 3`.
-- Enter means documentation only: the code lives elsewhere, so the repo also gets `docs/source-map.md`. Documentation only cannot be combined with the others.
+- Enter accepts the default in brackets: the current answers when changing what a repo contains, otherwise the suggestions, otherwise documentation only. People press Enter expecting to accept what's on screen.
+- `0` means documentation only: the code lives elsewhere, so the repo also gets `docs/source-map.md`. Documentation only cannot be combined with the others.
 - Suggestions come from a few file signals, such as a `Dockerfile` or Terraform files for an application, or `dbt_project.yml` for data. The user confirms them; nothing is applied silently.
 - Setup shows a one-screen summary before writing anything.
 
@@ -143,11 +144,11 @@ Per RFC-0008, the plugin's setup skill inspects the repo, proposes what it conta
 
 ## Recommendation
 
-Give bare `standards` a state-aware menu, replace the init-versus-adopt choice with one non-destructive setup, and ask what the repo contains with descriptions and suggestions. Make profiles combinable by strongest tier, using marker and checklist formats that older versions still read. Have setup create and tick the docs the chosen profiles need instead of leaving placeholders. Conclude after the owner tries a prototype of the menu and wizard.
+Give bare `standards` a state-aware menu, replace the init-versus-adopt choice with one non-destructive setup, and ask what the repo contains with descriptions and suggestions. Make profiles combinable by strongest tier, using marker and checklist formats that older versions still read. Have setup create and tick the docs the chosen profiles need instead of leaving placeholders. Merge infra into application. Concluded 2026-10-17 after the owner tried the prototype.
 
 ## Follow-ups
 
-- **ADR to write:** yes. ADR-0025 supersedes ADR-0003 (the profile model, which defined `infra`), amends the one-profile rule in `docs/STANDARDS.md`, and records the setup flow. ADR-0021 (the documentation profile) stands. ADR-0022 to ADR-0024 are already reserved.
-- **Implementation plan changes:** on conclusion, add a "Setup wizard" milestone to `docs/05-implementation-plan.md` after the distribution milestone (RFC-0008).
-- **New open questions:** none; the remaining items are tracked under Approach until this RFC concludes.
+- **ADR to write:** yes, [ADR-0025](../../decisions/0025-set-up-repos-through-a-guided-menu-with-four-combinable-profiles.md). It supersedes ADR-0003 (the profile model, which defined `infra`) and replaces the one-profile rule. ADR-0021 (the documentation profile) stands. ADR-0022 and ADR-0024 are reserved for the parked changelog branch and RFC-0008. ADR-0022 to ADR-0024 are already reserved.
+- **Implementation plan changes:** added "M9 — Setup wizard" to `docs/05-implementation-plan.md`. The terminal menu and wizard don't depend on distribution; the plugin's setup skill (section 7) lands with RFC-0008's distribution work.
+- **New open questions:** none.
 - **Discovery to promote:** none

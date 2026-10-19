@@ -42,4 +42,4 @@ python docs/rfcs/0009-how-should-setup-ask-what-a-repo-contains-and-support-more
 
 ## Verdict
 
-_To fill in after trying it: what felt right, what felt wrong, and what changes in RFC-0009._
+Owner, 2026-10-17: the menu looks good. Keep both departures from the RFC text: Enter accepts the default in brackets (0 means documentation only), and "Update" appears only when the repo is behind. Earlier the same day the owner merged infra into application. RFC-0009 is concluded, and ADR-0025 records the design. When the setup wizard is built, move `setup_logic.py` into `src/standards/` and delete this folder.
