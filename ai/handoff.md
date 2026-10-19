@@ -22,8 +22,10 @@ Test B2 then showed every Copilot host also reads `.claude/settings.json`, so a
 repo gets one hook file, picked by a new `agents` choice in `.standards-kit.json`
 (`init`/`adopt --agents`, detected by default): Claude's file when the team uses
 Claude, `.github/hooks/standards.json` for Copilot-only teams.
-RFC-0008 (distribution) and RFC-0009 (setup wizard) are
-approved designs still Open; RFC-0010 (retrospectives) is drafted. Everything is
+RFC-0009 concluded on 2026-10-17 with ADR-0025 (superseding ADR-0003): a guided
+menu and wizard with four combinable profiles, infra merged into application.
+It's planned as M9. RFC-0008 (distribution) is an approved design still Open;
+RFC-0010 (retrospectives) is drafted. Everything is
 on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 
 ## Recently touched
@@ -101,8 +103,8 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 - Keep all hooks and all skills. The user wants to lean more on hooks, not less,
   and relies on the agent to trigger ADRs and plans. Profiles: on 2026-10-17 the
   user merged `infra` into `application`, leaving four (application, library,
-  data, documentation). This is recorded in RFC-0009, and ADR-0025 will supersede
-  ADR-0003. Nothing in the code changes until RFC-0009 concludes.
+  data, documentation). ADR-0025 records it, supersedes ADR-0003, and is
+  built in M9; until then the code still has five profiles.
 - RFC-0007 concluded on 2026-10-15 on the spike's evidence: per-host output
   adapters, top-level `decision`/`reason` by default. The Copilot adapter shapes
   are verified during the build.
@@ -148,8 +150,9 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 - The SessionStart context brief doesn't reach Copilot agents: Copilot runs the
   hook but drops plain stdout. Needs Copilot's structured output, then a
   SessionStart entry in `docs/templates/copilot-hooks.json`.
-- RFC-0009: the owner tries the prototype in its `artifacts/prototype/` and
-  records a verdict in `NOTES.md`.
+- RFC-0009 is concluded. The owner approved the prototype's menu and kept its
+  two departures: Enter accepts the default in brackets, and "Update" shows only
+  when the repo is behind. M9 builds it.
 - RFC-0010 needs a trial retro on a real session, a threshold for promoting a
   lesson into `ai/gotchas.md`, and a call on reading Claude Code transcripts.
 - The parked ADR-0022 branch rewrites `scripts/changelog/check_changelog.py`.
@@ -194,7 +197,8 @@ the `remember` plugin ships Claude, Codex, and Gemini manifests plus a
 - Don't emit top-level `decision`/`reason` and `hookSpecificOutput` in one
   object: Codex rejects the whole output and the block is lost.
 - Don't let `new-adr.py` number ADRs on this branch: it would pick 0022, which
-  the parked branch already uses. ADR-0024 is next, for RFC-0008.
+  the parked branch already uses. ADR-0024 is reserved for RFC-0008, and
+  ADR-0026 is next after it (RFC-0010).
 - Don't link to ADR-0022 from this branch; the file only exists on the parked branch.
 - Don't delete `docs/superpowers/`, `docs/discovery/README.md`, or the
   `discovery-note`/`-meeting`/`-artifact` templates. Accepted ADRs cite the
