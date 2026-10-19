@@ -1,5 +1,5 @@
 ---
-written: 2026-10-19T14:00:00-05:00
+written: 2026-10-19T14:25:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -13,13 +13,30 @@ into `main`, the `v1.4.0` tag published to PyPI, and a GitHub Release exists. It
 carries the drift rules, the block-once Stop hook, the CI drift check, one hook
 file per repo picked by `agents` (`init`/`adopt --agents`), a once-per-session
 block on CI runners, and the `.claude` payload fix. M9 (setup wizard, ADR-0025)
-is being built on `feat/m9-setup-wizard` for v1.5.0. Slice 1 merges `infra` into
-`application` and keeps it as an alias; it is uncommitted until the owner OKs
-it. Slice 2 (combinable profiles) is next. RFC-0008 (distribution) is an approved
-design still Open, and RFC-0010 (retrospectives) is drafted.
+is being built on `feat/m9-setup-wizard` for v1.5.0. Slice 1 (committed) merges
+`infra` into `application` and keeps it as an alias. Slice 2 (uncommitted until
+the owner OKs it) makes profiles combine by the strongest tier, and setup now
+creates and ticks the docs they need. Slice 3, the menu and wizard, is next.
+RFC-0008 (distribution) is an approved design still Open, and RFC-0010
+(retrospectives) is drafted.
 
 ## Recently touched
 
+- M9 slice 2 (ADR-0025): profiles combine. `src/standards/profiles.py` holds the
+  four profiles, the `infra` alias (moved from `marker.py`), the matrix (doc ->
+  template and tiers) and extras, `parse_profiles` (comma list, order kept,
+  repeats dropped, `documentation` alone), `combine` (strongest tier), and
+  `needed_docs`. `tests/test_profiles.py` keeps the matrix and extras in sync with
+  `docs/STANDARDS.md`. The marker writes `profiles` with `profile` as its first
+  entry, and `read_marker` fills `profiles` in for old markers (`profiles` wins
+  when the two disagree). `init`/`adopt` take `--profile a,b`, create the
+  Required and Expected docs from templates without overwriting, tick them, and
+  list the extras as plain bullets so a fresh repo stays CI-green. `doctor` uses
+  profile overlap. The structural check validates every name in the header and
+  strips HTML comments, but text after the list, such as `(with IaC)`, still
+  passes, as it did when only the first word was read. Codex found the loose
+  header parse (fixed with tests) and the checklist reconciliation gap (left for
+  slice 3).
 - M9 slice 1 (ADR-0025): four profiles. `--profile infra` maps to `application`
   before argparse checks choices (`_profile_arg` in `cli.py`); `read_marker` reads
   an `infra` marker as `application`, so `update` rewrites it and `doctor` sees
@@ -130,9 +147,12 @@ design still Open, and RFC-0010 (retrospectives) is drafted.
 
 ## Open threads
 
-- M9, what's left: slice 2 (combinable profiles, the matrix in code with a sync
-  test against `docs/STANDARDS.md`), then the bare `standards` menu and the setup
-  wizard. See `ai/next-actions.md` item 1.
+- M9, what's left: slice 3, the bare `standards` menu and the setup wizard. See
+  `ai/next-actions.md` item 1. Its "Change what this repo contains" action must
+  reconcile an existing checklist: `adopt` and `init --force` keep a checklist
+  that already exists, so its header and rows can disagree with the profiles
+  they record and the docs they create. That was already true for one profile;
+  Codex flagged it in the slice 2 review.
 - M8 leftovers: test D (Codex's interactive trust flow) is still a manual run,
   and Codex hook config isn't shipped (`.codex/` is gitignored here and not in
   the payload); RFC-0008's plugin is the planned way to ship it.
