@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-10-17
+last_updated: 2026-10-18
 last_updated_by: claude
 ---
 
@@ -48,7 +48,7 @@ last_updated_by: claude
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| M8 automation engine (RFC-0007 concluded, ADR-0023) | docs/rfc-0007-automation-engine | Josh Swanson | building: drift core, block-once Stop hook, CI drift check, Copilot verification, and the Copilot hook config (`--agents`, one hook file per repo) done; left: Codex test D, Codex hook config via RFC-0008 |
+| M8 automation engine (RFC-0007 concluded, ADR-0023) | docs/rfc-0007-automation-engine | Josh Swanson | built; release v1.4.0 prepared, PR to main open; publish by tagging `v1.4.0` after merge. Codex test D still pending |
 | RFC-0008 distribution (pip CLI for repo content + plugin for skills and hooks) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; cloud-agent and Codex checks, then ADR-0024 |
 | M9 setup wizard + four combinable profiles (RFC-0009 concluded, ADR-0025) | docs/rfc-0007-automation-engine | Josh Swanson | planned for v1.5.0; infra merged into application |
 | RFC-0010 retrospectives (`standard-retro` skill) | docs/rfc-0007-automation-engine | Josh Swanson | draft; build after RFC-0007 to RFC-0009, then ADR-0026 |
