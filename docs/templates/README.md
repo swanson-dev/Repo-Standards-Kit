@@ -42,7 +42,7 @@ or let `standards doctor --recommend` point out likely candidates.
 
 ### Profile-specific extras
 - [`versioning-policy-template.md`](./versioning-policy-template.md) — library profile.
-- [`environments-template.md`](./environments-template.md) — infra profile.
+- [`environments-template.md`](./environments-template.md) — application profile.
 - [`data-contract-template.md`](./data-contract-template.md) — data profile (one per dataset).
 - [`source-map-template.md`](./source-map-template.md) — documentation profile.
 

@@ -12,14 +12,19 @@ from standards.__about__ import __version__
 from standards.doctor import doctor_lines
 from standards.init import run_adopt, run_init
 from standards.manifest import AGENTS, hook_file, recorded_agents
-from standards.marker import read_marker
+from standards.marker import PROFILE_ALIASES, read_marker
 from standards.payload import payload_root
 from standards.update import run_update
 
-PROFILES = ["application", "library", "infra", "data", "documentation"]
+PROFILES = ["application", "library", "data", "documentation"]
 AGENTS_HELP = ("Agents the repo's team uses, comma-separated: claude, copilot. Default: "
                "detected on this machine. With claude the repo gets .claude/settings.json, "
                "which Copilot also reads; copilot alone gets .github/hooks/standards.json.")
+
+
+def _profile_arg(value: str) -> str:
+    """argparse checks `choices` after `type`, so `infra` passes as `application`."""
+    return PROFILE_ALIASES.get(value, value)
 
 
 def detect_agents() -> list[str]:
@@ -113,7 +118,7 @@ Use `standards adopt` instead for an existing repo with local files.""",
         **_parser_kwargs(),
     )
     p_init.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
-    p_init.add_argument("--profile", required=True, choices=PROFILES)
+    p_init.add_argument("--profile", required=True, choices=PROFILES, type=_profile_arg)
     p_init.add_argument("--force", action="store_true", help="Re-init even if already adopted.")
     p_init.add_argument("--agents", type=_agents_arg, help=AGENTS_HELP)
     parsers["init"] = p_init
@@ -147,7 +152,7 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
         **_parser_kwargs(),
     )
     p_adopt.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
-    p_adopt.add_argument("--profile", required=True, choices=PROFILES)
+    p_adopt.add_argument("--profile", required=True, choices=PROFILES, type=_profile_arg)
     p_adopt.add_argument("--agents", type=_agents_arg, help=AGENTS_HELP)
     parsers["adopt"] = p_adopt
 

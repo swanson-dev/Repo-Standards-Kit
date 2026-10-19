@@ -13,6 +13,7 @@ from pathlib import Path
 
 from . import Context, Finding
 
+# `infra` stays valid for checklists written before ADR-0025 merged it into application.
 ALLOWED_PROFILES = {"application", "library", "infra", "data", "documentation"}
 ADR_STATUSES = {"Proposed", "Accepted", "Deprecated"}
 RFC_STATUSES = {"Open", "Concluded", "Abandoned"}

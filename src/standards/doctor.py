@@ -1,7 +1,6 @@
 """Read-only diagnostics for adopted Repo-Standards-Kit repositories."""
 from __future__ import annotations
 
-import json
 import subprocess
 import sys
 from pathlib import Path
@@ -10,7 +9,7 @@ from typing import Callable
 from standards.__about__ import __version__
 from standards.managed import block_hash
 from standards.manifest import PARTIAL_FILES
-from standards.marker import MARKER_NAME
+from standards.marker import MARKER_NAME, read_marker
 from standards.payload import payload_root
 
 CheckRunner = Callable[[Path], subprocess.CompletedProcess]
@@ -24,11 +23,8 @@ def _rel(path: Path, root: Path) -> str:
 
 
 def _read_marker(root: Path) -> tuple[dict | None, str | None]:
-    marker_path = root / MARKER_NAME
-    if not marker_path.is_file():
-        return None, None
     try:
-        return json.loads(marker_path.read_text(encoding="utf-8")), None
+        return read_marker(root), None
     except (OSError, ValueError) as exc:
         return None, f"{MARKER_NAME} could not be read: {exc}"
 
@@ -107,7 +103,7 @@ def _recommendations(root: Path, marker: dict | None) -> list[str]:
             recs.append("Consider docs/design for product, UX, or system design notes.")
 
     support_signal = (
-        profile in {"application", "infra", "data"}
+        profile in {"application", "data"}
         or (root / "docs" / "06-runbook.md").exists()
         or (root / "docs" / "09-deployment.md").exists()
     )

@@ -27,7 +27,7 @@ from standards.payload import payload_root
 
 ADOPT_REPORT_KEYS = ("added", "unchanged", "spliced", "conflicts", "scaffolded")
 
-PROFILE_PLACEHOLDER = "<application | library | infra | data | documentation>"
+PROFILE_PLACEHOLDER = "<application | library | data | documentation>"
 ROOT_STARTER_DESTS = frozenset({"README.md", "CHANGELOG.md"})
 # ADR-0023: new adoptions enforce the drift Stop hook. Markers written before it
 # have no `hook_mode`, so existing adopters keep advising until they opt in.

@@ -8,7 +8,7 @@ The kit's "public API" is the set of artifacts and conventions downstream repos 
 |---|---|---|
 | **Folder layout** under `docs/` (`STANDARDS.md`, `STANDARDS-CHECKLIST.md`, `00–10-*.md`, `decisions/`, `discovery/`, `rfcs/`, `templates/`) | Stable; changes follow SemVer | This kit's `docs/` tree |
 | **`ai/` directory contract** (the four files, frontmatter, sections) | Stable; changes follow SemVer | `docs/STANDARDS.md` § "The `ai/` directory contract" |
-| **Profile model** (`application` \| `library` \| `infra` \| `data`) | Stable | `docs/STANDARDS.md` § "Repo profiles" |
+| **Profile model** (`application` \| `library` \| `data` \| `documentation`; `infra` is an alias for `application`) | Stable | `docs/STANDARDS.md` § "Repo profiles" |
 | **Profile matrix** (Required / Expected / Optional / N/A per profile per numbered doc) | Stable; cells may move per kit-version rules in [`versioning-policy.md`](./versioning-policy.md) | `docs/STANDARDS.md` § "Profile matrix" |
 | **ADR format** (MADR 3.0) | Stable | `docs/templates/adr-template.md`, ADR [0002](./decisions/0002-adopt-madr-3.md) |
 | **RFC format** (folder per RFC, required sections) | Stable | `docs/templates/rfc-template.md` |

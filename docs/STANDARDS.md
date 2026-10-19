@@ -25,11 +25,12 @@ Each repo declares exactly one profile. The profile determines which numbered do
 
 | Profile | What it describes |
 |---|---|
-| **application** | Backend services, web apps, mobile apps, APIs. Have a runtime, an environment, secrets, an on-call story. |
+| **application** | Backend services, web apps, mobile apps, APIs, and the IaC that deploys them (Terraform, Bicep, Kubernetes manifests), or IaC on its own. Have a runtime, environments, secrets, an on-call story. |
 | **library** | Internal packages (npm, NuGet, PyPI, Go modules). Distribute via registry; no environment of their own. |
-| **infra** | Terraform, Bicep, Kubernetes manifests, IaC repos. Care about environments, drift, change windows. |
 | **data** | ETL pipelines, dbt projects, analytics notebooks. Care about data contracts, lineage, freshness. |
 | **documentation** | Documentation/specification repos whose implementation lives elsewhere. Care about source maps, freshness, links, and ownership boundaries. |
+
+`infra` was merged into `application` (ADR-0025) and is still accepted as an alias for it.
 
 If your repo doesn't fit, **pick the closest profile** and record any deviations in the local `STANDARDS.md`. Don't invent new profiles in-repo; propose one via RFC.
 
@@ -68,24 +69,24 @@ If your repo doesn't fit, **pick the closest profile** and record any deviations
 
 ## Profile matrix (numbered docs)
 
-| Doc | application | library | infra | data | documentation |
-|---|---|---|---|---|---|
-| `01-prd.md` | Required | Optional | Optional | Expected | Expected |
-| `02-architecture.md` | Required | Expected | Required | Required | Expected (information architecture) |
-| `03-data-model.md` | Expected (if state-bearing) | N/A | Optional | Required | Optional |
-| `04-api-and-integrations.md` | Required | Required (public API contract) | Expected | Required (sources/sinks) | Required (linked source repos and reference contracts) |
-| `05-implementation-plan.md` | Expected | Optional | Expected | Expected | Expected |
-| `06-runbook.md` | Required | N/A | Required | Required | N/A (unless the docs site has operations) |
-| `07-testing.md` | Required | Required | Expected (drift/preview) | Required (data quality) | Required (links, generated docs, freshness) |
-| `08-security-and-compliance.md` | Required | Expected | Required | Required | Expected (sensitivity, redaction, access, licensing) |
-| `09-deployment.md` | Required | N/A (publishing policy in CHANGELOG) | Required | Required (orchestration) | Optional (docs site publishing only) |
+| Doc | application | library | data | documentation |
+|---|---|---|---|---|
+| `01-prd.md` | Required | Optional | Expected | Expected |
+| `02-architecture.md` | Required | Expected | Required | Expected (information architecture) |
+| `03-data-model.md` | Expected (if state-bearing) | N/A | Required | Optional |
+| `04-api-and-integrations.md` | Required | Required (public API contract) | Required (sources/sinks) | Required (linked source repos and reference contracts) |
+| `05-implementation-plan.md` | Expected | Optional | Expected | Expected |
+| `06-runbook.md` | Required | N/A | Required | N/A (unless the docs site has operations) |
+| `07-testing.md` | Required (for IaC, include drift detection and preview plans) | Required | Required (data quality) | Required (links, generated docs, freshness) |
+| `08-security-and-compliance.md` | Required | Expected | Required | Expected (sensitivity, redaction, access, licensing) |
+| `09-deployment.md` | Required | N/A (publishing policy in CHANGELOG) | Required (orchestration) | Optional (docs site publishing only) |
 
 ### Profile-specific extras
 
 | Profile | Adds |
 |---|---|
+| `application` | `docs/environments.md` (dev/stage/prod topology + change windows) |
 | `library` | `docs/versioning-policy.md` (SemVer commitments, deprecation cadence, support window) |
-| `infra` | `docs/environments.md` (dev/stage/prod topology + change windows) |
 | `data` | `docs/data-contracts/` (per-dataset contracts: schema, owner, freshness SLO, lineage) |
 | `documentation` | `docs/source-map.md` (linked implementation repos, owners, reference policy, sync cadence) |
 
@@ -265,7 +266,7 @@ These folders are optional and should not be created just because the kit mentio
 | Folder | Use when |
 |---|---|
 | `docs/design/` | Product, UX, workflow, or system design notes that are not ADRs or RFCs. |
-| `support/incidents/` | Operational incident notes and post-incident follow-ups. Most relevant for application, infra, and data repos. |
+| `support/incidents/` | Operational incident notes and post-incident follow-ups. Most relevant for application and data repos. |
 | `support/troubleshooting/` | Recurring symptoms, likely causes, checks, fixes, and escalation paths. |
 | `support/guides/` | User, admin, contributor, or operator guides that do not belong in numbered docs. |
 

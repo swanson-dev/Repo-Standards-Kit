@@ -55,6 +55,31 @@ class CliTests(unittest.TestCase):
         self.assertEqual(res.returncode, 0, res.stderr)
         self.assertIn("--drift-base", res.stdout)
 
+    def test_profile_help_lists_the_four_profiles(self):
+        res = self._run("init", "--help", cwd=REPO)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("{application,library,data,documentation}", res.stdout)
+
+    def test_infra_profile_is_an_alias_for_application(self):
+        # ADR-0025 merged infra into application; old scripts keep working.
+        from standards.cli import build_parser
+        parser, _ = build_parser()
+        for command in ("init", "adopt"):
+            args = parser.parse_args([command, "--profile", "infra", "."])
+            self.assertEqual(args.profile, "application")
+
+    def test_doctor_reads_a_legacy_infra_marker_as_application(self):
+        from standards.doctor import doctor_lines
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / ".standards-kit.json").write_text(json.dumps(
+                {"kit_version": "1.3.0", "profile": "infra", "tracked": {}, "managed": {}}), encoding="utf-8")
+            _, lines = doctor_lines(root, recommend=True,
+                                    check_runner=lambda _: subprocess.CompletedProcess([], 0, "", ""))
+            text = "\n".join(lines)
+            self.assertIn("profile=application", text)
+            self.assertIn("support/incidents", text)  # application's support recommendations
+
     def test_check_parses_drift_base(self):
         from standards.cli import build_parser
         parser, _ = build_parser()

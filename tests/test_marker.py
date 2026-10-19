@@ -30,6 +30,14 @@ class MarkerTests(unittest.TestCase):
             self.assertEqual(data["tracked"], {"docs/STANDARDS.md": "abc"})
             self.assertEqual(data["managed"], {})
 
+    def test_infra_marker_reads_as_application(self):
+        from standards.marker import read_marker, write_marker
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            write_marker(root, kit_version="1.4.0", profile="infra",
+                         adopted="2026-05-29", tracked={})
+            self.assertEqual(read_marker(root)["profile"], "application")
+
     def test_read_missing_returns_none(self):
         from standards.marker import read_marker
         with tempfile.TemporaryDirectory() as d:

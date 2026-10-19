@@ -1,5 +1,5 @@
 <!--
-docs/environments.md — infra-profile extra.
+docs/environments.md — application-profile extra.
 Describes the topology of each environment and the rules for changing it.
 -->
 

@@ -6,6 +6,20 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from check import parse_frontmatter  # noqa: E402
+from checks.structural import Report, check_profile  # noqa: E402
+
+
+class ProfileAliasTests(unittest.TestCase):
+    def test_checklists_that_still_say_infra_pass(self):
+        # ADR-0025 merged infra into application; old checklists stay valid.
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "docs").mkdir()
+            (root / "docs" / "STANDARDS-CHECKLIST.md").write_text("**Profile:** infra\n", encoding="utf-8")
+            report = Report()
+            check_profile(root, report)
+            self.assertEqual(report.errors, [])
 
 
 class ParseFrontmatterTests(unittest.TestCase):

@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 
 MARKER_NAME = ".standards-kit.json"
+# ADR-0025 merged infra into application; old names still read as the new ones.
+PROFILE_ALIASES = {"infra": "application"}
 
 
 def sha256_file(path: Path) -> str:
@@ -18,7 +20,10 @@ def read_marker(root: Path) -> dict | None:
     p = Path(root) / MARKER_NAME
     if not p.is_file():
         return None
-    return json.loads(p.read_text(encoding="utf-8"))
+    data = json.loads(p.read_text(encoding="utf-8"))
+    if isinstance(data, dict) and data.get("profile") in PROFILE_ALIASES:
+        data["profile"] = PROFILE_ALIASES[data["profile"]]
+    return data
 
 
 def write_marker(root: Path, *, kit_version: str, profile: str, adopted: str,

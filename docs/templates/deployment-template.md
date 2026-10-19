@@ -1,5 +1,5 @@
 <!--
-docs/09-deployment.md — Required (application, infra, data), Optional (documentation), N/A (library)
+docs/09-deployment.md — Required (application, data), Optional (documentation), N/A (library)
 For libraries, publishing policy lives in CHANGELOG.md + docs/versioning-policy.md.
 For documentation repos, use this only when the docs are published as a site or artifact.
 -->

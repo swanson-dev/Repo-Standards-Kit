@@ -136,9 +136,10 @@ class InitTests(unittest.TestCase):
     def test_profile_written_into_checklist(self):
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
-            self._run(target, profile="infra", adopted="2026-05-29")
+            self._run(target, profile="data", adopted="2026-05-29")
             checklist = (target / "docs" / "STANDARDS-CHECKLIST.md").read_text(encoding="utf-8")
-            self.assertIn("infra", checklist)
+            self.assertIn("**Profile:** data", checklist)
+            self.assertNotIn("infra", checklist)
 
     def test_refuses_reinit_without_force(self):
         with tempfile.TemporaryDirectory() as d:

@@ -8,6 +8,19 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+### Changed
+- The `infra` profile is merged into `application` (ADR-0025). There are now
+  four profiles: application (an app, service, or IaC), library, data, and
+  documentation. The application column of the matrix is unchanged, and
+  `docs/environments.md` is now an application extra. An IaC-only repo now
+  takes application's tiers.
+
+### Deprecated
+- `infra` as a profile name. `--profile infra` and markers that still say
+  `infra` are read as `application`, and `standards update` rewrites the
+  marker. Checklists that still say `infra` keep passing `standards check`. The
+  alias stays for at least one minor release.
+
 ## [1.4.0] - 2026-10-18
 
 ### Added
