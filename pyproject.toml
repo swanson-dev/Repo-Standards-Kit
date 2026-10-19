@@ -48,6 +48,7 @@ packages = ["src/standards"]
 "scripts/_doc_lib" = "standards/_payload/scripts/_doc_lib"
 "scripts/new-doc" = "standards/_payload/scripts/new-doc"
 "scripts/changelog" = "standards/_payload/scripts/changelog"
+"scripts/drift" = "standards/_payload/scripts/drift"
 "scripts/session-context" = "standards/_payload/scripts/session-context"
 "scripts/standards-check" = "standards/_payload/scripts/standards-check"
 "scripts/update-handoff" = "standards/_payload/scripts/update-handoff"
@@ -55,7 +56,8 @@ packages = ["src/standards"]
 ".github/prompts" = "standards/_payload/.github/prompts"
 ".github/copilot-instructions.md" = "standards/_payload/.github/copilot-instructions.md"
 ".github/pull_request_template.md" = "standards/_payload/.github/pull_request_template.md"
-".claude" = "standards/_payload/.claude"
+".claude/settings.json" = "standards/_payload/.claude/settings.json"
+".claude/skills" = "standards/_payload/.claude/skills"
 "AGENTS.md" = "standards/_payload/AGENTS.md"
 "CLAUDE.md" = "standards/_payload/CLAUDE.md"
 

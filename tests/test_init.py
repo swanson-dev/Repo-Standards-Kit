@@ -11,6 +11,58 @@ class InitTests(unittest.TestCase):
         from standards.init import run_init
         return run_init(target, **kw)
 
+    def test_new_adoption_enforces_the_stop_hook(self):
+        from standards.marker import read_marker
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="library", adopted="2026-05-29")
+            self.assertEqual(read_marker(target)["hook_mode"], "enforce")
+
+    def test_default_adoption_gets_only_the_claude_hook_file(self):
+        from standards.marker import read_marker
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="library", adopted="2026-05-29")
+            self.assertTrue((target / ".claude" / "settings.json").is_file())
+            self.assertFalse((target / ".github" / "hooks").exists())
+            self.assertEqual(read_marker(target)["agents"], ["claude", "copilot"])
+
+    def test_copilot_only_adoption_gets_only_the_copilot_hook_file(self):
+        from standards.marker import read_marker
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="library", adopted="2026-05-29", agents=["copilot"])
+            marker = read_marker(target)
+            self.assertTrue((target / ".github" / "hooks" / "standards.json").is_file())
+            self.assertFalse((target / ".claude" / "settings.json").exists())
+            self.assertFalse((target / "docs" / "templates" / "copilot-hooks.json").exists())
+            self.assertEqual(marker["agents"], ["copilot"])
+            self.assertIn(".github/hooks/standards.json", marker["tracked"])
+            self.assertNotIn(".claude/settings.json", marker["tracked"])
+
+    def test_copilot_only_init_ignores_an_existing_claude_settings_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / ".claude").mkdir()
+            (target / ".claude" / "settings.json").write_text("{}\n", encoding="utf-8")
+            self._run(target, profile="library", adopted="2026-05-29", agents=["copilot"])
+            self.assertEqual(
+                (target / ".claude" / "settings.json").read_text(encoding="utf-8"), "{}\n")
+
+    def test_force_reinit_refuses_to_switch_while_the_old_hook_file_remains(self):
+        from standards.marker import read_marker
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="library", adopted="2026-05-29", agents=["claude"])
+            with self.assertRaisesRegex(FileExistsError, r"\.claude/settings\.json"):
+                self._run(target, profile="library", adopted="2026-05-29", force=True,
+                          agents=["copilot"])
+            self.assertFalse((target / ".github" / "hooks").exists())
+            (target / ".claude" / "settings.json").unlink()
+            self._run(target, profile="library", adopted="2026-05-29", force=True,
+                      agents=["copilot"])
+            self.assertEqual(read_marker(target)["agents"], ["copilot"])
+
     def test_copies_tracked_and_writes_marker(self):
         from standards.marker import read_marker
         with tempfile.TemporaryDirectory() as d:

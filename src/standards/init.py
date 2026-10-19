@@ -14,7 +14,14 @@ from standards.managed import (
     has_begin_marker,
     splice_block,
 )
-from standards.manifest import PROFILE_TEMPLATED, SCAFFOLD_ONCE, classify, iter_payload
+from standards.manifest import (
+    AGENTS,
+    PROFILE_TEMPLATED,
+    SCAFFOLD_ONCE,
+    classify,
+    iter_payload,
+    unused_hook_file,
+)
 from standards.marker import MARKER_NAME, read_marker, sha256_file, write_marker
 from standards.payload import payload_root
 
@@ -22,6 +29,9 @@ ADOPT_REPORT_KEYS = ("added", "unchanged", "spliced", "conflicts", "scaffolded")
 
 PROFILE_PLACEHOLDER = "<application | library | infra | data | documentation>"
 ROOT_STARTER_DESTS = frozenset({"README.md", "CHANGELOG.md"})
+# ADR-0023: new adoptions enforce the drift Stop hook. Markers written before it
+# have no `hook_mode`, so existing adopters keep advising until they opt in.
+NEW_ADOPTION_KEYS: dict[str, object] = {"hook_mode": "enforce"}
 
 _LEADING_COMMENT_RE = re.compile(r"\A\s*<!--.*?-->\s*", re.DOTALL)
 
@@ -124,20 +134,30 @@ def _seed_scaffold_once(target: Path, src_root: Path, *, profile: str,
     return seeded
 
 
-def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -> dict:
+def run_init(target: Path, *, profile: str, adopted: str, force: bool = False,
+             agents=AGENTS) -> dict:
     """Copy kit-tracked files + scaffold-once seeds into `target`; write the marker.
 
+    `agents` picks the one hook file the repo gets and is recorded in the marker.
     Returns the marker dict. Raises FileExistsError if already adopted and not force.
     """
     target = Path(target)
-    if read_marker(target) is not None and not force:
+    previous = read_marker(target)
+    if previous is not None and not force:
         raise FileExistsError(
             f"{target / MARKER_NAME} exists; pass force=True to re-init"
+        )
+    old_hooks = unused_hook_file(agents)
+    if previous is not None and old_hooks in previous.get("tracked", {}) \
+            and (target / old_hooks).exists():
+        raise FileExistsError(
+            f"{old_hooks} holds the kit's hooks for this repo's previous agents; delete it "
+            f"before switching to {', '.join(agents)}, or Copilot runs each hook twice"
         )
 
     if not force:
         collisions: list[str] = []
-        for full, rel in iter_payload(payload_root()):
+        for full, rel in iter_payload(payload_root(), agents):
             cls = classify(rel)
             if cls == "scaffold-once-source":
                 continue
@@ -165,7 +185,7 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
     tracked: dict[str, str] = {}
     managed: dict[str, str] = {}
 
-    for full, rel in iter_payload(src_root):
+    for full, rel in iter_payload(src_root, agents):
         cls = classify(rel)
         if cls == "scaffold-once-source":
             continue  # handled in the scaffold-once loop below
@@ -188,10 +208,12 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False) -
     _seed_scaffold_once(target, src_root, profile=profile, adopted=adopted)
 
     return write_marker(target, kit_version=__version__, profile=profile,
-                        adopted=adopted, tracked=tracked, managed=managed)
+                        adopted=adopted, tracked=tracked, managed=managed,
+                        keep={**NEW_ADOPTION_KEYS, "agents": list(agents)})
 
 
-def run_adopt(target: Path, *, profile: str, adopted: str) -> dict[str, list[str]]:
+def run_adopt(target: Path, *, profile: str, adopted: str,
+              agents=AGENTS) -> dict[str, list[str]]:
     """Adopt the kit into an EXISTING repo non-destructively (RFC-0002 / ADR-0013).
 
     Like `init` but never clobbers: a differing kit-tracked file is kept and the
@@ -212,7 +234,7 @@ def run_adopt(target: Path, *, profile: str, adopted: str) -> dict[str, list[str
     tracked: dict[str, str] = {}
     managed: dict[str, str] = {}
 
-    for full, rel in iter_payload(src_root):
+    for full, rel in iter_payload(src_root, agents):
         cls = classify(rel)
         if cls == "scaffold-once-source":
             continue
@@ -271,5 +293,6 @@ def run_adopt(target: Path, *, profile: str, adopted: str) -> dict[str, list[str
                                                adopted=adopted)
 
     write_marker(target, kit_version=__version__, profile=profile,
-                 adopted=adopted, tracked=tracked, managed=managed)
+                 adopted=adopted, tracked=tracked, managed=managed,
+                 keep={**NEW_ADOPTION_KEYS, "agents": list(agents)})
     return report

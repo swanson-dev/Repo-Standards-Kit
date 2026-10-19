@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 import subprocess
 import sys
 from datetime import date
@@ -10,10 +11,52 @@ from pathlib import Path
 from standards.__about__ import __version__
 from standards.doctor import doctor_lines
 from standards.init import run_adopt, run_init
+from standards.manifest import AGENTS, hook_file, recorded_agents
+from standards.marker import read_marker
 from standards.payload import payload_root
 from standards.update import run_update
 
 PROFILES = ["application", "library", "infra", "data", "documentation"]
+AGENTS_HELP = ("Agents the repo's team uses, comma-separated: claude, copilot. Default: "
+               "detected on this machine. With claude the repo gets .claude/settings.json, "
+               "which Copilot also reads; copilot alone gets .github/hooks/standards.json.")
+
+
+def detect_agents() -> list[str]:
+    """Suggest `agents` from this machine. Finding neither assumes both, which ships
+    Claude's hook file: every host reads it."""
+    home = Path.home()
+    # ponytail: PATH and home-folder sniffing; a Copilot user with none of these is missed
+    found = []
+    if shutil.which("claude") or (home / ".claude").is_dir():
+        found.append("claude")
+    if (shutil.which("copilot") or (home / ".copilot").is_dir()
+            or any((home / ".vscode" / "extensions").glob("github.copilot*"))):
+        found.append("copilot")
+    return found or list(AGENTS)
+
+
+def _agents_arg(value: str) -> list[str]:
+    agents = {name.strip() for name in value.split(",") if name.strip()}
+    if not agents or not agents <= set(AGENTS):
+        raise argparse.ArgumentTypeError(
+            f"expected a comma-separated list of {', '.join(AGENTS)}, got {value!r}")
+    return [name for name in AGENTS if name in agents]
+
+
+def _pick_agents(args) -> tuple[list[str], str]:
+    """--agents, else the repo's recorded choice (a force re-init), else this machine."""
+    if args.agents:
+        return args.agents, ""
+    recorded = recorded_agents((read_marker(Path(args.target)) or {}).get("agents"))
+    if recorded:
+        return recorded, " (recorded in .standards-kit.json)"
+    return detect_agents(), " (detected on this machine; pass --agents to change)"
+
+
+def _agents_line(agents: list[str], how: str) -> str:
+    return f"Agents: {', '.join(agents)}{how}. Hook config: {hook_file(agents)}"
+
 
 COMMAND_ROWS = (
     ("init", "Adopt the kit into a new or clean repo.", "standards check ."),
@@ -72,6 +115,7 @@ Use `standards adopt` instead for an existing repo with local files.""",
     p_init.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
     p_init.add_argument("--profile", required=True, choices=PROFILES)
     p_init.add_argument("--force", action="store_true", help="Re-init even if already adopted.")
+    p_init.add_argument("--agents", type=_agents_arg, help=AGENTS_HELP)
     parsers["init"] = p_init
 
     p_update = sub.add_parser(
@@ -104,6 +148,7 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
     )
     p_adopt.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
     p_adopt.add_argument("--profile", required=True, choices=PROFILES)
+    p_adopt.add_argument("--agents", type=_agents_arg, help=AGENTS_HELP)
     parsers["adopt"] = p_adopt
 
     p_check = sub.add_parser(
@@ -112,7 +157,8 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
         description="Run the standards check against a repo.",
         epilog="""Examples:
   standards check .
-  standards check C:\\path\\to\\repo""",
+  standards check C:\\path\\to\\repo
+  standards check --drift-base origin/main .""",
         **_parser_kwargs(),
     )
     p_check.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
@@ -125,6 +171,11 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
         "--freshness-report",
         action="store_true",
         help="Print ai/ freshness status for current-state, next-actions, and handoff.",
+    )
+    p_check.add_argument(
+        "--drift-base",
+        metavar="REF",
+        help="Opt in to the pull-request drift check against this base ref (e.g. origin/main).",
     )
     parsers["check"] = p_check
 
@@ -205,13 +256,15 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "init":
+        agents, how = _pick_agents(args)
         try:
             run_init(Path(args.target), profile=args.profile,
-                     adopted=date.today().isoformat(), force=args.force)
+                     adopted=date.today().isoformat(), force=args.force, agents=agents)
         except FileExistsError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 2
         print(f"Adopted Repo-Standards-Kit {__version__} ({args.profile}) into {args.target}")
+        print(_agents_line(agents, how))
         return 0
 
     if args.command == "update":
@@ -236,9 +289,10 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "adopt":
+        agents, how = _pick_agents(args)
         try:
             report = run_adopt(Path(args.target), profile=args.profile,
-                               adopted=date.today().isoformat())
+                               adopted=date.today().isoformat(), agents=agents)
         except FileExistsError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 2
@@ -246,6 +300,7 @@ def main(argv: list[str] | None = None) -> int:
                             ("added", "spliced", "unchanged", "conflicts", "scaffolded"))
         print(f"Adopted Repo-Standards-Kit {__version__} ({args.profile}) into "
               f"{args.target}: {summary}")
+        print(_agents_line(agents, how))
         if report["conflicts"]:
             print("conflicts (your file kept; kit version written as <path>.kit-"
                   f"{__version__}): " + ", ".join(report["conflicts"]), file=sys.stderr)
@@ -266,6 +321,8 @@ def main(argv: list[str] | None = None) -> int:
             cmd.append("--external-links")
         if args.freshness_report:
             cmd.append("--freshness-report")
+        if args.drift_base:
+            cmd += ["--drift-base", args.drift_base]
         cmd.append(str(args.target))
         return subprocess.run(cmd).returncode
 

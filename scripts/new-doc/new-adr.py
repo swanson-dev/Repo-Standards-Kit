@@ -46,8 +46,13 @@ def die(msg: str) -> None:
 
 
 def main(argv: list[str]) -> None:
-    if len(argv) < 2 or not argv[1].strip():
-        die("usage: new-adr.py \"<Title of the decision>\"")
+    usage = "usage: new-adr.py \"<Title of the decision>\""
+    if len(argv) > 1 and argv[1] in ("-h", "--help"):
+        print(usage)
+        sys.exit(0)
+    # A leading dash is a mistyped flag, not a title.
+    if len(argv) < 2 or not argv[1].strip() or argv[1].strip().startswith("-"):
+        die(usage)
     title = argv[1].strip()
 
     try:

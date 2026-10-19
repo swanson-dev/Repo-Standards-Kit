@@ -1,7 +1,7 @@
 # Team Repository Standards
 
-**Kit version:** 1.3.0
-**Status:** v1.3.0 adoption starter and changelog assist shipped; roadmap in `docs/05-implementation-plan.md`
+**Kit version:** 1.4.0
+**Status:** v1.4.0 automation engine shipped (block-once Stop hooks, drift rules, CI drift check); roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
 ## Purpose and precedence
@@ -304,9 +304,51 @@ start and must not mutate files. Compact snapshots and handoff refreshes are
 explicit command/manual actions that write `ai/handoff.md`; they are not automatic
 SessionStart behavior.
 
-Stop hooks may also run advisory checks such as changelog reminders. These
-checks should exit successfully and print guidance instead of mutating files or
-blocking the session; explicit skill or slash-command surfaces handle the write.
+Stop hooks may run the drift check (`python scripts/drift/drift.py --hook`,
+ADR-0023). It finds docs that are behind the changes that should update them,
+such as a `feat` commit with no changelog entry. In `enforce` mode it blocks the
+agent once, naming each doc and the commits behind it; the next stop goes
+through, so the agent either updates the doc or says why it is unaffected. In
+`advise` mode it only prints a reminder. Hooks never write to the repo, and never
+block when their input, their config, or git history can't be read; the agent
+makes the update. On CI runners (`GITHUB_ACTIONS=true`, such as the Copilot cloud
+agent) the hook blocks at most once per session. The cloud agent's engine
+reprompts the same session to write the PR description, and a block there would
+replace it. The hook records the block in `RUNNER_TEMP`; if it can't, it doesn't
+block, and the CI drift check covers what's left.
+
+Set the mode with `hook_mode` (`"enforce"` or `"advise"`) in `.standards-kit.json`.
+New adoptions start with `enforce`; a marker without `hook_mode` advises. The
+default drift rules cover `CHANGELOG.md`, `docs/09-deployment.md`, and
+`docs/04-api-and-integrations.md`, each only when the repo keeps that doc; add or
+override rules under a `drift` key in the same file. A `Docs-Unaffected:` commit
+trailer, such as `Docs-Unaffected: deployment (renamed a job)`, waives a commit.
+Codex runs a repo's hooks only after you trust the repo and review its hooks.
+
+A repo keeps its hooks in one file, picked by `agents` in `.standards-kit.json`.
+`standards init` and `standards adopt` set it with `--agents claude,copilot`, or
+detect this machine's agents without the flag. With `claude` in the list, the
+hooks live in `.claude/settings.json`, which Copilot in VS Code, the Copilot CLI,
+and the Copilot cloud agent also read. With `copilot` alone, they live in
+`.github/hooks/standards.json`, Copilot's own format, which Claude Code doesn't
+read. Never keep both: every Copilot host would run each hook twice. `standards
+update` follows the recorded choice; to switch, edit `agents`, run `standards
+update`, and delete the old file. Pick for the whole team, not one machine: a
+Copilot-only choice leaves teammates who use Claude without hooks. The Copilot CLI
+runs a repo's hooks only in a folder you trust. Copilot runs SessionStart hooks
+but doesn't show their output to the agent, so the Copilot file carries only the
+Stop hooks.
+
+CI applies the same rules to every pull request: `repo-standards.yml` runs
+`python scripts/standards-check/check.py --drift-base origin/main` (or `standards
+check --drift-base origin/main` locally), with the PR's target in place of `main`.
+Only the PR's own commits count, so drift already on the base branch isn't blamed
+on the PR. A `Docs-Unaffected:` line in the PR description waives a doc for the
+whole PR, which also survives a squash merge, and editing the description re-runs
+the check. It needs full history (`fetch-depth: 0`); a shallow clone or an unknown
+base is always an error, never a pass. Drift itself is an error
+in the kit and a warning by default in adopter repos; set
+`"check": {"drift": "error"}` in `.standards-kit.json` to make it fail the build.
 
 ## Waiver mechanism
 

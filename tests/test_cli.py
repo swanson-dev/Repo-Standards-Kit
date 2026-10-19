@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import sys
@@ -6,11 +7,12 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "src"))  # in-process imports use this checkout, not an installed kit
 
 
 class CliTests(unittest.TestCase):
-    def _run(self, *args, cwd):
-        full_env = {**os.environ, "PYTHONPATH": str(REPO / "src")}
+    def _run(self, *args, cwd, env=None):
+        full_env = {**os.environ, "PYTHONPATH": str(REPO / "src"), **(env or {})}
         return subprocess.run(
             [sys.executable, "-m", "standards.cli", *args],
             cwd=str(cwd), capture_output=True, text=True, env=full_env,
@@ -47,6 +49,17 @@ class CliTests(unittest.TestCase):
         res = self._run("help", "check", cwd=REPO)
         self.assertEqual(res.returncode, 0, res.stderr)
         self.assertIn("--external-links", res.stdout)
+
+    def test_check_help_lists_drift_base_flag(self):
+        res = self._run("help", "check", cwd=REPO)
+        self.assertEqual(res.returncode, 0, res.stderr)
+        self.assertIn("--drift-base", res.stdout)
+
+    def test_check_parses_drift_base(self):
+        from standards.cli import build_parser
+        parser, _ = build_parser()
+        args = parser.parse_args(["check", "--drift-base", "origin/main", "."])
+        self.assertEqual(args.drift_base, "origin/main")
 
     def test_check_help_lists_freshness_report_flag(self):
         res = self._run("help", "check", cwd=REPO)
@@ -93,6 +106,83 @@ class CliTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             marker = (target / ".standards-kit.json").read_text(encoding="utf-8")
             self.assertIn('"profile": "documentation"', marker)
+
+    def test_init_agents_flag_records_the_choice(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            result = self._run("init", "--profile", "library", "--agents", "copilot",
+                               str(target), cwd=REPO)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            marker = json.loads((target / ".standards-kit.json").read_text(encoding="utf-8"))
+            self.assertEqual(marker["agents"], ["copilot"])
+            self.assertIn(".github/hooks/standards.json", result.stdout)
+
+    def test_adopt_agents_flag_records_the_choice(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            result = self._run("adopt", "--profile", "library", "--agents", "copilot,claude",
+                               str(target), cwd=REPO)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            marker = json.loads((target / ".standards-kit.json").read_text(encoding="utf-8"))
+            self.assertEqual(marker["agents"], ["claude", "copilot"])
+            self.assertIn(".claude/settings.json", result.stdout)
+
+    def test_rejects_unknown_agent(self):
+        with tempfile.TemporaryDirectory() as d:
+            result = self._run("init", "--profile", "library", "--agents", "cursor", d,
+                               cwd=REPO)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("claude", result.stderr)
+
+    def test_init_without_agents_detects_the_machine(self):
+        with tempfile.TemporaryDirectory() as d:
+            home, target = Path(d) / "home", Path(d) / "repo"
+            (home / ".copilot").mkdir(parents=True)
+            target.mkdir()
+            env = {"HOME": str(home), "USERPROFILE": str(home), "PATH": str(home)}
+            result = self._run("init", "--profile", "library", str(target), cwd=REPO,
+                               env=env)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            marker = json.loads((target / ".standards-kit.json").read_text(encoding="utf-8"))
+            self.assertEqual(marker["agents"], ["copilot"])
+            self.assertIn("detected", result.stdout)
+
+    def test_force_reinit_without_agents_keeps_the_recorded_choice(self):
+        with tempfile.TemporaryDirectory() as d:
+            home, target = Path(d) / "home", Path(d) / "repo"
+            (home / ".claude").mkdir(parents=True)  # this machine would detect claude
+            target.mkdir()
+            env = {"HOME": str(home), "USERPROFILE": str(home), "PATH": str(home)}
+            first = self._run("init", "--profile", "library", "--agents", "copilot",
+                              str(target), cwd=REPO, env=env)
+            self.assertEqual(first.returncode, 0, first.stderr)
+            again = self._run("init", "--profile", "library", "--force", str(target),
+                              cwd=REPO, env=env)
+            self.assertEqual(again.returncode, 0, again.stderr)
+            marker = json.loads((target / ".standards-kit.json").read_text(encoding="utf-8"))
+            self.assertEqual(marker["agents"], ["copilot"])
+            self.assertIn("recorded", again.stdout)
+            self.assertFalse((target / ".claude" / "settings.json").exists())
+
+    def test_detect_agents(self):
+        from unittest import mock
+
+        from standards.cli import detect_agents
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            on_path: set[str] = set()
+            with mock.patch("standards.cli.Path.home", return_value=home), \
+                    mock.patch("standards.cli.shutil.which",
+                               side_effect=lambda name: name if name in on_path else None):
+                self.assertEqual(detect_agents(), ["claude", "copilot"])  # found neither
+                on_path.add("copilot")
+                self.assertEqual(detect_agents(), ["copilot"])
+                (home / ".claude").mkdir()
+                self.assertEqual(detect_agents(), ["claude", "copilot"])
+                on_path.clear()
+                self.assertEqual(detect_agents(), ["claude"])
+                (home / ".vscode" / "extensions" / "github.copilot-chat-1.0").mkdir(parents=True)
+                self.assertEqual(detect_agents(), ["claude", "copilot"])
 
     def test_rejects_unknown_profile(self):
         with tempfile.TemporaryDirectory() as d:

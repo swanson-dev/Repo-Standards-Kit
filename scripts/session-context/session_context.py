@@ -86,14 +86,18 @@ def numbered_or_bullets(text: str, max_lines: int = 5) -> list[str]:
 
 
 def question_headings(text: str, max_lines: int = 5) -> list[str]:
-    out = []
+    # Answered and obsolete questions stay in the file as history; only open ones
+    # belong in the brief. A question with no Status line counts as open.
+    questions: list[list[str]] = []
     for line in text.splitlines():
         stripped = line.strip()
         if re.match(r"^##\s+Q-\d+:", stripped):
-            out.append(stripped.removeprefix("## ").strip())
-        if len(out) >= max_lines:
-            break
-    return out
+            questions.append([stripped.removeprefix("## ").strip(), "open"])
+            continue
+        status = re.match(r"^-\s+\*\*Status:\*\*\s+(\w+)", stripped)
+        if status and questions:
+            questions[-1][1] = status.group(1).lower()
+    return [heading for heading, status in questions if status == "open"][:max_lines]
 
 
 def build_brief(root: Path) -> list[str]:

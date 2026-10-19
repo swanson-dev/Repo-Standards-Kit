@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$(git rev-parse --show-toplevel)/stop_hook.py\"",
+            "commandWindows": "python \"$(git rev-parse --show-toplevel)/stop_hook.py\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}

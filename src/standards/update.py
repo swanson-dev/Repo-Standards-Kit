@@ -10,7 +10,7 @@ from pathlib import Path
 
 from standards.__about__ import __version__
 from standards.managed import block_hash, find_block, splice_block
-from standards.manifest import classify, iter_payload
+from standards.manifest import AGENTS, classify, iter_payload, recorded_agents
 from standards.marker import MARKER_NAME, read_marker, sha256_file, write_marker
 from standards.payload import payload_root
 
@@ -46,8 +46,11 @@ def run_update(target: Path, *, dry_run: bool = False) -> dict[str, list[str]]:
     tracked = dict(marker.get("tracked", {}))
     managed = dict(marker.get("managed", {}))
     seen: set[str] = set()
+    # Follow the recorded choice, never this machine. Markers from before the
+    # choice existed, or with a broken value, keep Claude's file, which every host reads.
+    agents = recorded_agents(marker.get("agents")) or AGENTS
 
-    for full, rel in iter_payload(src_root):
+    for full, rel in iter_payload(src_root, agents):
         cls = classify(rel)
         if cls == "scaffold-once-source":
             continue
@@ -125,5 +128,6 @@ def run_update(target: Path, *, dry_run: bool = False) -> dict[str, list[str]]:
 
     if not dry_run:
         write_marker(target, kit_version=__version__, profile=marker["profile"],
-                     adopted=marker["adopted"], tracked=tracked, managed=managed)
+                     adopted=marker["adopted"], tracked=tracked, managed=managed,
+                     keep=marker)
     return report

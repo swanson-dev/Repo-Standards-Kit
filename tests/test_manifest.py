@@ -50,6 +50,7 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("docs/templates/guide-template.md", rels)
         self.assertIn("scripts/_doc_lib/helpers.py", rels)
         self.assertIn("scripts/session-context/session_context.py", rels)
+        self.assertIn("scripts/drift/drift.py", rels)
         self.assertIn("docs/STANDARDS.md", rels)
         self.assertIn("scripts/standards-check/check.py", rels)
         self.assertNotIn("docs/discovery/captured/README.md", rels)
@@ -62,6 +63,47 @@ class ManifestTests(unittest.TestCase):
         self.assertFalse(any(r == "ai/handoff.md" for r in rels))
         self.assertFalse(any(r.endswith(".pyc") for r in rels))
 
+
+    def test_copilot_hook_file_ships_from_a_template_source(self):
+        from standards.manifest import is_excluded_from_tracked, iter_payload
+        from standards.payload import payload_root
+        sources = {rel: full for full, rel in iter_payload(payload_root())}
+        self.assertEqual(sources[".github/hooks/standards.json"].name, "copilot-hooks.json")
+        self.assertTrue(is_excluded_from_tracked("docs/templates/copilot-hooks.json"))
+
+    def test_agents_choice_ships_one_hook_file(self):
+        from standards.manifest import iter_payload
+        from standards.payload import payload_root
+
+        def rels(agents):
+            return {rel for _full, rel in iter_payload(payload_root(), agents=agents)}
+
+        for agents in (["claude"], ["claude", "copilot"]):
+            self.assertIn(".claude/settings.json", rels(agents))
+            self.assertNotIn(".github/hooks/standards.json", rels(agents))
+        self.assertIn(".github/hooks/standards.json", rels(["copilot"]))
+        self.assertNotIn(".claude/settings.json", rels(["copilot"]))
+        self.assertIn(".claude/skills/standards-check/SKILL.md", rels(["copilot"]))
+
+    def test_iter_payload_skips_machine_local_claude_files(self):
+        import tempfile
+
+        from standards.manifest import iter_payload
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            for rel in (
+                ".claude/settings.json",
+                ".claude/skills/standards-check/SKILL.md",
+                ".claude/settings.local.json",
+                ".claude/worktrees/wt/AGENTS.md",
+            ):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                (root / rel).write_text("x\n", encoding="utf-8")
+            rels = {rel for _full, rel in iter_payload(root)}
+        self.assertIn(".claude/settings.json", rels)
+        self.assertIn(".claude/skills/standards-check/SKILL.md", rels)
+        self.assertNotIn(".claude/settings.local.json", rels)
+        self.assertFalse(any(r.startswith(".claude/worktrees/") for r in rels))
 
     def test_partial_files_classified_partial(self):
         from standards.manifest import PARTIAL_FILES, classify

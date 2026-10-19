@@ -28,6 +28,7 @@ class Context:
     overrides: dict[str, Severity] = field(default_factory=dict)
     external_links: bool = False          # Opt-in networked liveness check.
     freshness_report: bool = False        # Opt-in ai/ freshness status output.
+    drift_base: str | None = None         # Opt-in PR drift check: the PR's base ref.
 
 
 def resolve_severity(check_id: str, default: Severity, ctx: Context) -> Severity:

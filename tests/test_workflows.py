@@ -22,6 +22,23 @@ class WorkflowTests(unittest.TestCase):
         self.assertNotIn("pull_request:", text)
         self.assertIn("python scripts/standards-check/check.py --external-links", text)
 
+    def test_standards_check_runs_drift_on_pull_requests(self):
+        text = (REPO / ".github" / "workflows" / "repo-standards.yml").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("fetch-depth: 0", text)
+        self.assertIn("--drift-base", text)
+        # Editing a Docs-Unaffected waiver into the PR description must re-run the check,
+        # without re-running the test matrix and build on every description edit.
+        self.assertIn("types: [opened, synchronize, reopened, edited]", text)
+        self.assertEqual(text.count("if: github.event.action != 'edited'"), 2)
+        # The PR body is untrusted: it may reach the script only through env, never
+        # interpolated into a shell command.
+        body_lines = [line.strip() for line in text.splitlines()
+                      if "github.event.pull_request.body" in line]
+        self.assertEqual(body_lines,
+                         ["STANDARDS_PR_BODY: ${{ github.event.pull_request.body }}"])
+
     def test_claude_hooks_include_read_only_session_start_and_stop_check(self):
         data = json.loads((REPO / ".claude" / "settings.json").read_text(encoding="utf-8"))
         hooks = data["hooks"]
@@ -30,9 +47,32 @@ class WorkflowTests(unittest.TestCase):
 
         self.assertEqual(session_start, "python scripts/session-context/session_context.py --hook")
         self.assertIn("python scripts/update-handoff/update_handoff.py --check", stop)
-        self.assertIn("python scripts/changelog/check_changelog.py --check", stop)
+        self.assertIn("python scripts/drift/drift.py --hook", stop)
+        # The drift hook covers the changelog; a second changelog reminder would just repeat it.
+        self.assertNotIn("python scripts/changelog/check_changelog.py --check", stop)
         self.assertNotIn("compact-snapshot", session_start)
         self.assertNotIn("--force", session_start)
+
+    def test_kit_repo_wires_hooks_only_through_claude_settings(self):
+        # Every Copilot host also reads .claude/settings.json (RFC-0007 test B2), so a
+        # .github/hooks/ copy here would run each hook twice.
+        self.assertFalse((REPO / ".github" / "hooks").exists())
+
+    def test_copilot_hook_file_runs_the_claude_stop_hooks(self):
+        claude = json.loads((REPO / ".claude" / "settings.json").read_text(encoding="utf-8"))
+        copilot = json.loads(
+            (REPO / "docs" / "templates" / "copilot-hooks.json").read_text(encoding="utf-8"))
+        expected = [hook["command"] for hook in claude["hooks"]["Stop"][0]["hooks"]]
+        stop = copilot["hooks"]["Stop"]
+
+        self.assertEqual(copilot["version"], 1)
+        # Copilot runs SessionStart hooks but drops their plain-text output.
+        self.assertEqual(list(copilot["hooks"]), ["Stop"])
+        self.assertEqual([hook["command"] for hook in stop], expected)
+        self.assertEqual([hook["powershell"] for hook in stop], expected)
+        self.assertEqual([hook["bash"] for hook in stop],
+                         [command.replace("python ", "python3 ", 1) for command in expected])
+        self.assertTrue(all(hook["type"] == "command" and hook["cwd"] == "." for hook in stop))
 
 
 if __name__ == "__main__":

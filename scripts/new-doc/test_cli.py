@@ -95,6 +95,23 @@ class NewAdrTests(unittest.TestCase):
             self.assertEqual(result.returncode, 2)
             self.assertIn("usage:", result.stderr.lower())
 
+    def test_help_flag_prints_usage_and_creates_nothing(self):
+        for flag in ("-h", "--help"):
+            with self.subTest(flag=flag), tempfile.TemporaryDirectory() as d:
+                tmp = make_fixture_repo(Path(d))
+                result = run(NEW_ADR, flag, cwd=tmp)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("usage:", result.stdout.lower())
+                self.assertEqual(list((tmp / "docs" / "decisions").iterdir()), [])
+
+    def test_flag_like_title_exits_2_and_creates_nothing(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_fixture_repo(Path(d))
+            result = run(NEW_ADR, "--bogus", cwd=tmp)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("usage:", result.stderr.lower())
+            self.assertEqual(list((tmp / "docs" / "decisions").iterdir()), [])
+
 
 class NewRfcTests(unittest.TestCase):
     def test_creates_folder_and_rfc_md(self):
@@ -152,6 +169,23 @@ class NewRfcTests(unittest.TestCase):
             result = run(NEW_RFC, "Anything", cwd=Path(d))
             self.assertEqual(result.returncode, 2)
             self.assertIn("not in a git repo", result.stderr.lower())
+
+    def test_help_flag_prints_usage_and_creates_nothing(self):
+        for flag in ("-h", "--help"):
+            with self.subTest(flag=flag), tempfile.TemporaryDirectory() as d:
+                tmp = make_fixture_repo(Path(d))
+                result = run(NEW_RFC, flag, cwd=tmp)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn("usage:", result.stdout.lower())
+                self.assertEqual(list((tmp / "docs" / "rfcs").iterdir()), [])
+
+    def test_flag_like_title_exits_2_and_creates_nothing(self):
+        with tempfile.TemporaryDirectory() as d:
+            tmp = make_fixture_repo(Path(d))
+            result = run(NEW_RFC, "--bogus", cwd=tmp)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("usage:", result.stderr.lower())
+            self.assertEqual(list((tmp / "docs" / "rfcs").iterdir()), [])
 
 
 if __name__ == "__main__":

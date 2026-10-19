@@ -27,6 +27,34 @@ class UpdateTests(unittest.TestCase):
             report = run_update(target)
             self.assertNotIn("docs/STANDARDS.md", report["conflicts"])
 
+    def test_update_keeps_adopter_owned_marker_keys(self):
+        from standards.marker import MARKER_NAME
+        from standards.update import run_update
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            _adopt(target)
+            marker_path = target / MARKER_NAME
+            data = json.loads(marker_path.read_text(encoding="utf-8"))
+            data["check"] = {"changelog": "error"}
+            marker_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+            run_update(target)
+            after = json.loads(marker_path.read_text(encoding="utf-8"))
+            self.assertEqual(after.get("check"), {"changelog": "error"})
+
+    def test_update_leaves_existing_adopters_on_advise(self):
+        from standards.marker import MARKER_NAME
+        from standards.update import run_update
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            _adopt(target)
+            marker_path = target / MARKER_NAME
+            data = json.loads(marker_path.read_text(encoding="utf-8"))
+            data.pop("hook_mode", None)  # an adoption from before ADR-0023
+            marker_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+            run_update(target)
+            after = json.loads(marker_path.read_text(encoding="utf-8"))
+            self.assertNotIn("hook_mode", after)
+
     def test_edited_kit_tracked_produces_sidecar_not_overwrite(self):
         from standards.__about__ import __version__
         from standards.update import run_update
@@ -81,6 +109,48 @@ class UpdateTests(unittest.TestCase):
             marker_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
             report = run_update(target)
             self.assertIn("docs/discovery/captured/README.md", report["removed"])
+
+    def test_update_follows_the_recorded_agents(self):
+        from standards.init import run_init
+        from standards.update import run_update
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            run_init(target, profile="library", adopted="2026-05-29", agents=["copilot"])
+            (target / ".github" / "hooks" / "standards.json").unlink()
+            report = run_update(target)
+            self.assertIn(".github/hooks/standards.json", report["added"])
+            self.assertFalse((target / ".claude" / "settings.json").exists())
+
+    def test_update_without_agents_keeps_the_claude_hook_file(self):
+        from standards.marker import MARKER_NAME
+        from standards.update import run_update
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            _adopt(target)
+            marker_path = target / MARKER_NAME
+            data = json.loads(marker_path.read_text(encoding="utf-8"))
+            data.pop("agents", None)  # an adoption from before the agents choice
+            marker_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+            run_update(target)
+            after = json.loads(marker_path.read_text(encoding="utf-8"))
+            self.assertTrue((target / ".claude" / "settings.json").is_file())
+            self.assertFalse((target / ".github" / "hooks").exists())
+            self.assertNotIn("agents", after)
+
+    def test_update_with_broken_agents_keeps_the_claude_hook_file(self):
+        from standards.marker import MARKER_NAME
+        from standards.update import run_update
+        for broken in (["cluade"], [None], ["copilot", "cursor"], "copilot"):
+            with self.subTest(agents=broken), tempfile.TemporaryDirectory() as d:
+                target = Path(d)
+                _adopt(target)
+                marker_path = target / MARKER_NAME
+                data = json.loads(marker_path.read_text(encoding="utf-8"))
+                data["agents"] = broken
+                marker_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+                run_update(target)
+                self.assertTrue((target / ".claude" / "settings.json").is_file())
+                self.assertFalse((target / ".github" / "hooks").exists())
 
     def test_scaffold_once_never_touched(self):
         from standards.update import run_update

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "hooks": {
+    "Stop": [
+      {
+        "type": "command",
+        "bash": "python3 scripts/update-handoff/update_handoff.py --check",
+        "powershell": "python scripts/update-handoff/update_handoff.py --check",
+        "command": "python scripts/update-handoff/update_handoff.py --check",
+        "cwd": ".",
+        "timeoutSec": 30
+      },
+      {
+        "type": "command",
+        "bash": "python3 scripts/drift/drift.py --hook",
+        "powershell": "python scripts/drift/drift.py --hook",
+        "command": "python scripts/drift/drift.py --hook",
+        "cwd": ".",
+        "timeoutSec": 30
+      }
+    ]
+  }
+}

@@ -8,12 +8,51 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-10-18
+
 ### Added
 - The kit now lints and type-checks its own code: `ruff` and `mypy` config in
   `pyproject.toml`, a `dev` optional-dependency group, and a lint/type-check job
   in the (non-shipped) `kit-guards.yml` workflow. Runtime stays zero-dependency.
+- `scripts/drift/drift.py` reports which docs have fallen behind the changes that
+  should move them (ADR-0023). Default rules live in code, and a repo can add or
+  override them under a `drift` key in `.standards-kit.json`. The changelog rule
+  judges commits by conventional-commit type, and a `Docs-Unaffected:` commit
+  trailer waives a commit.
+- A Stop hook (`python scripts/drift/drift.py --hook`) acts on that report. In
+  `enforce` mode it blocks the agent once, naming the docs that are behind, with
+  top-level `decision`/`reason` JSON that Claude Code, Codex, and Copilot (VS
+  Code, the CLI, and the cloud agent) all accept; the next stop goes through. On
+  CI runners such as the Copilot cloud agent it blocks at most once per session,
+  because that agent's engine reprompts the session for the PR description and a
+  block there failed the job. In `advise` mode it only prints a reminder, and it
+  never blocks when its input, its config, or git history can't be read. New adoptions
+  write `hook_mode: "enforce"` to
+  `.standards-kit.json`; existing adopters keep advising until they set it.
+  `scripts/drift` now ships in the payload.
+- A pull-request drift check: `standards check --drift-base origin/main` flags
+  docs that a PR's own commits left behind, ignoring drift already on the base
+  branch. A `Docs-Unaffected:` line in the PR description waives a doc for the
+  whole PR, and editing the description re-runs the check. `repo-standards.yml`
+  now checks out full history and runs it on pull requests, passing the PR
+  description through an environment variable. Drift is an error in the kit and a
+  warning by default for adopters (`"check": {"drift": "error"}` in
+  `.standards-kit.json` escalates it); history that can't be read is always an
+  error.
+- Copilot-only repos get Copilot's own hook file. `standards init` and `standards
+  adopt` take `--agents claude,copilot`, detect this machine's agents without
+  the flag, and record the choice as `agents` in `.standards-kit.json`; `standards
+  update` follows it. A repo that uses Claude keeps its hooks in
+  `.claude/settings.json`, which Copilot in VS Code, the Copilot CLI, and the
+  Copilot cloud agent also read. A Copilot-only repo gets
+  `.github/hooks/standards.json` with the same Stop hooks instead. A repo never
+  gets both, because every Copilot host would run each hook twice. Markers
+  without `agents` keep `.claude/settings.json`.
 
 ### Changed
+- The Claude Code Stop hook now runs the drift check instead of
+  `scripts/changelog/check_changelog.py --check`; the drift check's changelog
+  rule covers what that reminder did.
 - Reused the manifest's managed-file list in `standards doctor` and removed an
   empty readiness-fixture hook from the v1 gate.
 - `write_marker` now returns the marker dict it wrote, so `run_init` returns it
@@ -25,6 +64,20 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
   `AttributeError`/`TypeError` deep in the copy loop.
 - Corrected stale "future Skill (Slice 2)" references in `docs/STANDARDS.md` and
   `docs/templates/README.md` to point at the shipped `standards adopt` / `init`.
+- `new-adr.py` and `new-rfc.py` now print usage for `-h`/`--help` instead of
+  creating an ADR or RFC titled "--help", and reject any other title that starts
+  with `-`.
+- The session-context brief (the SessionStart hook and
+  `standard-get-session-context`) now lists only open questions. Answered and
+  obsolete entries in `ai/open-questions.md` no longer appear as open.
+- `standards update` now keeps adopter-owned keys in `.standards-kit.json`, such
+  as the `check` severity map. It used to rewrite the marker with only the kit's
+  own fields, silently resetting escalated checks back to warnings.
+- The payload now ships only `.claude/settings.json` and `.claude/skills/`
+  instead of all of `.claude/`. Run from a source checkout, `standards init`,
+  `adopt`, and `update` copied machine-local files into adopters, such as
+  `.claude/settings.local.json` and whole worktree checkouts under
+  `.claude/worktrees/`, and a wheel built from such a checkout bundled them.
 
 ### Removed
 - Removed the legacy `update-handoff` Claude/Copilot command aliases and the
@@ -387,6 +440,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[1.4.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.4.0
 [1.3.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.3.0
 [1.2.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.2.0
 [1.1.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.1.0

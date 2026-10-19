@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
   pull_request:
+    # `edited` re-runs the drift check when a Docs-Unaffected waiver is added to the description.
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
@@ -14,14 +16,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0  # the drift check needs full history (ADR-0023)
       - uses: actions/setup-python@v6
         with:
           python-version: '3.x'
       - name: Run standards check
-        run: python scripts/standards-check/check.py
+        env:
+          # Untrusted PR text reaches the script only through env, never the shell.
+          STANDARDS_PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ -n "$BASE_REF" ]; then
+            python scripts/standards-check/check.py --drift-base "origin/$BASE_REF"
+          else
+            python scripts/standards-check/check.py
+          fi
 
   test:
     name: Tests (py${{ matrix.python-version }})
+    if: github.event.action != 'edited'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -37,6 +51,7 @@ jobs:
 
   build-smoke:
     name: Build wheel + init smoke
+    if: github.event.action != 'edited'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
