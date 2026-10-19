@@ -3,7 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "src"))
 
 
 class InitTests(unittest.TestCase):
@@ -140,6 +141,57 @@ class InitTests(unittest.TestCase):
             checklist = (target / "docs" / "STANDARDS-CHECKLIST.md").read_text(encoding="utf-8")
             self.assertIn("**Profile:** data", checklist)
             self.assertNotIn("infra", checklist)
+
+    def test_combined_profiles_reach_the_marker_and_checklist(self):
+        from standards.marker import read_marker
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="application,data", adopted="2026-05-29")
+            marker = read_marker(target)
+            checklist = (target / "docs" / "STANDARDS-CHECKLIST.md").read_text(encoding="utf-8")
+            self.assertEqual(marker["profile"], "application")
+            self.assertEqual(marker["profiles"], ["application", "data"])
+            self.assertIn("**Profile:** application + data\n", checklist)
+
+    def test_creates_and_ticks_the_docs_the_profiles_need(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="library", adopted="2026-05-29")
+            docs = target / "docs"
+            checklist = (docs / "STANDARDS-CHECKLIST.md").read_text(encoding="utf-8")
+            for doc in ("04-api-and-integrations.md", "07-testing.md",  # Required
+                        "02-architecture.md", "08-security-and-compliance.md"):  # Expected
+                self.assertTrue((docs / doc).is_file(), doc)
+                self.assertIn(f"- [x] `docs/{doc}`", checklist)
+            for doc in ("01-prd.md", "03-data-model.md", "05-implementation-plan.md",
+                        "06-runbook.md", "09-deployment.md"):  # Optional or N/A
+                self.assertFalse((docs / doc).exists(), doc)
+            self.assertIn("- `docs/versioning-policy.md`", checklist)  # listed, not created
+            self.assertNotIn("<doc>", checklist)
+            self.assertEqual((docs / "07-testing.md").read_text(encoding="utf-8"),
+                             (REPO / "docs" / "templates" / "testing-template.md")
+                             .read_text(encoding="utf-8"))
+
+    def test_strongest_tier_decides_which_docs_are_created(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="library,data", adopted="2026-05-29")
+            self.assertTrue((target / "docs" / "06-runbook.md").is_file())  # N/A for library
+            self.assertTrue((target / "docs" / "01-prd.md").is_file())  # Optional for library
+
+    def test_existing_profile_docs_are_kept(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / "docs").mkdir()
+            (target / "docs" / "07-testing.md").write_text("MINE\n", encoding="utf-8")
+            self._run(target, profile="library", adopted="2026-05-29")
+            self.assertEqual((target / "docs" / "07-testing.md").read_text(encoding="utf-8"),
+                             "MINE\n")
+
+    def test_rejects_documentation_combined_with_another_profile(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(ValueError):
+                self._run(Path(d), profile="documentation,library", adopted="2026-05-29")
 
     def test_refuses_reinit_without_force(self):
         with tempfile.TemporaryDirectory() as d:

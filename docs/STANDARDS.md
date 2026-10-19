@@ -21,7 +21,7 @@ This document is the authoritative spec for how repositories on the team documen
 
 ## Repo profiles
 
-Each repo declares exactly one profile. The profile determines which numbered docs are Required / Expected / Optional / N/A.
+Each repo declares one or more profiles, which determine which numbered docs are Required / Expected / Optional / N/A (ADR-0025). Profiles combine by the strongest tier: Required beats Expected, Expected beats Optional, and Optional beats N/A, and their extras add up. A library that also ships data pipelines (`library + data`) makes `06-runbook.md` Required, from data, and `01-prd.md` Expected. `documentation` stands alone: it means the code lives elsewhere, so it can't be combined. The checklist header joins profiles with ` + ` (`**Profile:** application + data`), and `.standards-kit.json` records them as `profiles`, with `profile` set to the first.
 
 | Profile | What it describes |
 |---|---|
@@ -377,12 +377,12 @@ The `standards adopt` (existing repos) and `standards init` (empty repos) comman
 steps below — prefer them. The manual procedure is kept as a description of what those commands do.
 
 1. Copy `docs/templates/` from this kit into your repo (`standards adopt` does this for you).
-2. Decide the profile.
+2. Decide the profiles: one or more, such as `standards init --profile application,data`.
 3. Create `AGENTS.md` and `CLAUDE.md` from the kit's root copies (rewrite the "What this repo is" and "Local conventions" sections).
 4. Fill `docs/STANDARDS.md` from `docs/templates/STANDARDS.md.template`.
 5. Fill `docs/STANDARDS-CHECKLIST.md` from `docs/templates/STANDARDS-CHECKLIST.md.template`.
 6. Seed `ai/*.md` from `docs/templates/ai-starters/`.
-7. Create the profile-required numbered docs from their templates. Leave Expected docs as stubs to be filled in (or waive them). For `documentation` repos, create `docs/source-map.md` from `docs/templates/source-map-template.md`.
+7. Create the numbered docs your profiles make Required or Expected from their templates, and tick them in the checklist. `standards init` and `standards adopt` do this and never overwrite an existing doc. The checklist lists the profile extras for you to create, such as `docs/source-map.md` from `docs/templates/source-map-template.md` for `documentation` repos.
 8. Adopt `.github/pull_request_template.md` and `.github/workflows/repo-standards.yml`.
 9. Run the CI check locally if possible; commit when green.
 
@@ -404,7 +404,7 @@ Each repo records the kit version it adopted in its local `docs/STANDARDS.md`. U
 `.github/workflows/repo-standards.yml` checks:
 
 1. **Universal core present** — all files listed under "Universal core".
-2. **Profile declared** — `docs/STANDARDS.md` declares a profile from the allowed set.
+2. **Profile declared** — `docs/STANDARDS-CHECKLIST.md` declares one or more profiles from the allowed set, and `documentation` isn't combined with another.
 3. **Waiver completeness** — every unchecked box in `docs/STANDARDS-CHECKLIST.md` has `**Waived:** <reason>`.
 4. **`ai/` freshness** — `ai/current-state.md`, `ai/next-actions.md`, and `ai/handoff.md` have required frontmatter; warn if `last_updated` / `written` is older than the stale threshold.
 5. **ADR filename + status** — filenames match `NNNN-kebab-case.md`; status is `Proposed` | `Accepted` | `Deprecated` | `Superseded by NNNN`.

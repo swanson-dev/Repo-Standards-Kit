@@ -56,9 +56,12 @@ class CliTests(unittest.TestCase):
         self.assertIn("--drift-base", res.stdout)
 
     def test_profile_help_lists_the_four_profiles(self):
-        res = self._run("init", "--help", cwd=REPO)
-        self.assertEqual(res.returncode, 0, res.stderr)
-        self.assertIn("{application,library,data,documentation}", res.stdout)
+        for command in ("init", "adopt"):
+            res = self._run(command, "--help", cwd=REPO)
+            self.assertEqual(res.returncode, 0, res.stderr)
+            text = " ".join(res.stdout.split())  # argparse wraps help text
+            self.assertIn("application, library, data, documentation", text)
+            self.assertIn("comma-separated", text)
 
     def test_infra_profile_is_an_alias_for_application(self):
         # ADR-0025 merged infra into application; old scripts keep working.
@@ -66,7 +69,7 @@ class CliTests(unittest.TestCase):
         parser, _ = build_parser()
         for command in ("init", "adopt"):
             args = parser.parse_args([command, "--profile", "infra", "."])
-            self.assertEqual(args.profile, "application")
+            self.assertEqual(args.profile, ["application"])
 
     def test_doctor_reads_a_legacy_infra_marker_as_application(self):
         from standards.doctor import doctor_lines
@@ -79,6 +82,36 @@ class CliTests(unittest.TestCase):
             text = "\n".join(lines)
             self.assertIn("profile=application", text)
             self.assertIn("support/incidents", text)  # application's support recommendations
+
+    def test_init_takes_a_comma_list_of_profiles(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            result = self._run("init", "--profile", "application,data", "--agents", "claude",
+                               str(target), cwd=REPO)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            marker = json.loads((target / ".standards-kit.json").read_text(encoding="utf-8"))
+            self.assertEqual(marker["profiles"], ["application", "data"])
+            self.assertIn("(application + data)", result.stdout)
+
+    def test_rejects_documentation_combined_with_another_profile(self):
+        with tempfile.TemporaryDirectory() as d:
+            result = self._run("adopt", "--profile", "documentation,library", d, cwd=REPO)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("documentation", result.stderr)
+            self.assertFalse((Path(d) / ".standards-kit.json").exists())
+
+    def test_doctor_checks_every_profile_for_recommendations(self):
+        from standards.doctor import doctor_lines
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / ".standards-kit.json").write_text(json.dumps(
+                {"kit_version": "1.5.0", "profile": "library", "profiles": ["library", "data"],
+                 "tracked": {}, "managed": {}}), encoding="utf-8")
+            _, lines = doctor_lines(root, recommend=True,
+                                    check_runner=lambda _: subprocess.CompletedProcess([], 0, "", ""))
+            text = "\n".join(lines)
+            self.assertIn("profile=library + data", text)
+            self.assertIn("support/incidents", text)  # from data, not library
 
     def test_check_parses_drift_base(self):
         from standards.cli import build_parser

@@ -91,17 +91,28 @@ def check_profile(root: Path, report: Report):
     if not checklist.exists():
         return None
     text = checklist.read_text(encoding="utf-8", errors="replace")
-    m = re.search(r"\*\*Profile:\*\*\s+([^\n<]+)", text)
-    if not m:
+    m = re.search(r"\*\*Profile:\*\*[ \t]*([^\n]*)", text)
+    value = re.sub(r"<!--.*?-->", " ", m.group(1)).strip() if m else ""
+    if not value or value.startswith("<"):
         report.err("[profile] docs/STANDARDS-CHECKLIST.md does not declare a Profile field.")
         return None
-    profile = m.group(1).strip().split()[0]
-    if profile not in ALLOWED_PROFILES:
-        report.err(
-            f"[profile] Declared profile '{profile}' is not in allowed set {sorted(ALLOWED_PROFILES)}."
-        )
+    # ADR-0025: one or more names joined with "+". Checkers before it read only the first
+    # word, so text after the list, such as "(with IaC)", stays a note.
+    names = re.match(r"[^\s+]+(?:\s*\+\s*[^\s+]+)*", value)
+    if names is None or value[names.end():].lstrip().startswith("+"):
+        report.err(f"[profile] Profile list '{value}' starts or ends with '+'.")
         return None
-    return profile
+    profiles = re.split(r"\s*\+\s*", names.group(0))
+    for profile in profiles:
+        if profile not in ALLOWED_PROFILES:
+            report.err(
+                f"[profile] Declared profile '{profile}' is not in allowed set {sorted(ALLOWED_PROFILES)}."
+            )
+            return None
+    if "documentation" in profiles and len(profiles) > 1:
+        report.err("[profile] The documentation profile can't be combined with other profiles.")
+        return None
+    return profiles
 
 
 def check_waivers(root: Path, report: Report) -> None:

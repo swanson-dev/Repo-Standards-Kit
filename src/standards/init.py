@@ -24,10 +24,14 @@ from standards.manifest import (
 )
 from standards.marker import MARKER_NAME, read_marker, sha256_file, write_marker
 from standards.payload import payload_root
+from standards.profiles import EXTRAS, MATRIX, needed_docs, parse_profiles
 
 ADOPT_REPORT_KEYS = ("added", "unchanged", "spliced", "conflicts", "scaffolded")
 
 PROFILE_PLACEHOLDER = "<application | library | data | documentation>"
+REQUIRED_ROW = "- [ ] <doc> — <one-line note if helpful>\n"
+EXPECTED_ROW = "- [ ] <doc>\n"
+EXTRAS_COMMENT_RE = re.compile(r"(## Profile extras\n\n<!--.*?-->\n)", re.DOTALL)
 ROOT_STARTER_DESTS = frozenset({"README.md", "CHANGELOG.md"})
 # ADR-0023: new adoptions enforce the drift Stop hook. Markers written before it
 # have no `hook_mode`, so existing adopters keep advising until they opt in.
@@ -72,14 +76,25 @@ def _stamp_ai_starter(content: str, adopted: str) -> str:
     return content
 
 
-def _fill_checklist(content: str, *, profile: str, adopted: str, repo_name: str) -> str:
+def _ticked(docs: list[str]) -> str:
+    return "".join(f"- [x] `docs/{doc}`\n" for doc in docs)
+
+
+def _fill_checklist(content: str, *, profiles: list[str], adopted: str, repo_name: str) -> str:
     """Seed the checklist so a freshly adopted repo is CI-green.
 
-    Tick the universal-core boxes (init provides those files) and fill the header
-    metadata. Profile-required/expected rows stay `<placeholder>` (the waiver check
-    skips them) for the adopter to fill from docs/STANDARDS.md.
+    Fill the header metadata and tick the universal-core boxes and the profiles'
+    Required and Expected docs, which init provides. The extras are listed without
+    boxes: init doesn't create them, and an unticked box would need a waiver.
     """
-    content = content.replace(PROFILE_PLACEHOLDER, profile)
+    required, expected = needed_docs(profiles)
+    content = content.replace(PROFILE_PLACEHOLDER, " + ".join(profiles))
+    if required:
+        content = content.replace(REQUIRED_ROW, _ticked(required), 1)
+    if expected:
+        content = content.replace(EXPECTED_ROW, _ticked(expected), 1)
+    extras = "".join(f"- `{EXTRAS[p]}` ({p} extra)\n" for p in profiles)
+    content = EXTRAS_COMMENT_RE.sub(lambda m: m.group(1) + "\n" + extras, content, count=1)
     content = content.replace("# Standards Checklist — <repo-name>",
                               f"# Standards Checklist — {repo_name}")
     content = content.replace("**Kit version adopted:** <e.g. 0.1.0>",
@@ -107,11 +122,12 @@ def _fill_root_starter(content: str, *, profile: str, adopted: str,
     )
 
 
-def _seed_scaffold_once(target: Path, src_root: Path, *, profile: str,
+def _seed_scaffold_once(target: Path, src_root: Path, *, profiles: list[str],
                         adopted: str) -> list[str]:
     """Seed scaffold-once files into `target` (only those absent). Returns the
     destination paths actually written. Each seed is transformed so a freshly
-    adopted repo is CI-green: tick the checklist core boxes, stamp the ai/ dates.
+    adopted repo is CI-green: tick the checklist boxes, stamp the ai/ dates. The
+    profiles' Required and Expected docs are created from their templates.
     """
     repo_name = target.resolve().name
     seeded: list[str] = []
@@ -121,26 +137,37 @@ def _seed_scaffold_once(target: Path, src_root: Path, *, profile: str,
             continue
         content = (src_root / src_rel).read_text(encoding="utf-8")
         if dest_rel in PROFILE_TEMPLATED:
-            content = _fill_checklist(content, profile=profile, adopted=adopted,
+            content = _fill_checklist(content, profiles=profiles, adopted=adopted,
                                       repo_name=repo_name)
         elif dest_rel in ROOT_STARTER_DESTS:
-            content = _fill_root_starter(content, profile=profile, adopted=adopted,
-                                         repo_name=repo_name)
+            content = _fill_root_starter(content, profile=" + ".join(profiles),
+                                         adopted=adopted, repo_name=repo_name)
         elif dest_rel.startswith("ai/"):
             content = _stamp_ai_starter(content, adopted)
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(content, encoding="utf-8")
         seeded.append(dest_rel)
+    required, expected = needed_docs(profiles)
+    for doc in sorted(required + expected):
+        dest = target / "docs" / doc
+        if dest.exists():
+            continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(src_root / "docs" / "templates" / MATRIX[doc][0], dest)
+        seeded.append(f"docs/{doc}")
     return seeded
 
 
-def run_init(target: Path, *, profile: str, adopted: str, force: bool = False,
+def run_init(target: Path, *, profile: str | list[str], adopted: str, force: bool = False,
              agents=AGENTS) -> dict:
     """Copy kit-tracked files + scaffold-once seeds into `target`; write the marker.
 
     `agents` picks the one hook file the repo gets and is recorded in the marker.
-    Returns the marker dict. Raises FileExistsError if already adopted and not force.
+    `profile` is one profile, a comma list, or a list (ADR-0025). Returns the marker
+    dict. Raises ValueError for bad profiles, FileExistsError if already adopted
+    and not force.
     """
+    profiles = parse_profiles(profile)
     target = Path(target)
     previous = read_marker(target)
     if previous is not None and not force:
@@ -205,14 +232,14 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False,
         else:  # kit-tracked
             tracked[rel] = sha256_file(dest)
 
-    _seed_scaffold_once(target, src_root, profile=profile, adopted=adopted)
+    _seed_scaffold_once(target, src_root, profiles=profiles, adopted=adopted)
 
-    return write_marker(target, kit_version=__version__, profile=profile,
+    return write_marker(target, kit_version=__version__, profile=profiles,
                         adopted=adopted, tracked=tracked, managed=managed,
                         keep={**NEW_ADOPTION_KEYS, "agents": list(agents)})
 
 
-def run_adopt(target: Path, *, profile: str, adopted: str,
+def run_adopt(target: Path, *, profile: str | list[str], adopted: str,
               agents=AGENTS) -> dict[str, list[str]]:
     """Adopt the kit into an EXISTING repo non-destructively (RFC-0002 / ADR-0013).
 
@@ -222,6 +249,7 @@ def run_adopt(target: Path, *, profile: str, adopted: str,
     kit's current contract. Writes the marker. Returns a report keyed by
     ADOPT_REPORT_KEYS. Raises FileExistsError if already adopted (use `update`).
     """
+    profiles = parse_profiles(profile)
     target = Path(target)
     if read_marker(target) is not None:
         raise FileExistsError(
@@ -289,10 +317,10 @@ def run_adopt(target: Path, *, profile: str, adopted: str,
             shutil.copyfile(full, sidecar)
             report["conflicts"].append(rel)
 
-    report["scaffolded"] = _seed_scaffold_once(target, src_root, profile=profile,
+    report["scaffolded"] = _seed_scaffold_once(target, src_root, profiles=profiles,
                                                adopted=adopted)
 
-    write_marker(target, kit_version=__version__, profile=profile,
+    write_marker(target, kit_version=__version__, profile=profiles,
                  adopted=adopted, tracked=tracked, managed=managed,
                  keep={**NEW_ADOPTION_KEYS, "agents": list(agents)})
     return report

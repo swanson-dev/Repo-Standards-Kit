@@ -8,7 +8,23 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+### Added
+- Profiles combine (ADR-0025). `standards init` and `standards adopt` take a
+  comma list, such as `--profile application,data`, and requirements combine by
+  the strongest tier: Required beats Expected, which beats Optional and N/A.
+  `documentation` can't be combined. The marker records `profiles` and keeps
+  `profile` as the first entry, and the checklist header joins names with ` + `,
+  so older CLIs and checkers still read one valid profile. The profile matrix
+  now lives in the CLI as data, with a test that keeps it in sync with
+  `docs/STANDARDS.md`.
+
 ### Changed
+- `standards init` and `standards adopt` create the numbered docs the profiles
+  make Required or Expected from their templates and tick them in the
+  checklist, instead of leaving placeholder rows. They never overwrite an
+  existing doc. The profile extras are listed in the checklist for the adopter
+  to create.
+- `standards doctor` bases its recommendations on every profile a repo declares.
 - The `infra` profile is merged into `application` (ADR-0025). There are now
   four profiles: application (an app, service, or IaC), library, data, and
   documentation. The application column of the matrix is unchanged, and

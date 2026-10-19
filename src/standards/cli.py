@@ -12,19 +12,24 @@ from standards.__about__ import __version__
 from standards.doctor import doctor_lines
 from standards.init import run_adopt, run_init
 from standards.manifest import AGENTS, hook_file, recorded_agents
-from standards.marker import PROFILE_ALIASES, read_marker
+from standards.marker import read_marker
 from standards.payload import payload_root
+from standards.profiles import PROFILES, parse_profiles
 from standards.update import run_update
 
-PROFILES = ["application", "library", "data", "documentation"]
 AGENTS_HELP = ("Agents the repo's team uses, comma-separated: claude, copilot. Default: "
                "detected on this machine. With claude the repo gets .claude/settings.json, "
                "which Copilot also reads; copilot alone gets .github/hooks/standards.json.")
+PROFILE_HELP = (f"What the repo contains: one or more of {', '.join(PROFILES)}, "
+                "comma-separated. Requirements combine by the strongest tier; documentation "
+                "can't be combined, and infra means application.")
 
 
-def _profile_arg(value: str) -> str:
-    """argparse checks `choices` after `type`, so `infra` passes as `application`."""
-    return PROFILE_ALIASES.get(value, value)
+def _profiles_arg(value: str) -> list[str]:
+    try:
+        return parse_profiles(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(str(exc)) from exc
 
 
 def detect_agents() -> list[str]:
@@ -112,13 +117,14 @@ Use `standards help <command>` for command-specific examples.""",
         epilog="""Examples:
   standards init --profile library .
   standards init --profile documentation .
+  standards init --profile application,data .
   standards init --profile application C:\\path\\to\\repo
 
 Use `standards adopt` instead for an existing repo with local files.""",
         **_parser_kwargs(),
     )
     p_init.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
-    p_init.add_argument("--profile", required=True, choices=PROFILES, type=_profile_arg)
+    p_init.add_argument("--profile", required=True, type=_profiles_arg, help=PROFILE_HELP)
     p_init.add_argument("--force", action="store_true", help="Re-init even if already adopted.")
     p_init.add_argument("--agents", type=_agents_arg, help=AGENTS_HELP)
     parsers["init"] = p_init
@@ -146,13 +152,14 @@ Requires an existing .standards-kit.json marker.""",
         epilog="""Examples:
   standards adopt --profile application .
   standards adopt --profile documentation .
+  standards adopt --profile library,data .
   standards adopt --profile data C:\\path\\to\\repo
 
 Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
         **_parser_kwargs(),
     )
     p_adopt.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
-    p_adopt.add_argument("--profile", required=True, choices=PROFILES, type=_profile_arg)
+    p_adopt.add_argument("--profile", required=True, type=_profiles_arg, help=PROFILE_HELP)
     p_adopt.add_argument("--agents", type=_agents_arg, help=AGENTS_HELP)
     parsers["adopt"] = p_adopt
 
@@ -268,7 +275,7 @@ def main(argv: list[str] | None = None) -> int:
         except FileExistsError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 2
-        print(f"Adopted Repo-Standards-Kit {__version__} ({args.profile}) into {args.target}")
+        print(f"Adopted Repo-Standards-Kit {__version__} ({' + '.join(args.profile)}) into {args.target}")
         print(_agents_line(agents, how))
         return 0
 
@@ -303,7 +310,7 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         summary = ", ".join(f"{k}={len(report[k])}" for k in
                             ("added", "spliced", "unchanged", "conflicts", "scaffolded"))
-        print(f"Adopted Repo-Standards-Kit {__version__} ({args.profile}) into "
+        print(f"Adopted Repo-Standards-Kit {__version__} ({' + '.join(args.profile)}) into "
               f"{args.target}: {summary}")
         print(_agents_line(agents, how))
         if report["conflicts"]:

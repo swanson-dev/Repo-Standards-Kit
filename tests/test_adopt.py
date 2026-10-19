@@ -45,6 +45,17 @@ class AdoptTests(unittest.TestCase):
             self.assertFalse((target / f".claude/settings.json.kit-{__version__}").exists())
             self.assertEqual(read_marker(target)["agents"], ["copilot"])
 
+    def test_adopt_creates_the_profile_docs_and_keeps_existing_ones(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / "docs").mkdir()
+            (target / "docs" / "07-testing.md").write_text("MINE\n", encoding="utf-8")
+            report = run_adopt(target, profile="library", adopted=date.today().isoformat())
+            self.assertIn("docs/04-api-and-integrations.md", report["scaffolded"])
+            self.assertNotIn("docs/07-testing.md", report["scaffolded"])
+            self.assertEqual((target / "docs" / "07-testing.md").read_text(encoding="utf-8"),
+                             "MINE\n")
+
     def test_adopt_blank_repo_is_check_clean(self):
         import check as check_mod
         with tempfile.TemporaryDirectory() as d:

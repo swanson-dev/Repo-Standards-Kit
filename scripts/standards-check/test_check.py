@@ -21,6 +21,26 @@ class ProfileAliasTests(unittest.TestCase):
             check_profile(root, report)
             self.assertEqual(report.errors, [])
 
+    def test_combined_profiles_are_each_checked(self):
+        import tempfile
+        cases = {"application + data": 0, "application+data": 0, "application + bogus": 1,
+                 "documentation + library": 1,
+                 # Notes after the names were fine when only the first word was read.
+                 "application (with IaC)": 0, "library (C++ bindings)": 0,
+                 "library + data — pipelines ship in-repo": 0, "`library`": 1,
+                 "application + data2": 1, "application + library-custom": 1,
+                 "application +": 1, "documentation <!-- note --> + library": 1,
+                 "<application | library | data | documentation>": 1}
+        for header, errors in cases.items():
+            with self.subTest(header=header), tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                (root / "docs").mkdir()
+                (root / "docs" / "STANDARDS-CHECKLIST.md").write_text(
+                    f"**Profile:** {header}\n", encoding="utf-8")
+                report = Report()
+                check_profile(root, report)
+                self.assertEqual(len(report.errors), errors, report.errors)
+
 
 class ParseFrontmatterTests(unittest.TestCase):
     def test_strips_inline_comment_after_value(self):

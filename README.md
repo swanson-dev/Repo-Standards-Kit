@@ -59,7 +59,7 @@ python scripts/session-context/session_context.py
 python scripts/update-handoff/update_handoff.py --compact-snapshot --force
 ```
 
-Pick the profile that fits the repo: `application` (including IaC) | `library` | `data` | `documentation`. Each profile has its own Required / Expected / Optional / N/A doc matrix — see [`docs/STANDARDS.md`](./docs/STANDARDS.md).
+Pick the profiles that fit the repo: `application` (including IaC) | `library` | `data` | `documentation`. Combine them with a comma, as in `--profile application,data`; `documentation` stands alone. Each profile has its own Required / Expected / Optional / N/A doc matrix, and combined profiles take the strongest tier — see [`docs/STANDARDS.md`](./docs/STANDARDS.md). Setup creates the docs your profiles make Required or Expected and ticks them in the checklist.
 
 - **`init`** is for blank/clean repos; it refuses if kit-owned files already exist with different content (it points you at `adopt`).
 - **`adopt`** is for repos that already have their own README, docs, or CI; it never clobbers — it keeps your files, sidecars true conflicts, and appends/splices the kit's managed block into an existing `AGENTS.md`.
