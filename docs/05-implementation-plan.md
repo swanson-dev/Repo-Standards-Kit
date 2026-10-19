@@ -2,7 +2,7 @@
 
 ## Roadmap
 
-> Active milestone: **M8 — Automation engine** (RFC-0007, ADR-0023). M7 shipped in v1.2.0; maintenance release v1.3.0 ships README/CHANGELOG starters and changelog reminders.
+> Next milestone: **M9 — Setup wizard** (RFC-0009, ADR-0025). M8 — Automation engine (RFC-0007, ADR-0023) shipped in v1.4.0.
 
 | Milestone                        | Outcome                                                                                  | Target   | Status  |
 |----------------------------------|------------------------------------------------------------------------------------------|----------|---------|
@@ -13,7 +13,7 @@
 | M5 — v1.0.0 readiness | Generated four-profile downstream validation, manual external-link workflow, stable SemVer docs | v1.0.0 | shipped |
 | M6 — Adoption assistant + AI continuity | `standards doctor`, public `new-skill`, command discovery, optional knowledge-lane templates, and standard AI continuity commands | v1.1.0 | shipped |
 | M7 — Documentation profile | First-class profile for documentation/spec repos linked to implementation elsewhere | v1.2.0 | shipped |
-| M8 — Automation engine | Block-once Stop hooks, per-repo drift rules, a commit-type changelog rule, and a CI drift check | v1.4.0 | active |
+| M8 — Automation engine | Block-once Stop hooks, per-repo drift rules, a commit-type changelog rule, and a CI drift check | v1.4.0 | shipped |
 | M9 — Setup wizard | A state-aware `standards` menu, a setup wizard that asks what a repo contains, and four combinable profiles (RFC-0009, ADR-0025) | v1.5.0 | planned |
 
 ### Shipped slices (M1 — Foundation)
@@ -51,6 +51,16 @@
 | 1 | Add `documentation` to CLI/check/profile fixture plumbing | Shipped |
 | 2 | Add `docs/source-map.md` template and profile matrix/docs updates | Shipped |
 | 3 | Record RFC-0006 and ADR-0021 for the new profile | Shipped |
+
+### Shipped slices (M8 — Automation engine)
+
+| Slice | Scope | Status |
+|---|---|---|
+| 1 | Drift detection core: default rules in code, a `drift` key in `.standards-kit.json`, a commit-type changelog rule, and `Docs-Unaffected:` waivers | Shipped |
+| 2 | Block-once Stop hook (`drift.py --hook`) with `enforce`/`advise` modes that fails open | Shipped |
+| 3 | CI drift check over a pull request's own commits (`standards check --drift-base`), with PR-description waivers | Shipped |
+| 4 | Copilot verification (VS Code, CLI, cloud agent) and a once-per-session block on CI runners | Shipped |
+| 5 | An `agents` choice (`init`/`adopt --agents`) that ships one hook file per repo | Shipped |
 
 ### Unreleased maintenance
 

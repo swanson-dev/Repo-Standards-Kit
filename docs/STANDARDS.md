@@ -1,7 +1,7 @@
 # Team Repository Standards
 
-**Kit version:** 1.3.0
-**Status:** v1.3.0 adoption starter and changelog assist shipped; roadmap in `docs/05-implementation-plan.md`
+**Kit version:** 1.4.0
+**Status:** v1.4.0 automation engine shipped (block-once Stop hooks, drift rules, CI drift check); roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
 ## Purpose and precedence

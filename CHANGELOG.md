@@ -8,6 +8,8 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-10-18
+
 ### Added
 - The kit now lints and type-checks its own code: `ruff` and `mypy` config in
   `pyproject.toml`, a `dev` optional-dependency group, and a lint/type-check job
@@ -438,6 +440,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[1.4.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.4.0
 [1.3.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.3.0
 [1.2.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.2.0
 [1.1.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.1.0
