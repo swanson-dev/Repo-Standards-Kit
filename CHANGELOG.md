@@ -8,6 +8,8 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+## [1.5.1] - 2026-10-20
+
 ### Fixed
 - On Windows, bare `standards` no longer opens the menu when stdin or stdout is
   redirected from the `NUL` device (such as `standards < NUL`). Windows reports
@@ -507,6 +509,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[1.5.1]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.5.1
 [1.5.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.5.0
 [1.4.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.4.0
 [1.3.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.3.0
