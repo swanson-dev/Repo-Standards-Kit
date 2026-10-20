@@ -489,7 +489,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
-[1.5.0]: #150---2026-10-20
+[1.5.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.5.0
 [1.4.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.4.0
 [1.3.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.3.0
 [1.2.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.2.0
