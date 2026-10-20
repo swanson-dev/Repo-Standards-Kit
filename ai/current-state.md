@@ -49,7 +49,7 @@ last_updated_by: claude
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| M9 setup wizard + four combinable profiles (RFC-0009, ADR-0025) | feat/m9-setup-wizard | Josh Swanson | building for v1.5.0: all three slices built (infra alias, combinable profiles with setup creating and ticking the docs, the bare `standards` menu and wizard plus `standards change`); next: try the menu in a real terminal, then release |
+| M9 setup wizard + four combinable profiles (RFC-0009, ADR-0025) | feat/m9-setup-wizard | Josh Swanson | building for v1.5.0: all three slices built (infra alias, combinable profiles with setup creating and ticking the docs, the bare `standards` menu and wizard plus `standards change`); next: the v1.5.0 release (the menu is verified in a pseudo-terminal test) |
 | RFC-0008 distribution (pip CLI for repo content + plugin for skills and hooks) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; cloud-agent and Codex checks, then ADR-0024 |
 | RFC-0010 retrospectives (`standard-retro` skill) | docs/rfc-0007-automation-engine | Josh Swanson | draft; build after RFC-0007 to RFC-0009, then ADR-0026 |
 | ADR-0022 daily changelog grouping + managed `AGENTS.md` simplification (parked, not merged) | feat/adr-0022-daily-changelog-grouping | Josh Swanson | land via PR |
