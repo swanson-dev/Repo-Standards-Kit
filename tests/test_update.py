@@ -41,6 +41,40 @@ class UpdateTests(unittest.TestCase):
             after = json.loads(marker_path.read_text(encoding="utf-8"))
             self.assertEqual(after.get("check"), {"changelog": "error"})
 
+    def test_update_rewrites_an_infra_profile_as_application(self):
+        from standards.marker import MARKER_NAME
+        from standards.update import run_update
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            _adopt(target)
+            marker_path = target / MARKER_NAME
+            data = json.loads(marker_path.read_text(encoding="utf-8"))
+            data["profile"] = "infra"  # an adoption from before ADR-0025
+            data.pop("profiles")
+            marker_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+            run_update(target)
+            after = json.loads(marker_path.read_text(encoding="utf-8"))
+            self.assertEqual(after["profile"], "application")
+            self.assertEqual(after["profiles"], ["application"])
+
+    def test_update_keeps_combined_profiles_and_fills_them_in_for_old_markers(self):
+        from standards.init import run_init
+        from standards.marker import MARKER_NAME
+        from standards.update import run_update
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            run_init(target, profile="library,data", adopted="2026-05-29")
+            run_update(target)
+            marker_path = target / MARKER_NAME
+            after = json.loads(marker_path.read_text(encoding="utf-8"))
+            self.assertEqual(after["profiles"], ["library", "data"])
+            self.assertEqual(after["profile"], "library")
+            after.pop("profiles")  # a marker from before ADR-0025
+            marker_path.write_text(json.dumps(after, indent=2) + "\n", encoding="utf-8")
+            run_update(target)
+            again = json.loads(marker_path.read_text(encoding="utf-8"))
+            self.assertEqual(again["profiles"], ["library"])
+
     def test_update_leaves_existing_adopters_on_advise(self):
         from standards.marker import MARKER_NAME
         from standards.update import run_update

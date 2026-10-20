@@ -1,12 +1,13 @@
 <!--
 docs/STANDARDS-CHECKLIST.md — per-repo checklist.
-Fill out for your profile. Waiver syntax: append "**Waived:** <reason>" to unchecked boxes.
+Fill out for your profiles; join several with " + ", e.g. application + data.
+Waiver syntax: append "**Waived:** <reason>" to unchecked boxes.
 The CI standards check parses unchecked boxes — a missing reason fails the build.
 -->
 
 # Standards Checklist — <repo-name>
 
-**Profile:** <application | library | infra | data | documentation>
+**Profile:** <application | library | data | documentation>
 **Kit version adopted:** <e.g. 0.1.0>
 **Last reviewed:** YYYY-MM-DD by <name>
 
@@ -34,20 +35,20 @@ The CI standards check parses unchecked boxes — a missing reason fails the bui
 
 ## Profile-required
 
-<!-- Copy the rows for YOUR profile from docs/STANDARDS.md "Profile matrix" where the cell says Required. -->
+<!-- `standards init` and `standards adopt` fill these from docs/STANDARDS.md "Profile matrix". By hand: copy the rows where any of your profiles says Required. -->
 
 - [ ] <doc> — <one-line note if helpful>
 
 ## Profile-expected
 
-<!-- Copy the rows for YOUR profile where the cell says Expected. -->
+<!-- By hand: the rows where the strongest tier across your profiles is Expected. -->
 
 - [ ] <doc>
 
 ## Profile extras
 
-<!-- library: docs/versioning-policy.md
-     infra:   docs/environments.md
+<!-- application: docs/environments.md
+     library: docs/versioning-policy.md
      data:    docs/data-contracts/<dataset>.md (one or more)
      documentation: docs/source-map.md -->
 

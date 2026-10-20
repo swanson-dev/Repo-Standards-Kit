@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import shutil
 import subprocess
 import sys
 from datetime import date
@@ -10,30 +9,27 @@ from pathlib import Path
 
 from standards.__about__ import __version__
 from standards.doctor import doctor_lines
-from standards.init import run_adopt, run_init
+from standards.init import run_adopt, run_change, run_init
 from standards.manifest import AGENTS, hook_file, recorded_agents
 from standards.marker import read_marker
 from standards.payload import payload_root
+from standards.profiles import PROFILES, parse_profiles
 from standards.update import run_update
+from standards.wizard import detect_agents, run_menu
 
-PROFILES = ["application", "library", "infra", "data", "documentation"]
 AGENTS_HELP = ("Agents the repo's team uses, comma-separated: claude, copilot. Default: "
                "detected on this machine. With claude the repo gets .claude/settings.json, "
                "which Copilot also reads; copilot alone gets .github/hooks/standards.json.")
+PROFILE_HELP = (f"What the repo contains: one or more of {', '.join(PROFILES)}, "
+                "comma-separated. Requirements combine by the strongest tier; documentation "
+                "can't be combined, and infra means application.")
 
 
-def detect_agents() -> list[str]:
-    """Suggest `agents` from this machine. Finding neither assumes both, which ships
-    Claude's hook file: every host reads it."""
-    home = Path.home()
-    # ponytail: PATH and home-folder sniffing; a Copilot user with none of these is missed
-    found = []
-    if shutil.which("claude") or (home / ".claude").is_dir():
-        found.append("claude")
-    if (shutil.which("copilot") or (home / ".copilot").is_dir()
-            or any((home / ".vscode" / "extensions").glob("github.copilot*"))):
-        found.append("copilot")
-    return found or list(AGENTS)
+def _profiles_arg(value: str) -> list[str]:
+    try:
+        return parse_profiles(value)
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(str(exc)) from exc
 
 
 def _agents_arg(value: str) -> list[str]:
@@ -61,6 +57,7 @@ def _agents_line(agents: list[str], how: str) -> str:
 COMMAND_ROWS = (
     ("init", "Adopt the kit into a new or clean repo.", "standards check ."),
     ("adopt", "Adopt the kit into an existing repo without clobbering files.", "standards doctor ."),
+    ("change", "Change what an adopted repo contains (its profiles).", "standards check ."),
     ("update", "Reconcile an adopted repo with this kit version.", "standards check ."),
     ("check", "Run deterministic standards checks.", "standards doctor --recommend ."),
     ("doctor", "Diagnose adoption health and suggest next commands.", "standards update --dry-run ."),
@@ -77,12 +74,16 @@ def build_parser() -> tuple[argparse.ArgumentParser, dict[str, argparse.Argument
         prog="standards",
         description="Adopt and maintain the Repo-Standards-Kit.",
         epilog="""Workflows:
+  Guided:
+    Menu and setup wizard: standards   (no arguments, in a terminal)
+
   Adopt:
     New or clean repo:     standards init --profile library .
     Existing repo:         standards adopt --profile application .
 
   Maintain:
     Already adopted repo:  standards update .
+    What it contains:      standards change --profile library,data .
     Validate a repo:       standards check .
 
   Diagnose:
@@ -107,13 +108,14 @@ Use `standards help <command>` for command-specific examples.""",
         epilog="""Examples:
   standards init --profile library .
   standards init --profile documentation .
+  standards init --profile application,data .
   standards init --profile application C:\\path\\to\\repo
 
 Use `standards adopt` instead for an existing repo with local files.""",
         **_parser_kwargs(),
     )
     p_init.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
-    p_init.add_argument("--profile", required=True, choices=PROFILES)
+    p_init.add_argument("--profile", required=True, type=_profiles_arg, help=PROFILE_HELP)
     p_init.add_argument("--force", action="store_true", help="Re-init even if already adopted.")
     p_init.add_argument("--agents", type=_agents_arg, help=AGENTS_HELP)
     parsers["init"] = p_init
@@ -141,15 +143,30 @@ Requires an existing .standards-kit.json marker.""",
         epilog="""Examples:
   standards adopt --profile application .
   standards adopt --profile documentation .
+  standards adopt --profile library,data .
   standards adopt --profile data C:\\path\\to\\repo
 
 Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
         **_parser_kwargs(),
     )
     p_adopt.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
-    p_adopt.add_argument("--profile", required=True, choices=PROFILES)
+    p_adopt.add_argument("--profile", required=True, type=_profiles_arg, help=PROFILE_HELP)
     p_adopt.add_argument("--agents", type=_agents_arg, help=AGENTS_HELP)
     parsers["adopt"] = p_adopt
+
+    p_change = sub.add_parser(
+        "change",
+        help="Change what an adopted repo contains (its profiles).",
+        description="Record new profiles, create the docs they newly need, and point the "
+                    "checklist at them. Never overwrites a doc; the kit version is update's job.",
+        epilog="""Examples:
+  standards change --profile library,data .
+  standards change --profile application C:\\path\\to\\repo""",
+        **_parser_kwargs(),
+    )
+    p_change.add_argument("target", nargs="?", default=".", help="Target repo (default: .)")
+    p_change.add_argument("--profile", required=True, type=_profiles_arg, help=PROFILE_HELP)
+    parsers["change"] = p_change
 
     p_check = sub.add_parser(
         "check",
@@ -225,13 +242,26 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
         epilog="Examples:\n  standards help\n  standards help init",
         **_parser_kwargs(),
     )
-    p_help.add_argument("topic", nargs="?", help="Help topic: init, adopt, update, or check.")
+    p_help.add_argument("topic", nargs="?", help="A command name, such as init, adopt, change, update, or check.")
 
     return parser, parsers
 
 
 def main(argv: list[str] | None = None) -> int:
     parser, help_parsers = build_parser()
+    if not (sys.argv[1:] if argv is None else argv):
+        # ADR-0025: bare `standards` opens the menu, but only in a terminal, so CI and
+        # pipes never hang on a prompt.
+        if sys.stdin.isatty() and sys.stdout.isatty():
+            try:
+                return run_menu(Path("."), run=main)
+            except KeyboardInterrupt:
+                print()
+                return 130
+        parser.print_help()
+        print("standards: no interactive terminal, so no menu; pass a command.",
+              file=sys.stderr)
+        return 2
     args = parser.parse_args(argv)
 
     if args.command == "help":
@@ -263,7 +293,7 @@ def main(argv: list[str] | None = None) -> int:
         except FileExistsError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 2
-        print(f"Adopted Repo-Standards-Kit {__version__} ({args.profile}) into {args.target}")
+        print(f"Adopted Repo-Standards-Kit {__version__} ({' + '.join(args.profile)}) into {args.target}")
         print(_agents_line(agents, how))
         return 0
 
@@ -298,12 +328,28 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         summary = ", ".join(f"{k}={len(report[k])}" for k in
                             ("added", "spliced", "unchanged", "conflicts", "scaffolded"))
-        print(f"Adopted Repo-Standards-Kit {__version__} ({args.profile}) into "
+        print(f"Adopted Repo-Standards-Kit {__version__} ({' + '.join(args.profile)}) into "
               f"{args.target}: {summary}")
         print(_agents_line(agents, how))
         if report["conflicts"]:
             print("conflicts (your file kept; kit version written as <path>.kit-"
                   f"{__version__}): " + ", ".join(report["conflicts"]), file=sys.stderr)
+        print("Run `standards check` to verify.")
+        return 0
+
+    if args.command == "change":
+        try:
+            report = run_change(Path(args.target), profile=args.profile)
+        except FileNotFoundError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            print("Use `standards adopt --profile <profiles> <target>` to set the repo up.",
+                  file=sys.stderr)
+            return 2
+        print(f"{args.target} now contains {' + '.join(args.profile)}.")
+        for path in report["created"]:
+            print(f"  created {path}")
+        if report["checklist"]:
+            print("  updated docs/STANDARDS-CHECKLIST.md")
         print("Run `standards check` to verify.")
         return 0
 

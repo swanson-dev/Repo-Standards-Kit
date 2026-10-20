@@ -16,6 +16,7 @@ class CliTests(unittest.TestCase):
         return subprocess.run(
             [sys.executable, "-m", "standards.cli", *args],
             cwd=str(cwd), capture_output=True, text=True, env=full_env,
+            stdin=subprocess.DEVNULL,  # never a terminal, so bare `standards` can't open the menu
         )
 
     def _seed_downstream_core(self, target: Path):
@@ -55,6 +56,64 @@ class CliTests(unittest.TestCase):
         self.assertEqual(res.returncode, 0, res.stderr)
         self.assertIn("--drift-base", res.stdout)
 
+    def test_profile_help_lists_the_four_profiles(self):
+        for command in ("init", "adopt"):
+            res = self._run(command, "--help", cwd=REPO)
+            self.assertEqual(res.returncode, 0, res.stderr)
+            text = " ".join(res.stdout.split())  # argparse wraps help text
+            self.assertIn("application, library, data, documentation", text)
+            self.assertIn("comma-separated", text)
+
+    def test_infra_profile_is_an_alias_for_application(self):
+        # ADR-0025 merged infra into application; old scripts keep working.
+        from standards.cli import build_parser
+        parser, _ = build_parser()
+        for command in ("init", "adopt"):
+            args = parser.parse_args([command, "--profile", "infra", "."])
+            self.assertEqual(args.profile, ["application"])
+
+    def test_doctor_reads_a_legacy_infra_marker_as_application(self):
+        from standards.doctor import doctor_lines
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / ".standards-kit.json").write_text(json.dumps(
+                {"kit_version": "1.3.0", "profile": "infra", "tracked": {}, "managed": {}}), encoding="utf-8")
+            _, lines = doctor_lines(root, recommend=True,
+                                    check_runner=lambda _: subprocess.CompletedProcess([], 0, "", ""))
+            text = "\n".join(lines)
+            self.assertIn("profile=application", text)
+            self.assertIn("support/incidents", text)  # application's support recommendations
+
+    def test_init_takes_a_comma_list_of_profiles(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            result = self._run("init", "--profile", "application,data", "--agents", "claude",
+                               str(target), cwd=REPO)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            marker = json.loads((target / ".standards-kit.json").read_text(encoding="utf-8"))
+            self.assertEqual(marker["profiles"], ["application", "data"])
+            self.assertIn("(application + data)", result.stdout)
+
+    def test_rejects_documentation_combined_with_another_profile(self):
+        with tempfile.TemporaryDirectory() as d:
+            result = self._run("adopt", "--profile", "documentation,library", d, cwd=REPO)
+            self.assertEqual(result.returncode, 2)
+            self.assertIn("documentation", result.stderr)
+            self.assertFalse((Path(d) / ".standards-kit.json").exists())
+
+    def test_doctor_checks_every_profile_for_recommendations(self):
+        from standards.doctor import doctor_lines
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / ".standards-kit.json").write_text(json.dumps(
+                {"kit_version": "1.5.0", "profile": "library", "profiles": ["library", "data"],
+                 "tracked": {}, "managed": {}}), encoding="utf-8")
+            _, lines = doctor_lines(root, recommend=True,
+                                    check_runner=lambda _: subprocess.CompletedProcess([], 0, "", ""))
+            text = "\n".join(lines)
+            self.assertIn("profile=library + data", text)
+            self.assertIn("support/incidents", text)  # from data, not library
+
     def test_check_parses_drift_base(self):
         from standards.cli import build_parser
         parser, _ = build_parser()
@@ -76,11 +135,35 @@ class CliTests(unittest.TestCase):
         self.assertEqual(res.returncode, 0, res.stderr)
         self.assertIn("new-skill review-docs", res.stdout)
 
+    def test_bare_standards_without_a_terminal_prints_help(self):
+        res = self._run(cwd=REPO)
+        self.assertEqual(res.returncode, 2)
+        self.assertIn("usage: standards", res.stdout)
+        self.assertIn("no interactive terminal", res.stderr)
+
+    def test_change_command_updates_what_the_repo_contains(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            init = self._run("init", "--profile", "library", "--agents", "claude", str(target),
+                             cwd=REPO)
+            self.assertEqual(init.returncode, 0, init.stderr)
+            res = self._run("change", "--profile", "library,data", str(target), cwd=REPO)
+            self.assertEqual(res.returncode, 0, res.stderr)
+            marker = json.loads((target / ".standards-kit.json").read_text(encoding="utf-8"))
+            self.assertEqual(marker["profiles"], ["library", "data"])
+            self.assertIn("docs/06-runbook.md", res.stdout)
+
+    def test_change_without_a_marker_points_at_setup(self):
+        with tempfile.TemporaryDirectory() as d:
+            res = self._run("change", "--profile", "library", d, cwd=REPO)
+            self.assertEqual(res.returncode, 2)
+            self.assertIn("standards adopt", res.stderr)
+
     def test_commands_lists_public_commands(self):
         res = self._run("commands", cwd=REPO)
         self.assertEqual(res.returncode, 0, res.stderr)
         text = res.stdout.lower()
-        for expected in ("init", "adopt", "update", "check", "doctor", "new-skill"):
+        for expected in ("init", "adopt", "change", "update", "check", "doctor", "new-skill"):
             self.assertIn(expected, text)
 
     def test_help_alias_unknown_topic_lists_valid_topics(self):
@@ -167,12 +250,12 @@ class CliTests(unittest.TestCase):
     def test_detect_agents(self):
         from unittest import mock
 
-        from standards.cli import detect_agents
+        from standards.wizard import detect_agents
         with tempfile.TemporaryDirectory() as d:
             home = Path(d)
             on_path: set[str] = set()
-            with mock.patch("standards.cli.Path.home", return_value=home), \
-                    mock.patch("standards.cli.shutil.which",
+            with mock.patch("standards.wizard.Path.home", return_value=home), \
+                    mock.patch("standards.wizard.shutil.which",
                                side_effect=lambda name: name if name in on_path else None):
                 self.assertEqual(detect_agents(), ["claude", "copilot"])  # found neither
                 on_path.add("copilot")

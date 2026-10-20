@@ -1,5 +1,5 @@
 ---
-written: 2026-10-16T12:45:00-05:00
+written: 2026-10-20T06:30:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -8,28 +8,70 @@ for: next-session
 
 ## TL;DR
 
-RFC-0007 is concluded and ADR-0023 accepted: Stop hooks block once and then
-trust the agent, driven by per-repo drift rules, with a CI check as the
-backstop. M8 (automation engine) is active, with three slices built test-first
-and reviewed by Codex: the drift detection core in `scripts/drift/drift.py`, the
-block-once Stop hook (`--hook`) wired into this repo's Claude Code Stop hooks, and
-the CI drift check (`standards check --drift-base`) that `repo-standards.yml`
-runs on pull requests. Manual tests A–C then showed every Copilot host (VS Code,
-the CLI, the cloud agent) takes the same top-level output and input, so no output
-adapter is needed. The cloud agent's engine reprompts a session for its PR
-description, so on CI runners the hook now blocks once per session.
-Test B2 then showed every Copilot host also reads `.claude/settings.json`, so a
-repo gets one hook file, picked by a new `agents` choice in `.standards-kit.json`
-(`init`/`adopt --agents`, detected by default): Claude's file when the team uses
-Claude, `.github/hooks/standards.json` for Copilot-only teams.
-RFC-0009 concluded on 2026-10-17 with ADR-0025 (superseding ADR-0003): a guided
-menu and wizard with four combinable profiles, infra merged into application.
-It's planned as M9. RFC-0008 (distribution) is an approved design still Open;
-RFC-0010 (retrospectives) is drafted. Everything is
-on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
+M8 (automation engine, ADR-0023) shipped in v1.4.0 on 2026-10-18: PR 21 merged
+into `main`, the `v1.4.0` tag published to PyPI, and a GitHub Release exists. It
+carries the drift rules, the block-once Stop hook, the CI drift check, one hook
+file per repo picked by `agents` (`init`/`adopt --agents`), a once-per-session
+block on CI runners, and the `.claude` payload fix. M9 (setup wizard, ADR-0025)
+is built on `feat/m9-setup-wizard` (pushed) for v1.5.0, in three slices: `infra`
+merged into `application` as an alias, profiles that combine by the strongest
+tier with setup creating and ticking their docs, and the bare `standards` menu
+with the setup wizard and `standards change`, all committed (not pushed). The
+owner held the release until slice 3. v1.5.0 is now prepared and the release PR
+to `main` is open; a pseudo-terminal test runs the real menu, passed in WSL, and
+runs in CI on Linux.
+RFC-0008 (distribution) is an approved design still Open, and RFC-0010
+(retrospectives) is drafted.
 
 ## Recently touched
 
+- M9 slice 3 (ADR-0025): `src/standards/wizard.py` holds the prototype's logic
+  (`suggest` from file signals, `parse_picks`, `menu_items`, `requirement_changes`),
+  `detect_agents` (moved from `cli.py`), and `run_menu`. Every menu action ends in
+  a CLI call through the injected `run` (`cli.main`): `adopt`, the new `change`,
+  `check` then `doctor` then an optional `update`, `update`, and `new-skill`, so
+  tests drive the menu with scripted answers and assert the argv. Bare
+  `standards` opens it only when stdin and stdout are terminals; otherwise it
+  prints help and exits 2. Plain text, no screen clearing or colors (owner's
+  call). `init.reconcile_checklist` makes targeted edits only (the `**Profile:**`
+  line, plus rows for needed docs not mentioned outside HTML comments), and the
+  fresh-checklist fill, `adopt`, `init --force`, and `run_change` all use it,
+  which closes Codex's slice 2 finding. The RFC-0009 prototype is removed (owner's
+  call); its ignored `__pycache__` folder is still on disk because the `rm` was
+  blocked. ADR-0025 still names the folder in plain text; it's immutable, and git
+  history has the files. A Codex review found six bugs, all fixed with tests:
+  examples in comments or inline code being edited or read as the header (in
+  `reconcile_checklist` and the structural check), a commented placeholder taking
+  rows, a newer repo being offered a downgrade (`is_behind`), an update hiding a
+  failed check, `²` crashing the menu, and a skill answer like `--help` exiting it
+  (now `new-skill --` plus a `SystemExit` catch). A re-check confirmed those and
+  caught code spans with doubled backticks, also fixed.
+- M9 slice 2 (ADR-0025): profiles combine. `src/standards/profiles.py` holds the
+  four profiles, the `infra` alias (moved from `marker.py`), the matrix (doc ->
+  template and tiers) and extras, `parse_profiles` (comma list, order kept,
+  repeats dropped, `documentation` alone), `combine` (strongest tier), and
+  `needed_docs`. `tests/test_profiles.py` keeps the matrix and extras in sync with
+  `docs/STANDARDS.md`. The marker writes `profiles` with `profile` as its first
+  entry, and `read_marker` fills `profiles` in for old markers (`profiles` wins
+  when the two disagree). `init`/`adopt` take `--profile a,b`, create the
+  Required and Expected docs from templates without overwriting, tick them, and
+  list the extras as plain bullets so a fresh repo stays CI-green. `doctor` uses
+  profile overlap. The structural check validates every name in the header and
+  strips HTML comments, but text after the list, such as `(with IaC)`, still
+  passes, as it did when only the first word was read. Codex found the loose
+  header parse (fixed with tests) and the checklist reconciliation gap (left for
+  slice 3).
+- M9 slice 1 (ADR-0025): four profiles. `--profile infra` maps to `application`
+  before argparse checks choices (`_profile_arg` in `cli.py`); `read_marker` reads
+  an `infra` marker as `application`, so `update` rewrites it and `doctor` sees
+  application; the structural check still accepts `infra` in checklists
+  (`ALLOWED_PROFILES`). `docs/environments.md` is now an application extra.
+  `docs/STANDARDS.md`, the templates' tier headers, README, glossary, and the API
+  doc drop `infra`; `CHANGELOG.md` records it under Changed and Deprecated (the
+  deprecation policy keeps an alias for at least one minor release). The tier
+  matrix isn't in code yet; slice 2 adds it.
+- v1.4.0 released (2026-10-18). PR 21's CI ran the drift check against
+  `origin/main` and the wheel build smoke, and both passed.
 - Copilot hook config (owner's rule, 2026-10-16): `standards init`/`adopt` take
   `--agents claude,copilot`, record `agents` in `.standards-kit.json`, and with
   no flag reuse a recorded choice (force re-init) or detect the machine
@@ -103,8 +145,8 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 - Keep all hooks and all skills. The user wants to lean more on hooks, not less,
   and relies on the agent to trigger ADRs and plans. Profiles: on 2026-10-17 the
   user merged `infra` into `application`, leaving four (application, library,
-  data, documentation). ADR-0025 records it, supersedes ADR-0003, and is
-  built in M9; until then the code still has five profiles.
+  data, documentation). ADR-0025 records it and supersedes ADR-0003; M9 slice 1
+  builds it, keeping `infra` as an alias.
 - RFC-0007 concluded on 2026-10-15 on the spike's evidence: per-host output
   adapters, top-level `decision`/`reason` by default. The Copilot adapter shapes
   are verified during the build.
@@ -129,24 +171,23 @@ on `docs/rfc-0007-automation-engine`, pushed to origin, with no PR.
 
 ## Open threads
 
-- M8, what's left:
-  1. Test D (Codex's interactive trust flow) is still pending. The Copilot hook
-     config is done.
-  2. Codex hook config isn't shipped: `.codex/` is gitignored here and not in
-     the payload. RFC-0008's plugin is the planned way to ship it.
-  3. The CI check hasn't run on GitHub yet; it runs on the first PR. Locally,
-     `python scripts/standards-check/check.py --drift-base main` passes once the
-     changelog is current.
+- M9, what's left: the release. `chore(release): prepare v1.5.0` bumped the
+  version, the changelog section (linked to its own anchor until the tag
+  exists), the roadmap with M9's three slices, and `AGENTS.md`. The local release
+  gates passed, including `--external-links` and a wheel build with no
+  `.claude/worktrees` or `settings.local.json` in it. After the owner merges the
+  PR: tag `v1.5.0` on `main`, then switch the `[1.5.0]` link to the tag URL
+  (`docs/RELEASING.md` step 3). `MenuInATerminalTests` in `tests/test_wizard.py`
+  covers the terminal path (stdlib `pty`; skipped on Windows).
+- M8 leftovers: test D (Codex's interactive trust flow) is still a manual run,
+  and Codex hook config isn't shipped (`.codex/` is gitignored here and not in
+  the payload); RFC-0008's plugin is the planned way to ship it.
 - RFC-0008 checks: does the Copilot cloud agent load skills from plugins declared
   in `.github/copilot/settings.json`, and does its `agentStop` hook fire? Do
   Codex marketplace-installed plugin hooks run? Do VS Code and Copilot CLI list
   `.claude/skills` as slash commands (if so, retire `.github/prompts`)? New:
   if the plugin carries the hooks while the repo keeps hook config for the cloud
   agent, VS Code and the Copilot CLI run each hook twice; RFC-0008 now lists it.
-- `iter_payload` walks all of `.claude/`, so `standards init` run from a source
-  checkout copies `.claude/settings.local.json` and `.claude/worktrees/` into the
-  adopter, and a local wheel build would bundle them. CI builds from a clean
-  checkout, so releases are fine so far. Not fixed on this branch.
 - The SessionStart context brief doesn't reach Copilot agents: Copilot runs the
   hook but drops plain stdout. Needs Copilot's structured output, then a
   SessionStart entry in `docs/templates/copilot-hooks.json`.
@@ -184,16 +225,14 @@ the `remember` plugin ships Claude, Codex, and Gemini manifests plus a
 - Don't be surprised when this repo's own Stop hook blocks once at the end of a
   turn: with no marker the kit enforces, so update the named doc (usually
   `CHANGELOG.md`) or say why it is unaffected.
-- Don't open a PR for `docs/rfc-0007-automation-engine` yet; the owner asked
-  for the branch to be pushed only.
-- Don't build drift logic into `scripts/changelog/check_changelog.py` on this
-  branch; the parked ADR-0022 branch rewrites it. Keep new logic in
+- Don't build drift logic into `scripts/changelog/check_changelog.py` until the
+  parked ADR-0022 branch lands; it rewrites that script. Keep new logic in
   `scripts/drift/`.
 - Don't let a hook treat `DriftError` as "nothing behind". The Stop hook fails
   open (exit 0) but says why on stderr; the CI check must fail loudly.
 - Don't separate profiles with commas in the checklist header. Older checkers
-  keep only the first word, so `application, infra` reads as the invalid
-  `application,`. Use `application + infra`.
+  keep only the first word, so `application, data` reads as the invalid
+  `application,`. Use `application + data`.
 - Don't emit top-level `decision`/`reason` and `hookSpecificOutput` in one
   object: Codex rejects the whole output and the block is lost.
 - Don't let `new-adr.py` number ADRs on this branch: it would pick 0022, which

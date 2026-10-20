@@ -1,5 +1,5 @@
 <!--
-docs/05-implementation-plan.md — Expected (application, infra, data, documentation), Optional (library)
+docs/05-implementation-plan.md — Expected (application, data, documentation), Optional (library)
 The bridge between PRD/architecture and execution. Slice the work, sequence it, own it.
 -->
 

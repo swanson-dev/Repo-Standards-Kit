@@ -1,7 +1,7 @@
 # Team Repository Standards
 
-**Kit version:** 1.4.0
-**Status:** v1.4.0 automation engine shipped (block-once Stop hooks, drift rules, CI drift check); roadmap in `docs/05-implementation-plan.md`
+**Kit version:** 1.5.0
+**Status:** v1.5.0 setup wizard shipped (a guided `standards` menu, combinable profiles, `standards change`); roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
 ## Purpose and precedence
@@ -21,15 +21,16 @@ This document is the authoritative spec for how repositories on the team documen
 
 ## Repo profiles
 
-Each repo declares exactly one profile. The profile determines which numbered docs are Required / Expected / Optional / N/A.
+Each repo declares one or more profiles, which determine which numbered docs are Required / Expected / Optional / N/A (ADR-0025). Profiles combine by the strongest tier: Required beats Expected, Expected beats Optional, and Optional beats N/A, and their extras add up. A library that also ships data pipelines (`library + data`) makes `06-runbook.md` Required, from data, and `01-prd.md` Expected. `documentation` stands alone: it means the code lives elsewhere, so it can't be combined. The checklist header joins profiles with ` + ` (`**Profile:** application + data`), and `.standards-kit.json` records them as `profiles`, with `profile` set to the first.
 
 | Profile | What it describes |
 |---|---|
-| **application** | Backend services, web apps, mobile apps, APIs. Have a runtime, an environment, secrets, an on-call story. |
+| **application** | Backend services, web apps, mobile apps, APIs, and the IaC that deploys them (Terraform, Bicep, Kubernetes manifests), or IaC on its own. Have a runtime, environments, secrets, an on-call story. |
 | **library** | Internal packages (npm, NuGet, PyPI, Go modules). Distribute via registry; no environment of their own. |
-| **infra** | Terraform, Bicep, Kubernetes manifests, IaC repos. Care about environments, drift, change windows. |
 | **data** | ETL pipelines, dbt projects, analytics notebooks. Care about data contracts, lineage, freshness. |
 | **documentation** | Documentation/specification repos whose implementation lives elsewhere. Care about source maps, freshness, links, and ownership boundaries. |
+
+`infra` was merged into `application` (ADR-0025) and is still accepted as an alias for it.
 
 If your repo doesn't fit, **pick the closest profile** and record any deviations in the local `STANDARDS.md`. Don't invent new profiles in-repo; propose one via RFC.
 
@@ -40,7 +41,7 @@ If your repo doesn't fit, **pick the closest profile** and record any deviations
 | **Required** | Must exist. The doc may be short, but the file must be present. | Fails the build if missing. |
 | **Expected** | Present by default. May be skipped, but only with an explicit waiver. | Fails the build if missing *and* no waiver line. |
 | **Optional** | Template exists; create when relevant. | Ignored. |
-| **N/A** | Not applicable for this profile. Don't create. | Ignored. |
+| **N/A** | Not applicable for any of the repo's profiles. Don't create. | Ignored. |
 
 ## Universal core (every profile, every repo)
 
@@ -68,24 +69,24 @@ If your repo doesn't fit, **pick the closest profile** and record any deviations
 
 ## Profile matrix (numbered docs)
 
-| Doc | application | library | infra | data | documentation |
-|---|---|---|---|---|---|
-| `01-prd.md` | Required | Optional | Optional | Expected | Expected |
-| `02-architecture.md` | Required | Expected | Required | Required | Expected (information architecture) |
-| `03-data-model.md` | Expected (if state-bearing) | N/A | Optional | Required | Optional |
-| `04-api-and-integrations.md` | Required | Required (public API contract) | Expected | Required (sources/sinks) | Required (linked source repos and reference contracts) |
-| `05-implementation-plan.md` | Expected | Optional | Expected | Expected | Expected |
-| `06-runbook.md` | Required | N/A | Required | Required | N/A (unless the docs site has operations) |
-| `07-testing.md` | Required | Required | Expected (drift/preview) | Required (data quality) | Required (links, generated docs, freshness) |
-| `08-security-and-compliance.md` | Required | Expected | Required | Required | Expected (sensitivity, redaction, access, licensing) |
-| `09-deployment.md` | Required | N/A (publishing policy in CHANGELOG) | Required | Required (orchestration) | Optional (docs site publishing only) |
+| Doc | application | library | data | documentation |
+|---|---|---|---|---|
+| `01-prd.md` | Required | Optional | Expected | Expected |
+| `02-architecture.md` | Required | Expected | Required | Expected (information architecture) |
+| `03-data-model.md` | Expected (if state-bearing) | N/A | Required | Optional |
+| `04-api-and-integrations.md` | Required | Required (public API contract) | Required (sources/sinks) | Required (linked source repos and reference contracts) |
+| `05-implementation-plan.md` | Expected | Optional | Expected | Expected |
+| `06-runbook.md` | Required | N/A | Required | N/A (unless the docs site has operations) |
+| `07-testing.md` | Required (for IaC, include drift detection and preview plans) | Required | Required (data quality) | Required (links, generated docs, freshness) |
+| `08-security-and-compliance.md` | Required | Expected | Required | Expected (sensitivity, redaction, access, licensing) |
+| `09-deployment.md` | Required | N/A (publishing policy in CHANGELOG) | Required (orchestration) | Optional (docs site publishing only) |
 
 ### Profile-specific extras
 
 | Profile | Adds |
 |---|---|
+| `application` | `docs/environments.md` (dev/stage/prod topology + change windows) |
 | `library` | `docs/versioning-policy.md` (SemVer commitments, deprecation cadence, support window) |
-| `infra` | `docs/environments.md` (dev/stage/prod topology + change windows) |
 | `data` | `docs/data-contracts/` (per-dataset contracts: schema, owner, freshness SLO, lineage) |
 | `documentation` | `docs/source-map.md` (linked implementation repos, owners, reference policy, sync cadence) |
 
@@ -265,7 +266,7 @@ These folders are optional and should not be created just because the kit mentio
 | Folder | Use when |
 |---|---|
 | `docs/design/` | Product, UX, workflow, or system design notes that are not ADRs or RFCs. |
-| `support/incidents/` | Operational incident notes and post-incident follow-ups. Most relevant for application, infra, and data repos. |
+| `support/incidents/` | Operational incident notes and post-incident follow-ups. Most relevant for application and data repos. |
 | `support/troubleshooting/` | Recurring symptoms, likely causes, checks, fixes, and escalation paths. |
 | `support/guides/` | User, admin, contributor, or operator guides that do not belong in numbered docs. |
 
@@ -327,7 +328,8 @@ Codex runs a repo's hooks only after you trust the repo and review its hooks.
 
 A repo keeps its hooks in one file, picked by `agents` in `.standards-kit.json`.
 `standards init` and `standards adopt` set it with `--agents claude,copilot`, or
-detect this machine's agents without the flag. With `claude` in the list, the
+detect this machine's agents without the flag, and the `standards` setup menu asks,
+suggesting the ones it finds. With `claude` in the list, the
 hooks live in `.claude/settings.json`, which Copilot in VS Code, the Copilot CLI,
 and the Copilot cloud agent also read. With `copilot` alone, they live in
 `.github/hooks/standards.json`, Copilot's own format, which Claude Code doesn't
@@ -373,15 +375,21 @@ Waivers are reviewed during the doc's review cycle (recorded in `docs/STANDARDS.
 ## Adopting the kit in a new repo
 
 The `standards adopt` (existing repos) and `standards init` (empty repos) commands automate the
-steps below — prefer them. The manual procedure is kept as a description of what those commands do.
+steps below — prefer them. Running `standards` with no arguments in a terminal opens a menu that
+asks what the repo contains and which agents the team uses, shows what it will do, and then runs
+`standards adopt`. Later, `standards change --profile library,data .` (or "Change what this repo
+contains" in the menu) records new profiles, creates the docs they newly need, and updates the
+checklist. Setup and change edit an existing checklist only by rewriting its `**Profile:**` line
+and adding rows for needed docs it doesn't mention; your rows, waivers, and notes stay. The manual
+procedure is kept as a description of what those commands do.
 
 1. Copy `docs/templates/` from this kit into your repo (`standards adopt` does this for you).
-2. Decide the profile.
+2. Decide the profiles: one or more, such as `standards init --profile application,data`.
 3. Create `AGENTS.md` and `CLAUDE.md` from the kit's root copies (rewrite the "What this repo is" and "Local conventions" sections).
 4. Fill `docs/STANDARDS.md` from `docs/templates/STANDARDS.md.template`.
 5. Fill `docs/STANDARDS-CHECKLIST.md` from `docs/templates/STANDARDS-CHECKLIST.md.template`.
 6. Seed `ai/*.md` from `docs/templates/ai-starters/`.
-7. Create the profile-required numbered docs from their templates. Leave Expected docs as stubs to be filled in (or waive them). For `documentation` repos, create `docs/source-map.md` from `docs/templates/source-map-template.md`.
+7. Create the numbered docs your profiles make Required or Expected from their templates, and tick them in the checklist. `standards init` and `standards adopt` do this and never overwrite an existing doc. The checklist lists the profile extras for you to create, such as `docs/source-map.md` from `docs/templates/source-map-template.md` for `documentation` repos.
 8. Adopt `.github/pull_request_template.md` and `.github/workflows/repo-standards.yml`.
 9. Run the CI check locally if possible; commit when green.
 
@@ -403,7 +411,7 @@ Each repo records the kit version it adopted in its local `docs/STANDARDS.md`. U
 `.github/workflows/repo-standards.yml` checks:
 
 1. **Universal core present** — all files listed under "Universal core".
-2. **Profile declared** — `docs/STANDARDS.md` declares a profile from the allowed set.
+2. **Profile declared** — `docs/STANDARDS-CHECKLIST.md` declares one or more profiles from the allowed set, and `documentation` isn't combined with another.
 3. **Waiver completeness** — every unchecked box in `docs/STANDARDS-CHECKLIST.md` has `**Waived:** <reason>`.
 4. **`ai/` freshness** — `ai/current-state.md`, `ai/next-actions.md`, and `ai/handoff.md` have required frontmatter; warn if `last_updated` / `written` is older than the stale threshold.
 5. **ADR filename + status** — filenames match `NNNN-kebab-case.md`; status is `Proposed` | `Accepted` | `Deprecated` | `Superseded by NNNN`.

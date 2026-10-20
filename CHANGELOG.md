@@ -8,6 +8,55 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-10-20
+
+### Added
+- Profiles combine (ADR-0025). `standards init` and `standards adopt` take a
+  comma list, such as `--profile application,data`, and requirements combine by
+  the strongest tier: Required beats Expected, which beats Optional and N/A.
+  `documentation` can't be combined. The marker records `profiles` and keeps
+  `profile` as the first entry, and the checklist header joins names with ` + `,
+  so older CLIs and checkers still read one valid profile. The profile matrix
+  now lives in the CLI as data, with a test that keeps it in sync with
+  `docs/STANDARDS.md`.
+- A guided menu (ADR-0025). In a terminal, `standards` with no arguments reads
+  the repo's state and offers numbered actions, marking one as recommended: set
+  up this repo, check / fix it, update to the installed kit version (only when
+  the repo is behind), change what it contains, and create an AI skill. Setup
+  asks what the repo contains, suggesting answers from files such as a
+  `Dockerfile` or `dbt_project.yml`, and which agents the team uses, suggesting
+  the ones on this machine. It shows what it will do before running
+  `standards adopt`. Enter accepts the default in brackets, and `0` means
+  documentation only. Without a terminal, `standards` prints its help and
+  exits 2, so CI and pipes never hang.
+- `standards change --profile library,data .` changes what an adopted repo
+  contains. It records the profiles, creates the docs they newly need without
+  overwriting any, and updates the checklist. The kit version stays as it was.
+
+### Changed
+- `standards init` and `standards adopt` create the numbered docs the profiles
+  make Required or Expected from their templates and tick them in the
+  checklist, instead of leaving placeholder rows. They never overwrite an
+  existing doc. The profile extras are listed in the checklist for the adopter
+  to create. When a checklist already exists, `adopt`, `init --force`, and
+  `change` rewrite only its `**Profile:**` line and add rows for needed docs it
+  doesn't mention; the adopter's rows, waivers, and notes stay as written.
+- `standards doctor` bases its recommendations on every profile a repo declares.
+- The `AGENTS.md` contract and the docs speak of a repo's profiles rather than
+  one profile: a doc is N/A only when it's N/A for every profile the repo
+  declares.
+- The `infra` profile is merged into `application` (ADR-0025). There are now
+  four profiles: application (an app, service, or IaC), library, data, and
+  documentation. The application column of the matrix is unchanged, and
+  `docs/environments.md` is now an application extra. An IaC-only repo now
+  takes application's tiers.
+
+### Deprecated
+- `infra` as a profile name. `--profile infra` and markers that still say
+  `infra` are read as `application`, and `standards update` rewrites the
+  marker. Checklists that still say `infra` keep passing `standards check`. The
+  alias stays for at least one minor release.
+
 ## [1.4.0] - 2026-10-18
 
 ### Added
@@ -440,6 +489,7 @@ Initial Slice 1 release: templates and standards content.
   are queued. Their work may move cells in the profile matrix, change the v1
   standards-check rules, or introduce new artifact types. Pin a version.
 
+[1.5.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.5.0
 [1.4.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.4.0
 [1.3.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.3.0
 [1.2.0]: https://github.com/swanson-dev/Repo-Standards-Kit/releases/tag/v1.2.0

@@ -24,10 +24,26 @@ from standards.manifest import (
 )
 from standards.marker import MARKER_NAME, read_marker, sha256_file, write_marker
 from standards.payload import payload_root
+from standards.profiles import EXTRAS, MATRIX, needed_docs, parse_profiles
 
 ADOPT_REPORT_KEYS = ("added", "unchanged", "spliced", "conflicts", "scaffolded")
 
-PROFILE_PLACEHOLDER = "<application | library | infra | data | documentation>"
+CHECKLIST = "docs/STANDARDS-CHECKLIST.md"
+PROFILE_LINE_RE = re.compile(r"\*\*Profile:\*\*[^\n]*")
+COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+_FENCE = r"^[ \t]*(`{3,}|~{3,})[^\n]*\n.*?^[ \t]*\1[ \t]*$"
+# Examples that are never edited: comments, fenced blocks, and inline code. A code
+# span opens and closes with backtick runs of the same length, so ``**Profile:** x``
+# is one span, not two empty ones.
+HIDDEN_RE = re.compile(rf"<!--.*?-->|{_FENCE}|(?<!`)(`+)(?!`)[^\n]*?(?<!`)\2(?!`)",
+                       re.DOTALL | re.MULTILINE)
+# Where a doc mention doesn't count. Inline code does count: rows name docs in it.
+UNCOUNTED_RE = re.compile(rf"<!--.*?-->|{_FENCE}", re.DOTALL | re.MULTILINE)
+# Template rows that setup replaces; a hand-written checklist may have neither.
+PLACEHOLDER_ROWS = {
+    "## Profile-required": "- [ ] <doc> — <one-line note if helpful>\n",
+    "## Profile-expected": "- [ ] <doc>\n",
+}
 ROOT_STARTER_DESTS = frozenset({"README.md", "CHANGELOG.md"})
 # ADR-0023: new adoptions enforce the drift Stop hook. Markers written before it
 # have no `hook_mode`, so existing adopters keep advising until they opt in.
@@ -72,14 +88,86 @@ def _stamp_ai_starter(content: str, adopted: str) -> str:
     return content
 
 
-def _fill_checklist(content: str, *, profile: str, adopted: str, repo_name: str) -> str:
-    """Seed the checklist so a freshly adopted repo is CI-green.
+def _first_visible(pattern: str, text: str, after: int = 0) -> re.Match | None:
+    """The first match at or past `after` that isn't inside a comment or inline code,
+    so examples such as `<!-- **Profile:** library -->` are never edited."""
+    hidden = [m.span() for m in HIDDEN_RE.finditer(text)]
+    return next((m for m in re.finditer(pattern, text, re.MULTILINE)
+                 if m.start() >= after and not any(a <= m.start() < b for a, b in hidden)),
+                None)
 
-    Tick the universal-core boxes (init provides those files) and fill the header
-    metadata. Profile-required/expected rows stay `<placeholder>` (the waiver check
-    skips them) for the adopter to fill from docs/STANDARDS.md.
+
+def _add_rows(text: str, heading: str, rows: str) -> str:
+    """Add rows to a checklist section: in place of the template's placeholder row, at
+    the end of the section, or in a new section before `## Notes` (else at the end)."""
+    if not rows:
+        return text
+    placeholder = PLACEHOLDER_ROWS.get(heading)
+    spot = _first_visible(re.escape(placeholder), text) if placeholder else None
+    if spot:
+        return text[:spot.start()] + rows + text[spot.end():]
+    found = _first_visible(rf"^{re.escape(heading)}[ \t]*$", text)
+    if found is None:
+        notes = _first_visible(r"^## Notes[ \t]*$", text)
+        at = notes.start() if notes else len(text)
+        head = text[:at].rstrip("\n")
+        return f"{head}\n\n{heading}\n\n{rows}" + ("\n" + text[at:] if notes else "")
+    nxt = _first_visible(r"^## ", text, after=found.end())
+    end = nxt.start() if nxt else len(text)
+    body = text[found.end():end].rstrip("\n")
+    gap = "\n" if body.rsplit("\n", 1)[-1].lstrip().startswith("- ") else "\n\n"
+    return text[:found.end()] + body + gap + rows + ("\n" if end < len(text) else "") + text[end:]
+
+
+def reconcile_checklist(text: str, profiles: list[str]) -> str:
+    """Point a checklist at these profiles without touching the adopter's own lines.
+
+    Rewrite the `**Profile:**` line, then add ticked rows for the Required and
+    Expected docs it doesn't mention yet (setup creates them) and plain bullets for
+    missing extras (setup doesn't create those, and an unticked box needs a
+    waiver). Mentions inside HTML comments don't count. Running it twice is a no-op.
     """
-    content = content.replace(PROFILE_PLACEHOLDER, profile)
+    header = "**Profile:** " + " + ".join(profiles)
+    line = _first_visible(PROFILE_LINE_RE.pattern, text)
+    if line:
+        old, end = line.group(0), line.end()
+        opener = old.rfind("<!--")
+        if opener != -1 and "-->" not in old[opener:]:  # a comment that runs on stays whole
+            old, end = old[:opener], line.start() + opener
+        # Replace every old name, but keep the line's comments.
+        notes = "".join(f" {c}" for c in COMMENT_RE.findall(old))
+        text = text[:line.start()] + header + notes + (" " if end < line.end() else "") + text[end:]
+    else:
+        title = re.search(r"^# .*$", text, re.MULTILINE)
+        at = title.end() + 1 if title else 0
+        text = f"{text[:at]}\n{header}\n{text[at:]}"
+    required, expected = needed_docs(profiles)
+    sections = (
+        ("## Profile-required", [(f"docs/{d}", f"- [x] `docs/{d}`\n") for d in required]),
+        ("## Profile-expected", [(f"docs/{d}", f"- [x] `docs/{d}`\n") for d in expected]),
+        ("## Profile extras", [(EXTRAS[p], f"- `{EXTRAS[p]}` ({p} extra)\n") for p in profiles]),
+    )
+    for heading, items in sections:
+        visible = UNCOUNTED_RE.sub("", text)
+        text = _add_rows(text, heading, "".join(row for key, row in items if key not in visible))
+    return text
+
+
+def _point_checklist(target: Path, profiles: list[str]) -> bool:
+    """Reconcile an existing checklist with the profiles; True if it changed."""
+    path = target / CHECKLIST
+    if not path.is_file():
+        return False
+    text = path.read_text(encoding="utf-8")
+    new = reconcile_checklist(text, profiles)
+    if new != text:
+        path.write_text(new, encoding="utf-8")
+    return new != text
+
+
+def _fill_checklist(content: str, *, profiles: list[str], adopted: str, repo_name: str) -> str:
+    """Seed the checklist so a freshly adopted repo is CI-green: fill the header
+    metadata, tick the universal-core boxes, and point it at the profiles."""
     content = content.replace("# Standards Checklist — <repo-name>",
                               f"# Standards Checklist — {repo_name}")
     content = content.replace("**Kit version adopted:** <e.g. 0.1.0>",
@@ -93,7 +181,7 @@ def _fill_checklist(content: str, *, profile: str, adopted: str, repo_name: str)
         if in_core:
             line = line.replace("- [ ] ", "- [x] ", 1)
         out.append(line)
-    return "".join(out)
+    return reconcile_checklist("".join(out), profiles)
 
 
 def _fill_root_starter(content: str, *, profile: str, adopted: str,
@@ -107,11 +195,12 @@ def _fill_root_starter(content: str, *, profile: str, adopted: str,
     )
 
 
-def _seed_scaffold_once(target: Path, src_root: Path, *, profile: str,
+def _seed_scaffold_once(target: Path, src_root: Path, *, profiles: list[str],
                         adopted: str) -> list[str]:
     """Seed scaffold-once files into `target` (only those absent). Returns the
     destination paths actually written. Each seed is transformed so a freshly
-    adopted repo is CI-green: tick the checklist core boxes, stamp the ai/ dates.
+    adopted repo is CI-green: tick the checklist boxes, stamp the ai/ dates. The
+    profiles' Required and Expected docs are created from their templates.
     """
     repo_name = target.resolve().name
     seeded: list[str] = []
@@ -121,26 +210,65 @@ def _seed_scaffold_once(target: Path, src_root: Path, *, profile: str,
             continue
         content = (src_root / src_rel).read_text(encoding="utf-8")
         if dest_rel in PROFILE_TEMPLATED:
-            content = _fill_checklist(content, profile=profile, adopted=adopted,
+            content = _fill_checklist(content, profiles=profiles, adopted=adopted,
                                       repo_name=repo_name)
         elif dest_rel in ROOT_STARTER_DESTS:
-            content = _fill_root_starter(content, profile=profile, adopted=adopted,
-                                         repo_name=repo_name)
+            content = _fill_root_starter(content, profile=" + ".join(profiles),
+                                         adopted=adopted, repo_name=repo_name)
         elif dest_rel.startswith("ai/"):
             content = _stamp_ai_starter(content, adopted)
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(content, encoding="utf-8")
         seeded.append(dest_rel)
-    return seeded
+    return seeded + _create_profile_docs(target, src_root, profiles)
 
 
-def run_init(target: Path, *, profile: str, adopted: str, force: bool = False,
+def _create_profile_docs(target: Path, src_root: Path, profiles: list[str]) -> list[str]:
+    """Create the profiles' Required and Expected docs from their templates, never
+    overwriting one. Returns the paths created."""
+    required, expected = needed_docs(profiles)
+    created: list[str] = []
+    for doc in sorted(required + expected):
+        dest = target / "docs" / doc
+        if dest.exists():
+            continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(src_root / "docs" / "templates" / MATRIX[doc][0], dest)
+        created.append(f"docs/{doc}")
+    return created
+
+
+def run_change(target: Path, *, profile: str | list[str]) -> dict[str, list[str]]:
+    """Change what an adopted repo contains (ADR-0025): record the profiles, create the
+    docs they newly need, and point the checklist at them. Never overwrites a doc,
+    and leaves the kit version alone; that's `update`'s job.
+
+    Returns {"created": [...], "checklist": [...]}. Raises ValueError for bad
+    profiles, FileNotFoundError if the repo isn't adopted.
+    """
+    profiles = parse_profiles(profile)
+    target = Path(target)
+    marker = read_marker(target)
+    if marker is None:
+        raise FileNotFoundError(f"{target / MARKER_NAME} not found; set the repo up first")
+    created = _create_profile_docs(target, payload_root(), profiles)
+    checklist = [CHECKLIST] if _point_checklist(target, profiles) else []
+    write_marker(target, kit_version=marker["kit_version"], profile=profiles,
+                 adopted=marker.get("adopted", ""), tracked=marker.get("tracked", {}),
+                 managed=marker.get("managed", {}), keep=marker)
+    return {"created": created, "checklist": checklist}
+
+
+def run_init(target: Path, *, profile: str | list[str], adopted: str, force: bool = False,
              agents=AGENTS) -> dict:
     """Copy kit-tracked files + scaffold-once seeds into `target`; write the marker.
 
     `agents` picks the one hook file the repo gets and is recorded in the marker.
-    Returns the marker dict. Raises FileExistsError if already adopted and not force.
+    `profile` is one profile, a comma list, or a list (ADR-0025). Returns the marker
+    dict. Raises ValueError for bad profiles, FileExistsError if already adopted
+    and not force.
     """
+    profiles = parse_profiles(profile)
     target = Path(target)
     previous = read_marker(target)
     if previous is not None and not force:
@@ -205,14 +333,15 @@ def run_init(target: Path, *, profile: str, adopted: str, force: bool = False,
         else:  # kit-tracked
             tracked[rel] = sha256_file(dest)
 
-    _seed_scaffold_once(target, src_root, profile=profile, adopted=adopted)
+    _seed_scaffold_once(target, src_root, profiles=profiles, adopted=adopted)
+    _point_checklist(target, profiles)  # a checklist kept from before may name other profiles
 
-    return write_marker(target, kit_version=__version__, profile=profile,
+    return write_marker(target, kit_version=__version__, profile=profiles,
                         adopted=adopted, tracked=tracked, managed=managed,
                         keep={**NEW_ADOPTION_KEYS, "agents": list(agents)})
 
 
-def run_adopt(target: Path, *, profile: str, adopted: str,
+def run_adopt(target: Path, *, profile: str | list[str], adopted: str,
               agents=AGENTS) -> dict[str, list[str]]:
     """Adopt the kit into an EXISTING repo non-destructively (RFC-0002 / ADR-0013).
 
@@ -222,6 +351,7 @@ def run_adopt(target: Path, *, profile: str, adopted: str,
     kit's current contract. Writes the marker. Returns a report keyed by
     ADOPT_REPORT_KEYS. Raises FileExistsError if already adopted (use `update`).
     """
+    profiles = parse_profiles(profile)
     target = Path(target)
     if read_marker(target) is not None:
         raise FileExistsError(
@@ -289,10 +419,12 @@ def run_adopt(target: Path, *, profile: str, adopted: str,
             shutil.copyfile(full, sidecar)
             report["conflicts"].append(rel)
 
-    report["scaffolded"] = _seed_scaffold_once(target, src_root, profile=profile,
+    report["scaffolded"] = _seed_scaffold_once(target, src_root, profiles=profiles,
                                                adopted=adopted)
+    if _point_checklist(target, profiles):  # the adopter's checklist, kept but re-pointed
+        report["spliced"].append(CHECKLIST)
 
-    write_marker(target, kit_version=__version__, profile=profile,
+    write_marker(target, kit_version=__version__, profile=profiles,
                  adopted=adopted, tracked=tracked, managed=managed,
                  keep={**NEW_ADOPTION_KEYS, "agents": list(agents)})
     return report

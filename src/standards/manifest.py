@@ -81,7 +81,7 @@ SCAFFOLD_ONCE: dict[str, str] = {
     "docs/rfcs/README.md": "docs/rfcs/README.md",
 }
 
-# Scaffold-once destinations whose PROFILE_PLACEHOLDER must be substituted at init.
+# Scaffold-once destinations that init fills in for the repo's profiles.
 PROFILE_TEMPLATED: frozenset[str] = frozenset({"docs/STANDARDS-CHECKLIST.md"})
 
 # Payload files that are scaffold-once *sources* and must not be copied verbatim

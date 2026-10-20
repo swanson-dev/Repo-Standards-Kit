@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-10-18
+last_updated: 2026-10-20
 last_updated_by: claude
 ---
 
@@ -7,7 +7,7 @@ last_updated_by: claude
 
 ## What works
 
-- The kit ships a complete documentation standard for five repo profiles (application, library, infra, data, documentation) with a Required / Expected / Optional / N/A matrix.
+- The kit ships a complete documentation standard for four repo profiles (application, library, data, documentation; `infra` is an alias for application since ADR-0025) with a Required / Expected / Optional / N/A matrix.
 - 28 templates under `docs/templates/` cover every artifact the kit defines: ADR (MADR 3.0), RFC, discovery starters, optional knowledge-lane starters, 11 numbered-doc skeletons, 4 `ai/` starters, 4 profile extras, and 2 per-repo governance templates.
 - 6 bootstrap ADRs (`docs/decisions/0001`–`0006`) capture every Slice 1 decision in the kit's own format.
 - The kit applies its own `library` profile to itself: every Required and Expected doc is present, with waivers recorded for the genuinely-skipped ones.
@@ -43,14 +43,14 @@ last_updated_by: claude
 - **v1.2.0 published.** The `documentation` profile is now a supported profile for docs/spec repos whose implementation lives elsewhere. The profile keeps the universal core, adds `docs/source-map.md` as its profile extra, updates CLI/check/profile readiness plumbing, and records RFC-0006/ADR-0021. The `v1.2.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. Published-package smoke passed from a clean temporary environment using `standards init --profile documentation`.
 - **v1.3.0 published.** `standards init` and `standards adopt` now seed missing root `README.md` and `CHANGELOG.md` files, preserve existing ones, and ship an advisory `standard-update-changelog` skill plus Stop-hook reminder. The `v1.3.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. Published-package smoke passed from a clean temporary environment using `standards init --profile documentation` without manually seeding README/CHANGELOG.
 - **Standards-check traversal fix (v1.3.0).** Internal and external markdown link checks now skip common dependency, build, and cache directories such as `node_modules/`, `dist/`, `build/`, `.venv/`, and `.next/`.
+- **v1.4.0 published (M8 automation engine).** PR #21 merged as `f7bcc26`, and the `v1.4.0` tag published to PyPI with a GitHub Release (sdist, wheel, attestations). It ships the drift rules, the block-once Stop hook, the CI drift check, Copilot support (one hook file per repo via `--agents`), and a once-per-session block on CI runners.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| M8 automation engine (RFC-0007 concluded, ADR-0023) | docs/rfc-0007-automation-engine | Josh Swanson | built; release v1.4.0 prepared, PR to main open; publish by tagging `v1.4.0` after merge. Codex test D still pending |
+| M9 setup wizard + four combinable profiles (RFC-0009, ADR-0025) | feat/m9-setup-wizard | Josh Swanson | building for v1.5.0: all three slices built (infra alias, combinable profiles with setup creating and ticking the docs, the bare `standards` menu and wizard plus `standards change`); v1.5.0 prepared and the release PR open; next: merge, tag `v1.5.0`, then point the changelog link at the tag |
 | RFC-0008 distribution (pip CLI for repo content + plugin for skills and hooks) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; cloud-agent and Codex checks, then ADR-0024 |
-| M9 setup wizard + four combinable profiles (RFC-0009 concluded, ADR-0025) | docs/rfc-0007-automation-engine | Josh Swanson | planned for v1.5.0; infra merged into application |
 | RFC-0010 retrospectives (`standard-retro` skill) | docs/rfc-0007-automation-engine | Josh Swanson | draft; build after RFC-0007 to RFC-0009, then ADR-0026 |
 | ADR-0022 daily changelog grouping + managed `AGENTS.md` simplification (parked, not merged) | feat/adr-0022-daily-changelog-grouping | Josh Swanson | land via PR |
 

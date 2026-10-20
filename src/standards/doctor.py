@@ -1,7 +1,6 @@
 """Read-only diagnostics for adopted Repo-Standards-Kit repositories."""
 from __future__ import annotations
 
-import json
 import subprocess
 import sys
 from pathlib import Path
@@ -10,7 +9,7 @@ from typing import Callable
 from standards.__about__ import __version__
 from standards.managed import block_hash
 from standards.manifest import PARTIAL_FILES
-from standards.marker import MARKER_NAME
+from standards.marker import MARKER_NAME, read_marker
 from standards.payload import payload_root
 
 CheckRunner = Callable[[Path], subprocess.CompletedProcess]
@@ -24,11 +23,8 @@ def _rel(path: Path, root: Path) -> str:
 
 
 def _read_marker(root: Path) -> tuple[dict | None, str | None]:
-    marker_path = root / MARKER_NAME
-    if not marker_path.is_file():
-        return None, None
     try:
-        return json.loads(marker_path.read_text(encoding="utf-8")), None
+        return read_marker(root), None
     except (OSError, ValueError) as exc:
         return None, f"{MARKER_NAME} could not be read: {exc}"
 
@@ -80,7 +76,7 @@ def _managed_drift(root: Path, marker: dict) -> list[str]:
 
 
 def _recommendations(root: Path, marker: dict | None) -> list[str]:
-    profile = marker.get("profile") if marker else None
+    profiles = set(marker.get("profiles", [])) if marker else set()
     recs: list[str] = []
 
     discovery = root / "docs" / "discovery"
@@ -101,13 +97,13 @@ def _recommendations(root: Path, marker: dict | None) -> list[str]:
     if not (root / "docs" / "design").exists():
         design_signal = (
             (root / "docs" / "01-prd.md").exists()
-            or profile in {"application", "documentation"}
+            or bool(profiles & {"application", "documentation"})
         )
         if design_signal:
             recs.append("Consider docs/design for product, UX, or system design notes.")
 
     support_signal = (
-        profile in {"application", "infra", "data"}
+        bool(profiles & {"application", "data"})
         or (root / "docs" / "06-runbook.md").exists()
         or (root / "docs" / "09-deployment.md").exists()
     )
@@ -146,7 +142,7 @@ def doctor_lines(
         lines.append("Next: run `standards adopt --profile <profile> <target>` for an existing repo.")
         return 1, lines
 
-    profile = marker.get("profile", "unknown")
+    profile = " + ".join(marker.get("profiles", [])) or "unknown"
     kit_version = marker.get("kit_version", "unknown")
     lines.append(f"Adoption: adopted profile={profile} kit_version={kit_version}")
     if kit_version != __version__:

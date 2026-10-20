@@ -2,7 +2,7 @@
 
 ## Roadmap
 
-> Next milestone: **M9 — Setup wizard** (RFC-0009, ADR-0025). M8 — Automation engine (RFC-0007, ADR-0023) shipped in v1.4.0.
+> No milestone is active. M9 — Setup wizard (RFC-0009, ADR-0025) shipped in v1.5.0. The next designs are RFC-0008 (distribution) and RFC-0010 (retrospectives).
 
 | Milestone                        | Outcome                                                                                  | Target   | Status  |
 |----------------------------------|------------------------------------------------------------------------------------------|----------|---------|
@@ -14,7 +14,7 @@
 | M6 — Adoption assistant + AI continuity | `standards doctor`, public `new-skill`, command discovery, optional knowledge-lane templates, and standard AI continuity commands | v1.1.0 | shipped |
 | M7 — Documentation profile | First-class profile for documentation/spec repos linked to implementation elsewhere | v1.2.0 | shipped |
 | M8 — Automation engine | Block-once Stop hooks, per-repo drift rules, a commit-type changelog rule, and a CI drift check | v1.4.0 | shipped |
-| M9 — Setup wizard | A state-aware `standards` menu, a setup wizard that asks what a repo contains, and four combinable profiles (RFC-0009, ADR-0025) | v1.5.0 | planned |
+| M9 — Setup wizard | A state-aware `standards` menu, a setup wizard that asks what a repo contains, and four combinable profiles (RFC-0009, ADR-0025) | v1.5.0 | shipped |
 
 ### Shipped slices (M1 — Foundation)
 
@@ -51,6 +51,14 @@
 | 1 | Add `documentation` to CLI/check/profile fixture plumbing | Shipped |
 | 2 | Add `docs/source-map.md` template and profile matrix/docs updates | Shipped |
 | 3 | Record RFC-0006 and ADR-0021 for the new profile | Shipped |
+
+### Shipped slices (M9 — Setup wizard)
+
+| Slice | Scope | Status |
+|---|---|---|
+| 1 | Four profiles: `infra` merged into `application` and kept as an alias | Shipped |
+| 2 | Combinable profiles by the strongest tier, the matrix in code with a sync test, and setup creating and ticking the docs they need | Shipped |
+| 3 | The bare `standards` menu and setup wizard, `standards change`, and checklist reconciliation | Shipped |
 
 ### Shipped slices (M8 — Automation engine)
 

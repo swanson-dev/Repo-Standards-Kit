@@ -8,7 +8,7 @@ The kit's "public API" is the set of artifacts and conventions downstream repos 
 |---|---|---|
 | **Folder layout** under `docs/` (`STANDARDS.md`, `STANDARDS-CHECKLIST.md`, `00–10-*.md`, `decisions/`, `discovery/`, `rfcs/`, `templates/`) | Stable; changes follow SemVer | This kit's `docs/` tree |
 | **`ai/` directory contract** (the four files, frontmatter, sections) | Stable; changes follow SemVer | `docs/STANDARDS.md` § "The `ai/` directory contract" |
-| **Profile model** (`application` \| `library` \| `infra` \| `data`) | Stable | `docs/STANDARDS.md` § "Repo profiles" |
+| **Profile model** (`application` \| `library` \| `data` \| `documentation`, one or more per repo combined by the strongest tier; `infra` is an alias for `application`) | Stable | `docs/STANDARDS.md` § "Repo profiles" |
 | **Profile matrix** (Required / Expected / Optional / N/A per profile per numbered doc) | Stable; cells may move per kit-version rules in [`versioning-policy.md`](./versioning-policy.md) | `docs/STANDARDS.md` § "Profile matrix" |
 | **ADR format** (MADR 3.0) | Stable | `docs/templates/adr-template.md`, ADR [0002](./decisions/0002-adopt-madr-3.md) |
 | **RFC format** (folder per RFC, required sections) | Stable | `docs/templates/rfc-template.md` |
@@ -17,7 +17,7 @@ The kit's "public API" is the set of artifacts and conventions downstream repos 
 | **Discovery conventions** (filename and optional frontmatter) | Stable | `docs/STANDARDS.md` § "Discovery folder" |
 | **Waiver syntax** (`**Waived:** <reason>` on unchecked checklist boxes) | **Load-bearing for CI**; treat as a hard contract | `docs/STANDARDS.md` § "Waiver mechanism" |
 | **`AGENTS.md` reading order and end-of-session contract** | Stable | `AGENTS.md` (root) |
-| **`standards` CLI commands** (`init`, `adopt`, `update`, `check`, `doctor`, `new-skill`, `commands`, `help`) | Stable public command surface; changes follow SemVer | `README.md`, `standards help <command>` |
+| **`standards` CLI commands** (`init`, `adopt`, `change`, `update`, `check`, `doctor`, `new-skill`, `commands`, `help`, and bare `standards`, which opens the setup menu in a terminal) | Stable public command surface; changes follow SemVer | `README.md`, `standards help <command>` |
 | **AI continuity command surfaces** (`standard-update-handoff`, `standard-get-session-context`, `standard-compact-snapshot`) | Optional tool surface; changes follow SemVer | `AGENTS.md`, `.claude/skills/`, `.github/prompts/` |
 
 ## Internal (not API)
@@ -34,7 +34,7 @@ This kit's consumers are **downstream repositories** that adopt it. A repo adopt
 
 1. Pinning a kit version in its local `docs/STANDARDS.md`.
 2. Copying `docs/templates/` into its own tree.
-3. Filling in the profile and checklist.
+3. Declaring one or more profiles and filling in the checklist. `standards init`, `standards adopt`, or the `standards` menu does steps 2 and 3, creating and ticking the docs the profiles need.
 4. Following the `AGENTS.md` reading order.
 
 The kit does not impose runtime dependencies, build steps, or non-markdown tooling on consumers.
@@ -43,7 +43,7 @@ The kit does not impose runtime dependencies, build steps, or non-markdown tooli
 
 The kit ships `.github/workflows/repo-standards.yml` (Phase E). It expects a downstream repo to have:
 
-- A `docs/STANDARDS.md` declaring a profile from the allowed set.
+- A `docs/STANDARDS-CHECKLIST.md` declaring one or more profiles from the allowed set.
 - A `docs/STANDARDS-CHECKLIST.md` where unchecked boxes carry `**Waived:** <reason>`.
 - ADR filenames matching `NNNN-kebab-case-title.md`.
 - RFC folders containing `rfc.md`.

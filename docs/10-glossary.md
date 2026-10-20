@@ -11,9 +11,9 @@ Kit-specific terms. A term belongs here if its meaning is non-obvious to a smart
 | **Handoff** | The most ephemeral `ai/` file. Written at end of session, read first by the next session. Stale after 7 days. | `docs/STANDARDS.md` § "The ai/ directory contract" |
 | **Kit version** | SemVer-tagged release of this kit. Each downstream repo pins one in its local `docs/STANDARDS.md`. | [`versioning-policy.md`](./versioning-policy.md) |
 | **MADR** | Markdown Architecture Decision Record. Version 3.0 is the kit's chosen ADR format. | ADR [0002](./decisions/0002-adopt-madr-3.md) |
-| **N/A** | Tier in the profile matrix: doc not applicable to this profile. Do not create. No waiver needed. | `docs/STANDARDS.md` § "Tier semantics" |
+| **N/A** | Tier in the profile matrix: doc not applicable to any of the repo's profiles. Do not create. No waiver needed. | `docs/STANDARDS.md` § "Tier semantics" |
 | **Optional** | Tier in the profile matrix: template exists; create when relevant. No waiver needed if skipped. | `docs/STANDARDS.md` § "Tier semantics" |
-| **Profile** | Declared shape of a repo: `application` \| `library` \| `infra` \| `data`. Determines which docs are Required / Expected / Optional / N/A. | ADR [0003](./decisions/0003-adopt-repo-profile-model.md) |
+| **Profile** | Declared shape of a repo: `application` \| `library` \| `data` \| `documentation` (`infra` is an alias for `application`). A repo can declare several, combined by the strongest tier; `documentation` stands alone. Determines which docs are Required / Expected / Optional / N/A. | ADR [0025](./decisions/0025-set-up-repos-through-a-guided-menu-with-four-combinable-profiles.md) |
 | **Required** | Tier in the profile matrix: doc must exist. Absence fails CI. | `docs/STANDARDS.md` § "Tier semantics" |
 | **RFC** | Time-boxed technical investigation. Lives in `docs/rfcs/NNNN-slug/`. Must reach `Concluded`, `Abandoned`, or have its question carried into `ai/open-questions.md`. | `docs/STANDARDS.md` § "RFCs" |
 | **Slice** | A coherent unit of kit work that ships together. Slice 1 = templates + standards content. Slice 2 = AI tooling. Slice 3 = distribution. Slice 4 = deeper CI. | [`README.md`](../README.md) § "Roadmap" |

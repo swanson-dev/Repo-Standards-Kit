@@ -13,6 +13,7 @@ from pathlib import Path
 
 from . import Context, Finding
 
+# `infra` stays valid for checklists written before ADR-0025 merged it into application.
 ALLOWED_PROFILES = {"application", "library", "infra", "data", "documentation"}
 ADR_STATUSES = {"Proposed", "Accepted", "Deprecated"}
 RFC_STATUSES = {"Open", "Concluded", "Abandoned"}
@@ -90,17 +91,33 @@ def check_profile(root: Path, report: Report):
     if not checklist.exists():
         return None
     text = checklist.read_text(encoding="utf-8", errors="replace")
-    m = re.search(r"\*\*Profile:\*\*\s+([^\n<]+)", text)
-    if not m:
+    # Examples in comments, fenced blocks, or inline code, such as `**Profile:** library`,
+    # aren't the header. A code span opens and closes with backtick runs of the same length.
+    text = re.sub(r"<!--.*?-->|^[ \t]*(`{3,}|~{3,})[^\n]*\n.*?^[ \t]*\1[ \t]*$"
+                  r"|(?<!`)(`+)(?!`)[^\n]*?(?<!`)\2(?!`)", " ", text,
+                  flags=re.DOTALL | re.MULTILINE)
+    m = re.search(r"\*\*Profile:\*\*[ \t]*([^\n]*)", text)
+    value = m.group(1).strip() if m else ""
+    if not value or value.startswith("<"):
         report.err("[profile] docs/STANDARDS-CHECKLIST.md does not declare a Profile field.")
         return None
-    profile = m.group(1).strip().split()[0]
-    if profile not in ALLOWED_PROFILES:
-        report.err(
-            f"[profile] Declared profile '{profile}' is not in allowed set {sorted(ALLOWED_PROFILES)}."
-        )
+    # ADR-0025: one or more names joined with "+". Checkers before it read only the first
+    # word, so text after the list, such as "(with IaC)", stays a note.
+    names = re.match(r"[^\s+]+(?:\s*\+\s*[^\s+]+)*", value)
+    if names is None or value[names.end():].lstrip().startswith("+"):
+        report.err(f"[profile] Profile list '{value}' starts or ends with '+'.")
         return None
-    return profile
+    profiles = re.split(r"\s*\+\s*", names.group(0))
+    for profile in profiles:
+        if profile not in ALLOWED_PROFILES:
+            report.err(
+                f"[profile] Declared profile '{profile}' is not in allowed set {sorted(ALLOWED_PROFILES)}."
+            )
+            return None
+    if "documentation" in profiles and len(profiles) > 1:
+        report.err("[profile] The documentation profile can't be combined with other profiles.")
+        return None
+    return profiles
 
 
 def check_waivers(root: Path, report: Report) -> None:

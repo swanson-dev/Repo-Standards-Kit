@@ -6,6 +6,56 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from check import parse_frontmatter  # noqa: E402
+from checks.structural import Report, check_profile  # noqa: E402
+
+
+class ProfileAliasTests(unittest.TestCase):
+    def test_checklists_that_still_say_infra_pass(self):
+        # ADR-0025 merged infra into application; old checklists stay valid.
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "docs").mkdir()
+            (root / "docs" / "STANDARDS-CHECKLIST.md").write_text("**Profile:** infra\n", encoding="utf-8")
+            report = Report()
+            check_profile(root, report)
+            self.assertEqual(report.errors, [])
+
+    def test_combined_profiles_are_each_checked(self):
+        import tempfile
+        cases = {"application + data": 0, "application+data": 0, "application + bogus": 1,
+                 "documentation + library": 1,
+                 # Notes after the names were fine when only the first word was read.
+                 "application (with IaC)": 0, "library (C++ bindings)": 0,
+                 "library + data — pipelines ship in-repo": 0, "`library`": 1,
+                 "application + data2": 1, "application + library-custom": 1,
+                 "application +": 1, "documentation <!-- note --> + library": 1,
+                 "<application | library | data | documentation>": 1,
+                 # An example in a comment or code span before the real header isn't it.
+                 "library <!-- e.g. **Profile:** bogus -->": 0}
+        for header, errors in cases.items():
+            with self.subTest(header=header), tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                (root / "docs").mkdir()
+                (root / "docs" / "STANDARDS-CHECKLIST.md").write_text(
+                    f"**Profile:** {header}\n", encoding="utf-8")
+                report = Report()
+                check_profile(root, report)
+                self.assertEqual(len(report.errors), errors, report.errors)
+
+    def test_examples_before_the_real_header_are_skipped(self):
+        import tempfile
+        for example in ("<!-- e.g. **Profile:** bogus -->", "Write `**Profile:** bogus`.",
+                        "Use ``**Profile:** bogus`` as the format.",
+                        "```markdown\n**Profile:** bogus\n```", "~~~\n**Profile:** bogus\n~~~"):
+            with self.subTest(example=example), tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                (root / "docs").mkdir()
+                (root / "docs" / "STANDARDS-CHECKLIST.md").write_text(
+                    f"{example}\n\n**Profile:** library + data\n", encoding="utf-8")
+                report = Report()
+                self.assertEqual(check_profile(root, report), ["library", "data"])
+                self.assertEqual(report.errors, [])
 
 
 class ParseFrontmatterTests(unittest.TestCase):
