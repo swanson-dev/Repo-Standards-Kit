@@ -20,8 +20,15 @@ def read_marker(root: Path) -> dict | None:
     p = Path(root) / MARKER_NAME
     if not p.is_file():
         return None
-    data = json.loads(p.read_text(encoding="utf-8"))
-    if isinstance(data, dict) and isinstance(data.get("profile"), str):
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        raise ValueError(f"{MARKER_NAME} is not valid JSON: {exc}") from exc
+    if not isinstance(data, dict):
+        raise ValueError(
+            f"{MARKER_NAME} must contain a JSON object, got {type(data).__name__}"
+        )
+    if isinstance(data.get("profile"), str):
         # Markers before ADR-0025 have only `profile`; `profile` is always profiles[0].
         names = data.get("profiles")
         if not (isinstance(names, list) and names and all(isinstance(n, str) for n in names)):

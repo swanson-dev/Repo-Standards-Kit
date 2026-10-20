@@ -333,8 +333,9 @@ def run_init(target: Path, *, profile: str | list[str], adopted: str, force: boo
         else:  # kit-tracked
             tracked[rel] = sha256_file(dest)
 
-    _seed_scaffold_once(target, src_root, profiles=profiles, adopted=adopted)
-    _point_checklist(target, profiles)  # a checklist kept from before may name other profiles
+    seeded = _seed_scaffold_once(target, src_root, profiles=profiles, adopted=adopted)
+    if CHECKLIST not in seeded:  # a kept checklist may name other profiles; a freshly
+        _point_checklist(target, profiles)  # seeded one was already reconciled when filled
 
     return write_marker(target, kit_version=__version__, profile=profiles,
                         adopted=adopted, tracked=tracked, managed=managed,
