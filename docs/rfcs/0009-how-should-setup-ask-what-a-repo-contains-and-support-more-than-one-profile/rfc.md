@@ -30,7 +30,7 @@ The owner's biggest complaint about the kit is that setting it up isn't intuitiv
 - Design a terminal menu and setup wizard within the kit's zero-dependency rule.
 - Design combinable profiles that stay compatible with existing adopters.
 
-On 2026-10-15 the owner decided that the profile matrix lives as data in the CLI, with a test that keeps the `docs/STANDARDS.md` table in sync. Parsing the table at setup time was ruled out because it breaks whenever an adopter edits or reformats their copy. On 2026-10-17 the owner merged the `infra` profile into `application`, leaving four profiles (see design section 4). The same day the owner tried the throwaway prototype in [`artifacts/prototype/`](artifacts/prototype/NOTES.md) and approved the menu. The owner kept both places where the prototype had departed from this RFC, which the design below now includes, and concluded the RFC.
+On 2026-10-15 the owner decided that the profile matrix lives as data in the CLI, with a test that keeps the `docs/STANDARDS.md` table in sync. Parsing the table at setup time was ruled out because it breaks whenever an adopter edits or reformats their copy. On 2026-10-17 the owner merged the `infra` profile into `application`, leaving four profiles (see design section 4). The same day the owner tried a throwaway prototype and approved the menu. M9 slice 3 lifted its logic into `src/standards/wizard.py` and removed the prototype, which stays in git history. The owner kept both places where the prototype had departed from this RFC, which the design below now includes, and concluded the RFC.
 
 ## Findings
 
