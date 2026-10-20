@@ -1,10 +1,10 @@
 ---
-last_updated: 2026-10-19
+last_updated: 2026-10-20
 ---
 
 # Next Actions
 
-1. **Build M9, the setup wizard (ADR-0025)** - slices 1 and 2 are built on `feat/m9-setup-wizard`: four profiles with `infra` kept as an alias, and combinable profiles (`--profile application,data`, strongest tier wins, the matrix in `src/standards/profiles.py` with a sync test, setup creating and ticking the Required and Expected docs). Next, slice 3: the bare `standards` menu and the setup wizard. Lift `setup_logic.py` from RFC-0009's `artifacts/prototype/`, ask what the repo contains and which agents the team uses with suggestions, and build "Change what this repo contains", which must also reconcile an existing checklist with the new profiles. Ships as v1.5.0.
+1. **Release M9 as v1.5.0 (ADR-0025)** - all three slices are built on `feat/m9-setup-wizard`: four profiles with `infra` kept as an alias, combinable profiles with setup creating and ticking their docs, and the bare `standards` menu with the setup wizard and `standards change`. First try `standards` with no arguments in a real terminal: the menu is tested with scripted answers, but no real terminal session has run it yet. Then prepare the release (version, changelog section, roadmap, `AGENTS.md` kit version), open the PR, merge, and tag `v1.5.0`.
 2. **Close out M8 (shipped in v1.4.0)** - test D (Codex's interactive trust flow) is still a manual run; the steps are in RFC-0007's `artifacts/spike-results.md`. Shipping Codex hook config waits on RFC-0008's plugin.
 3. **Run RFC-0008's checks** - cloud-agent plugin skills and `agentStop`, Codex marketplace-plugin hooks, and whether `.claude/skills` show as slash commands in VS Code and Copilot CLI. Then conclude RFC-0008 and write ADR-0024.
 4. **Land the parked ADR-0022 branch** - open a PR for `feat/adr-0022-daily-changelog-grouping`. It also carries the managed `AGENTS.md` simplification; split it first if atomic history matters.

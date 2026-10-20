@@ -1,5 +1,5 @@
 ---
-written: 2026-10-19T14:25:00-05:00
+written: 2026-10-20T10:30:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -13,15 +13,38 @@ into `main`, the `v1.4.0` tag published to PyPI, and a GitHub Release exists. It
 carries the drift rules, the block-once Stop hook, the CI drift check, one hook
 file per repo picked by `agents` (`init`/`adopt --agents`), a once-per-session
 block on CI runners, and the `.claude` payload fix. M9 (setup wizard, ADR-0025)
-is being built on `feat/m9-setup-wizard` for v1.5.0. Slice 1 (committed) merges
-`infra` into `application` and keeps it as an alias. Slice 2 (uncommitted until
-the owner OKs it) makes profiles combine by the strongest tier, and setup now
-creates and ticks the docs they need. Slice 3, the menu and wizard, is next.
+is built on `feat/m9-setup-wizard` (pushed) for v1.5.0, in three slices: `infra`
+merged into `application` as an alias, profiles that combine by the strongest
+tier with setup creating and ticking their docs, and the bare `standards` menu
+with the setup wizard and `standards change`. Slice 3 is uncommitted until the
+owner OKs it. The owner held the release until slice 3; it's next, after one try
+of the menu in a real terminal.
 RFC-0008 (distribution) is an approved design still Open, and RFC-0010
 (retrospectives) is drafted.
 
 ## Recently touched
 
+- M9 slice 3 (ADR-0025): `src/standards/wizard.py` holds the prototype's logic
+  (`suggest` from file signals, `parse_picks`, `menu_items`, `requirement_changes`),
+  `detect_agents` (moved from `cli.py`), and `run_menu`. Every menu action ends in
+  a CLI call through the injected `run` (`cli.main`): `adopt`, the new `change`,
+  `check` then `doctor` then an optional `update`, `update`, and `new-skill`, so
+  tests drive the menu with scripted answers and assert the argv. Bare
+  `standards` opens it only when stdin and stdout are terminals; otherwise it
+  prints help and exits 2. Plain text, no screen clearing or colors (owner's
+  call). `init.reconcile_checklist` makes targeted edits only (the `**Profile:**`
+  line, plus rows for needed docs not mentioned outside HTML comments), and the
+  fresh-checklist fill, `adopt`, `init --force`, and `run_change` all use it,
+  which closes Codex's slice 2 finding. The RFC-0009 prototype is removed (owner's
+  call); its ignored `__pycache__` folder is still on disk because the `rm` was
+  blocked. ADR-0025 still names the folder in plain text; it's immutable, and git
+  history has the files. A Codex review found six bugs, all fixed with tests:
+  examples in comments or inline code being edited or read as the header (in
+  `reconcile_checklist` and the structural check), a commented placeholder taking
+  rows, a newer repo being offered a downgrade (`is_behind`), an update hiding a
+  failed check, `²` crashing the menu, and a skill answer like `--help` exiting it
+  (now `new-skill --` plus a `SystemExit` catch). A re-check confirmed those and
+  caught code spans with doubled backticks, also fixed.
 - M9 slice 2 (ADR-0025): profiles combine. `src/standards/profiles.py` holds the
   four profiles, the `infra` alias (moved from `marker.py`), the matrix (doc ->
   template and tiers) and extras, `parse_profiles` (comma list, order kept,
@@ -147,12 +170,11 @@ RFC-0008 (distribution) is an approved design still Open, and RFC-0010
 
 ## Open threads
 
-- M9, what's left: slice 3, the bare `standards` menu and the setup wizard. See
-  `ai/next-actions.md` item 1. Its "Change what this repo contains" action must
-  reconcile an existing checklist: `adopt` and `init --force` keep a checklist
-  that already exists, so its header and rows can disagree with the profiles
-  they record and the docs they create. That was already true for one profile;
-  Codex flagged it in the slice 2 review.
+- M9, what's left: the release. The owner should first run `standards` with no
+  arguments in a real terminal; tests use scripted answers, and no real terminal
+  session has run the menu. Then prepare v1.5.0 as for v1.4.0 (version,
+  changelog section, roadmap with M9's three slices, `AGENTS.md` kit version and
+  sentinel), open the PR, merge, and tag. See `ai/next-actions.md` item 1.
 - M8 leftovers: test D (Codex's interactive trust flow) is still a manual run,
   and Codex hook config isn't shipped (`.codex/` is gitignored here and not in
   the payload); RFC-0008's plugin is the planned way to ship it.
