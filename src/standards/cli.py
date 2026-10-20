@@ -242,7 +242,7 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
         epilog="Examples:\n  standards help\n  standards help init",
         **_parser_kwargs(),
     )
-    p_help.add_argument("topic", nargs="?", help="Help topic: init, adopt, update, or check.")
+    p_help.add_argument("topic", nargs="?", help="A command name, such as init, adopt, change, update, or check.")
 
     return parser, parsers
 

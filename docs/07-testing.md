@@ -11,6 +11,9 @@ The kit has no runtime, so there are no unit tests in the traditional sense. Ver
 | Opt-in freshness report | Current age/status for rolling `ai/` docs | `standards check --freshness-report` |
 | Adoption diagnostics | Can adopters identify marker, check, sidecar, managed-region, and optional-lane issues without mutation? | `standards doctor --recommend` + CLI tests |
 | AI continuity | Can hooks and commands read context, refresh handoffs, and capture compact snapshots safely? | `scripts/session-context/test_session_context.py`, `scripts/update-handoff/test_update_handoff.py` |
+| Profile matrix | Does the matrix in code match `docs/STANDARDS.md`, and do combined profiles take the strongest tier? | `tests/test_profiles.py` |
+| Setup menu | Does the menu reach the right CLI calls, and does bare `standards` work in a real terminal? | `tests/test_wizard.py`: scripted answers, plus a pseudo-terminal run on Linux and macOS |
+| Doc drift | Do the drift rules flag docs left behind by the changes that should update them, and does the Stop hook block once? | `scripts/drift/test_drift.py`, `standards check --drift-base` |
 | Command discovery | Can adopters find the right command and command-specific examples? | `standards commands`, `standards help <command>` |
 | Optional lane payload | Do optional discovery/design/support templates ship without becoming required scaffold output? | Payload and init tests |
 | Self-application check | Does the kit conform to its own library-profile requirements? | The kit's own `STANDARDS-CHECKLIST.md` parsed by the same workflow |

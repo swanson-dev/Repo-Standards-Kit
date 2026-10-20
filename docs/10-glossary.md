@@ -11,7 +11,7 @@ Kit-specific terms. A term belongs here if its meaning is non-obvious to a smart
 | **Handoff** | The most ephemeral `ai/` file. Written at end of session, read first by the next session. Stale after 7 days. | `docs/STANDARDS.md` § "The ai/ directory contract" |
 | **Kit version** | SemVer-tagged release of this kit. Each downstream repo pins one in its local `docs/STANDARDS.md`. | [`versioning-policy.md`](./versioning-policy.md) |
 | **MADR** | Markdown Architecture Decision Record. Version 3.0 is the kit's chosen ADR format. | ADR [0002](./decisions/0002-adopt-madr-3.md) |
-| **N/A** | Tier in the profile matrix: doc not applicable to this profile. Do not create. No waiver needed. | `docs/STANDARDS.md` § "Tier semantics" |
+| **N/A** | Tier in the profile matrix: doc not applicable to any of the repo's profiles. Do not create. No waiver needed. | `docs/STANDARDS.md` § "Tier semantics" |
 | **Optional** | Tier in the profile matrix: template exists; create when relevant. No waiver needed if skipped. | `docs/STANDARDS.md` § "Tier semantics" |
 | **Profile** | Declared shape of a repo: `application` \| `library` \| `data` \| `documentation` (`infra` is an alias for `application`). A repo can declare several, combined by the strongest tier; `documentation` stands alone. Determines which docs are Required / Expected / Optional / N/A. | ADR [0025](./decisions/0025-set-up-repos-through-a-guided-menu-with-four-combinable-profiles.md) |
 | **Required** | Tier in the profile matrix: doc must exist. Absence fails CI. | `docs/STANDARDS.md` § "Tier semantics" |

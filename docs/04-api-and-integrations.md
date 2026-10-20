@@ -34,7 +34,7 @@ This kit's consumers are **downstream repositories** that adopt it. A repo adopt
 
 1. Pinning a kit version in its local `docs/STANDARDS.md`.
 2. Copying `docs/templates/` into its own tree.
-3. Filling in the profile and checklist.
+3. Declaring one or more profiles and filling in the checklist. `standards init`, `standards adopt`, or the `standards` menu does steps 2 and 3, creating and ticking the docs the profiles need.
 4. Following the `AGENTS.md` reading order.
 
 The kit does not impose runtime dependencies, build steps, or non-markdown tooling on consumers.

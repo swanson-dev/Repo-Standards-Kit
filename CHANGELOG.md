@@ -42,6 +42,9 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
   `change` rewrite only its `**Profile:**` line and add rows for needed docs it
   doesn't mention; the adopter's rows, waivers, and notes stay as written.
 - `standards doctor` bases its recommendations on every profile a repo declares.
+- The `AGENTS.md` contract and the docs speak of a repo's profiles rather than
+  one profile: a doc is N/A only when it's N/A for every profile the repo
+  declares.
 - The `infra` profile is merged into `application` (ADR-0025). There are now
   four profiles: application (an app, service, or IaC), library, data, and
   documentation. The application column of the matrix is unchanged, and

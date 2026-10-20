@@ -45,7 +45,7 @@ flowchart LR
 
 ### `docs/00–10/<numbered>.md`
 
-**Responsibility:** The synthesized, durable "answer" layer. Required-doc set varies by profile.
+**Responsibility:** The synthesized, durable "answer" layer. Required-doc set varies by the repo's profiles.
 
 **Depends on:** earlier ADRs, RFCs, and discovery items as inputs. These are where the team's mental model lives in its most consumable form.
 

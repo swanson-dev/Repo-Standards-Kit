@@ -38,14 +38,14 @@ Before you finish a session that produced meaningful change:
 - **Optional knowledge lanes:** `docs/design/`, `support/incidents/`, `support/troubleshooting/`, and `support/guides/` are optional. Use templates from `docs/templates/`; do not create these folders unless they fit the repo.
 - **AI continuity:** use `standard-get-session-context` at session start or after compaction, `standard-compact-snapshot` before compaction, and `standard-update-handoff` before ending meaningful work.
 - **Skills:** `docs/templates/skill-template.md` (Claude) + `docs/templates/skill-prompt-template.md` (Copilot). Name must equal the skill's directory; add a row to the `## Available skills` index.
-- **Numbered docs:** see `docs/STANDARDS.md` for which docs are Required/Expected/Optional/N/A for this profile.
+- **Numbered docs:** see `docs/STANDARDS.md` for which docs are Required/Expected/Optional/N/A for this repo's profiles (several profiles combine by the strongest tier).
 
 ## Standard conventions
 
 - Date format everywhere: ISO 8601 (`YYYY-MM-DD`).
 - Filename conventions: lowercase kebab-case for slugs.
 - Don't edit files in `docs/decisions/` whose status is `Accepted` — write a superseding ADR instead.
-- Don't create numbered docs marked **N/A** for this profile. If a doc is **Optional** and you skip it, no waiver is needed. If it's **Required** or **Expected** and you skip it, add a `**Waived:** <reason>` line in `docs/STANDARDS-CHECKLIST.md`.
+- Don't create numbered docs that are **N/A** for this repo's profiles. If a doc is **Optional** and you skip it, no waiver is needed. If it's **Required** or **Expected** and you skip it, add a `**Waived:** <reason>` line in `docs/STANDARDS-CHECKLIST.md`.
 <!-- END kit-managed: agents-core -->
 
 ## Available skills

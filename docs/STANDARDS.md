@@ -41,7 +41,7 @@ If your repo doesn't fit, **pick the closest profile** and record any deviations
 | **Required** | Must exist. The doc may be short, but the file must be present. | Fails the build if missing. |
 | **Expected** | Present by default. May be skipped, but only with an explicit waiver. | Fails the build if missing *and* no waiver line. |
 | **Optional** | Template exists; create when relevant. | Ignored. |
-| **N/A** | Not applicable for this profile. Don't create. | Ignored. |
+| **N/A** | Not applicable for any of the repo's profiles. Don't create. | Ignored. |
 
 ## Universal core (every profile, every repo)
 
@@ -328,7 +328,8 @@ Codex runs a repo's hooks only after you trust the repo and review its hooks.
 
 A repo keeps its hooks in one file, picked by `agents` in `.standards-kit.json`.
 `standards init` and `standards adopt` set it with `--agents claude,copilot`, or
-detect this machine's agents without the flag. With `claude` in the list, the
+detect this machine's agents without the flag, and the `standards` setup menu asks,
+suggesting the ones it finds. With `claude` in the list, the
 hooks live in `.claude/settings.json`, which Copilot in VS Code, the Copilot CLI,
 and the Copilot cloud agent also read. With `copilot` alone, they live in
 `.github/hooks/standards.json`, Copilot's own format, which Claude Code doesn't

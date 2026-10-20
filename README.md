@@ -76,18 +76,19 @@ Pick the profiles that fit the repo: `application` (including IaC) | `library` |
 ## What this kit gives you
 
 1. A **standard folder layout** that scales across repo types.
-2. Four **repo profiles** (application, library, data, documentation) with explicit Required / Expected / Optional / N/A doc requirements.
-3. A defined contract for the **`ai/` directory** — four files that carry session-to-session context.
-4. **MADR 3.0 ADRs** with a defined lifecycle.
-5. **RFCs** for time-boxed technical investigations (separate from raw discovery intake).
-6. Lightweight conventions for **`docs/discovery/`** — keep stakeholder, research, and reconnaissance notes as normal tracked markdown.
-7. A **PR template** that asks the right questions about documentation, ADRs, AI context, and operational impact.
-8. A **`STANDARDS-CHECKLIST.md`** with a waiver mechanism so absences are explicit, not silent.
-9. A **CI check** (`standards check`) that enforces the structural minimum plus content-level lints.
-10. **AI Skills + hooks** (Claude Code + Copilot) for ADRs, RFCs, handoffs, changelog reminders, and running the check.
-11. A read-only **adoption doctor** (`standards doctor`) for marker health, check findings, sidecar conflicts, managed-region drift, and optional lane recommendations.
-12. Optional **knowledge-lane templates** for discovery notes, meetings, artifact indexes, design notes, incidents, troubleshooting, and guides.
-13. Optional **AI continuity commands** for session context, compact snapshots, standard handoff refreshes, and changelog updates.
+2. Four **repo profiles** (application, library, data, documentation) with explicit Required / Expected / Optional / N/A doc requirements. A repo can combine them, such as application + data, and takes the strongest tier.
+3. A **guided setup menu**: run `standards` with no arguments in a terminal. It asks what the repo contains and which agents the team uses, then creates and ticks the docs the repo needs.
+4. A defined contract for the **`ai/` directory** — four files that carry session-to-session context.
+5. **MADR 3.0 ADRs** with a defined lifecycle.
+6. **RFCs** for time-boxed technical investigations (separate from raw discovery intake).
+7. Lightweight conventions for **`docs/discovery/`** — keep stakeholder, research, and reconnaissance notes as normal tracked markdown.
+8. A **PR template** that asks the right questions about documentation, ADRs, AI context, and operational impact.
+9. A **`STANDARDS-CHECKLIST.md`** with a waiver mechanism so absences are explicit, not silent.
+10. A **CI check** (`standards check`) that enforces the structural minimum plus content-level lints, and flags docs a pull request left behind (`--drift-base`).
+11. **AI Skills + hooks** (Claude Code + Copilot) for ADRs, RFCs, handoffs, changelog reminders, and running the check, plus a Stop hook that blocks once when docs fall behind the changes that should update them.
+12. A read-only **adoption doctor** (`standards doctor`) for marker health, check findings, sidecar conflicts, managed-region drift, and optional lane recommendations.
+13. Optional **knowledge-lane templates** for discovery notes, meetings, artifact indexes, design notes, incidents, troubleshooting, and guides.
+14. Optional **AI continuity commands** for session context, compact snapshots, standard handoff refreshes, and changelog updates.
 
 ## The information flow
 
