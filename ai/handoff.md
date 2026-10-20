@@ -1,5 +1,5 @@
 ---
-written: 2026-10-20T06:10:00-05:00
+written: 2026-10-20T06:30:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -17,8 +17,9 @@ is built on `feat/m9-setup-wizard` (pushed) for v1.5.0, in three slices: `infra`
 merged into `application` as an alias, profiles that combine by the strongest
 tier with setup creating and ticking their docs, and the bare `standards` menu
 with the setup wizard and `standards change`, all committed (not pushed). The
-owner held the release until slice 3, so v1.5.0 is next. A pseudo-terminal test
-now runs the real menu; it passed in WSL and runs in CI on Linux.
+owner held the release until slice 3. v1.5.0 is now prepared and the release PR
+to `main` is open; a pseudo-terminal test runs the real menu, passed in WSL, and
+runs in CI on Linux.
 RFC-0008 (distribution) is an approved design still Open, and RFC-0010
 (retrospectives) is drafted.
 
@@ -170,12 +171,14 @@ RFC-0008 (distribution) is an approved design still Open, and RFC-0010
 
 ## Open threads
 
-- M9, what's left: the release. `MenuInATerminalTests` in `tests/test_wizard.py`
-  runs bare `standards` in a pseudo-terminal (stdlib `pty`; skipped on Windows,
-  which has none) and passed in WSL, so the terminal path is verified; the owner
-  may still want one look at how the menu reads. Then prepare v1.5.0 as for v1.4.0 (version,
-  changelog section, roadmap with M9's three slices, `AGENTS.md` kit version and
-  sentinel), open the PR, merge, and tag. See `ai/next-actions.md` item 1.
+- M9, what's left: the release. `chore(release): prepare v1.5.0` bumped the
+  version, the changelog section (linked to its own anchor until the tag
+  exists), the roadmap with M9's three slices, and `AGENTS.md`. The local release
+  gates passed, including `--external-links` and a wheel build with no
+  `.claude/worktrees` or `settings.local.json` in it. After the owner merges the
+  PR: tag `v1.5.0` on `main`, then switch the `[1.5.0]` link to the tag URL
+  (`docs/RELEASING.md` step 3). `MenuInATerminalTests` in `tests/test_wizard.py`
+  covers the terminal path (stdlib `pty`; skipped on Windows).
 - M8 leftovers: test D (Codex's interactive trust flow) is still a manual run,
   and Codex hook config isn't shipped (`.codex/` is gitignored here and not in
   the payload); RFC-0008's plugin is the planned way to ship it.
