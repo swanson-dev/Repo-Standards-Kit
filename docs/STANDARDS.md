@@ -374,7 +374,13 @@ Waivers are reviewed during the doc's review cycle (recorded in `docs/STANDARDS.
 ## Adopting the kit in a new repo
 
 The `standards adopt` (existing repos) and `standards init` (empty repos) commands automate the
-steps below — prefer them. The manual procedure is kept as a description of what those commands do.
+steps below — prefer them. Running `standards` with no arguments in a terminal opens a menu that
+asks what the repo contains and which agents the team uses, shows what it will do, and then runs
+`standards adopt`. Later, `standards change --profile library,data .` (or "Change what this repo
+contains" in the menu) records new profiles, creates the docs they newly need, and updates the
+checklist. Setup and change edit an existing checklist only by rewriting its `**Profile:**` line
+and adding rows for needed docs it doesn't mention; your rows, waivers, and notes stay. The manual
+procedure is kept as a description of what those commands do.
 
 1. Copy `docs/templates/` from this kit into your repo (`standards adopt` does this for you).
 2. Decide the profiles: one or more, such as `standards init --profile application,data`.

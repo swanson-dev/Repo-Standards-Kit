@@ -56,6 +56,20 @@ class AdoptTests(unittest.TestCase):
             self.assertEqual((target / "docs" / "07-testing.md").read_text(encoding="utf-8"),
                              "MINE\n")
 
+    def test_adopt_points_an_existing_checklist_at_the_profiles(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / "docs").mkdir()
+            checklist = target / "docs" / "STANDARDS-CHECKLIST.md"
+            checklist.write_text("# Standards Checklist — mine\n\n**Profile:** library\n\n"
+                                 "## Notes\n\nKeep me.\n", encoding="utf-8")
+            report = run_adopt(target, profile="library,data", adopted=date.today().isoformat())
+            text = checklist.read_text(encoding="utf-8")
+            self.assertIn("**Profile:** library + data\n", text)
+            self.assertIn("- [x] `docs/06-runbook.md`", text)
+            self.assertIn("Keep me.", text)
+            self.assertIn("docs/STANDARDS-CHECKLIST.md", report["spliced"])
+
     def test_adopt_blank_repo_is_check_clean(self):
         import check as check_mod
         with tempfile.TemporaryDirectory() as d:

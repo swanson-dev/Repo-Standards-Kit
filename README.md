@@ -30,6 +30,10 @@ The runtime is **stdlib-only** (Python 3.9+) — no third-party dependencies.
 ## Quickstart
 
 ```sh
+# Guided: in a terminal, with no arguments, a menu walks you through setup,
+# checks, updates, changing what the repo contains, and new AI skills:
+standards
+
 # Adopt the kit into a NEW or empty repo (greenfield):
 standards init --profile library .
 
@@ -42,6 +46,9 @@ standards check .
 
 # Pull in a newer kit version later (non-destructive reconcile):
 standards update .
+
+# Change what an adopted repo contains (creates any newly needed docs):
+standards change --profile library,data .
 
 # Diagnose adoption health and optional next lanes:
 standards doctor --recommend .

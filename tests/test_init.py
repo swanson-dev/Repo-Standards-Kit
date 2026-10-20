@@ -1,9 +1,10 @@
+import json
 import sys
 import tempfile
 import unittest
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[1]
+REPO =Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
 
@@ -193,6 +194,16 @@ class InitTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self._run(Path(d), profile="documentation,library", adopted="2026-05-29")
 
+    def test_force_reinit_points_the_checklist_at_the_new_profiles(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._run(target, profile="library", adopted="2026-05-29")
+            self._run(target, profile="library,data", adopted="2026-05-29", force=True)
+            checklist = (target / "docs" / "STANDARDS-CHECKLIST.md").read_text(encoding="utf-8")
+            self.assertIn("**Profile:** library + data\n", checklist)
+            self.assertIn("- [x] `docs/06-runbook.md`", checklist)
+            self.assertEqual(checklist.count("`docs/04-api-and-integrations.md`"), 1)
+
     def test_refuses_reinit_without_force(self):
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
@@ -258,6 +269,109 @@ class InitTests(unittest.TestCase):
             after = (target / "AGENTS.md").read_text(encoding="utf-8")
             self.assertIn("## My downstream section", after)  # preserved, not overwritten
             self.assertIn("AGENTS.md", read_marker(target)["managed"])
+
+
+HAND_WRITTEN_CHECKLIST = """# Standards Checklist — mine
+
+**Profile:** library (core package)
+
+## Profile-required
+
+- [x] `docs/04-api-and-integrations.md` — our public API
+- [ ] `docs/07-testing.md` **Waived:** tests live in the CI repo
+
+## Notes
+
+Keep me.
+"""
+
+
+class ReconcileChecklistTests(unittest.TestCase):
+    def test_only_the_profile_line_changes_and_missing_rows_are_added(self):
+        from standards.init import reconcile_checklist
+        text = reconcile_checklist(HAND_WRITTEN_CHECKLIST, ["library", "data"])
+        self.assertIn("**Profile:** library + data\n", text)
+        # The adopter's own rows, waiver, and notes stay exactly as written.
+        self.assertIn("- [x] `docs/04-api-and-integrations.md` — our public API\n", text)
+        self.assertIn("- [ ] `docs/07-testing.md` **Waived:** tests live in the CI repo\n", text)
+        self.assertIn("## Notes\n\nKeep me.\n", text)
+        # Docs the profiles need and the checklist doesn't mention are added, ticked.
+        required = text[text.index("## Profile-required"):text.index("## Notes")]
+        self.assertIn("- [x] `docs/06-runbook.md`\n", required)
+        self.assertIn("## Profile-expected", text)
+        self.assertIn("- [x] `docs/01-prd.md`\n", text)
+        self.assertIn("- `docs/data-contracts/` (data extra)\n", text)
+        self.assertEqual(text.count("`docs/04-api-and-integrations.md`"), 1)
+
+    def test_reconciling_twice_changes_nothing_more(self):
+        from standards.init import reconcile_checklist
+        once = reconcile_checklist(HAND_WRITTEN_CHECKLIST, ["library", "data"])
+        self.assertEqual(reconcile_checklist(once, ["library", "data"]), once)
+
+    def test_examples_in_comments_and_code_are_left_alone(self):
+        from standards.init import reconcile_checklist
+        text = ("# Standards Checklist — mine\n\n"
+                "<!-- e.g. **Profile:** library -->\n"
+                "Write it like `**Profile:** library`.\n"
+                "Or like ``**Profile:** library`` with doubled backticks.\n\n"
+                "**Profile:** library\n\n"
+                "## Profile-expected\n\n"
+                "<!-- template example:\n- [ ] <doc>\n-->\n")
+        once = reconcile_checklist(text, ["library", "data"])
+        self.assertIn("<!-- e.g. **Profile:** library -->\n", once)
+        self.assertIn("Write it like `**Profile:** library`.\n", once)
+        self.assertIn("Or like ``**Profile:** library`` with doubled backticks.\n", once)
+        self.assertIn("\n**Profile:** library + data\n", once)
+        self.assertIn("<!-- template example:\n- [ ] <doc>\n-->\n", once)
+        self.assertIn("-->\n\n- [x] `docs/01-prd.md`\n", once)  # added outside the comment
+        self.assertEqual(reconcile_checklist(once, ["library", "data"]), once)
+
+
+class ChangeTests(unittest.TestCase):
+    def _adopt(self, target, **kw):
+        from standards.init import run_init
+        run_init(target, profile="library", adopted="2026-05-29", agents=["claude"], **kw)
+
+    def test_change_records_the_profiles_and_adds_what_they_need(self):
+        from standards.init import run_change
+        from standards.marker import MARKER_NAME, read_marker
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._adopt(target)
+            marker_path = target / MARKER_NAME
+            data = json.loads(marker_path.read_text(encoding="utf-8"))
+            data["check"] = {"drift": "error"}  # an adopter-owned key
+            marker_path.write_text(json.dumps(data), encoding="utf-8")
+            before = read_marker(target)
+            report = run_change(target, profile="library,data")
+            after = read_marker(target)
+            self.assertEqual(after["profiles"], ["library", "data"])
+            for key in ("kit_version", "adopted", "tracked", "managed", "agents", "hook_mode",
+                        "check"):
+                self.assertEqual(after[key], before[key], key)
+            self.assertIn("docs/06-runbook.md", report["created"])
+            self.assertTrue((target / "docs" / "06-runbook.md").is_file())
+            self.assertEqual(report["checklist"], ["docs/STANDARDS-CHECKLIST.md"])
+            checklist = (target / "docs" / "STANDARDS-CHECKLIST.md").read_text(encoding="utf-8")
+            self.assertIn("**Profile:** library + data\n", checklist)
+            self.assertIn("- [x] `docs/06-runbook.md`", checklist)
+
+    def test_change_needs_an_adopted_repo(self):
+        from standards.init import run_change
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(FileNotFoundError):
+                run_change(Path(d), profile="library")
+
+    def test_change_never_overwrites_a_doc(self):
+        from standards.init import run_change
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            self._adopt(target)
+            (target / "docs" / "06-runbook.md").write_text("MINE\n", encoding="utf-8")
+            report = run_change(target, profile="library,data")
+            self.assertNotIn("docs/06-runbook.md", report["created"])
+            self.assertEqual((target / "docs" / "06-runbook.md").read_text(encoding="utf-8"),
+                             "MINE\n")
 
 
 if __name__ == "__main__":

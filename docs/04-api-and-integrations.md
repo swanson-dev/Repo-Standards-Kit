@@ -17,7 +17,7 @@ The kit's "public API" is the set of artifacts and conventions downstream repos 
 | **Discovery conventions** (filename and optional frontmatter) | Stable | `docs/STANDARDS.md` § "Discovery folder" |
 | **Waiver syntax** (`**Waived:** <reason>` on unchecked checklist boxes) | **Load-bearing for CI**; treat as a hard contract | `docs/STANDARDS.md` § "Waiver mechanism" |
 | **`AGENTS.md` reading order and end-of-session contract** | Stable | `AGENTS.md` (root) |
-| **`standards` CLI commands** (`init`, `adopt`, `update`, `check`, `doctor`, `new-skill`, `commands`, `help`) | Stable public command surface; changes follow SemVer | `README.md`, `standards help <command>` |
+| **`standards` CLI commands** (`init`, `adopt`, `change`, `update`, `check`, `doctor`, `new-skill`, `commands`, `help`, and bare `standards`, which opens the setup menu in a terminal) | Stable public command surface; changes follow SemVer | `README.md`, `standards help <command>` |
 | **AI continuity command surfaces** (`standard-update-handoff`, `standard-get-session-context`, `standard-compact-snapshot`) | Optional tool surface; changes follow SemVer | `AGENTS.md`, `.claude/skills/`, `.github/prompts/` |
 
 ## Internal (not API)
