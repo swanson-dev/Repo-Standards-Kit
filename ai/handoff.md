@@ -1,5 +1,5 @@
 ---
-written: 2026-10-20T06:30:00-05:00
+written: 2026-10-20T06:35:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -8,23 +8,27 @@ for: next-session
 
 ## TL;DR
 
-M8 (automation engine, ADR-0023) shipped in v1.4.0 on 2026-10-18: PR 21 merged
-into `main`, the `v1.4.0` tag published to PyPI, and a GitHub Release exists. It
-carries the drift rules, the block-once Stop hook, the CI drift check, one hook
-file per repo picked by `agents` (`init`/`adopt --agents`), a once-per-session
-block on CI runners, and the `.claude` payload fix. M9 (setup wizard, ADR-0025)
-is built on `feat/m9-setup-wizard` (pushed) for v1.5.0, in three slices: `infra`
-merged into `application` as an alias, profiles that combine by the strongest
-tier with setup creating and ticking their docs, and the bare `standards` menu
-with the setup wizard and `standards change`, all committed (not pushed). The
-owner held the release until slice 3. v1.5.0 is now prepared and the release PR
-to `main` is open; a pseudo-terminal test runs the real menu, passed in WSL, and
-runs in CI on Linux.
-RFC-0008 (distribution) is an approved design still Open, and RFC-0010
-(retrospectives) is drafted.
+M9 (setup wizard, ADR-0025) shipped in v1.5.0 on 2026-10-20: PR 22 merged into
+`main` as `3d96ac2`, the `v1.5.0` tag published to PyPI, and the GitHub Release
+is Latest. It ships four profiles (`infra` kept as an alias for `application`),
+profiles that combine by the strongest tier with setup creating and ticking
+their docs, the bare `standards` menu and setup wizard, and `standards change`.
+M8 (automation engine) shipped before it in v1.4.0. No milestone is active; the
+next designs are RFC-0008 (distribution, approved and still Open) and RFC-0010
+(retrospectives, drafted).
 
 ## Recently touched
 
+- v1.5.0 released (2026-10-20). PR 22's CI passed on every commit. Copilot's PR
+  review found two real bugs in checklist reconciliation, fixed with tests in
+  `af7bee0` and answered on both threads: a fenced code block (``` or ~~~) wasn't
+  treated as an example, so a fenced `**Profile:**` line above the real header
+  was rewritten and read by the structural check; and a comment between profile
+  names stopped the rewrite early, keeping old names. The changelog's `[1.5.0]`
+  link was pointed at the release inside the PR, as for v1.4.0, so `main` needed
+  no follow-up commit. The PyPI package installs, reports `standards 1.5.0`,
+  and passes `init --profile library,data`, `check` (with the freshness report
+  and external links), and `change` in a clean environment.
 - M9 slice 3 (ADR-0025): `src/standards/wizard.py` holds the prototype's logic
   (`suggest` from file signals, `parse_picks`, `menu_items`, `requirement_changes`),
   `detect_agents` (moved from `cli.py`), and `run_menu`. Every menu action ends in
@@ -171,14 +175,12 @@ RFC-0008 (distribution) is an approved design still Open, and RFC-0010
 
 ## Open threads
 
-- M9, what's left: the release. `chore(release): prepare v1.5.0` bumped the
-  version, the changelog section (linked to its own anchor until the tag
-  exists), the roadmap with M9's three slices, and `AGENTS.md`. The local release
-  gates passed, including `--external-links` and a wheel build with no
-  `.claude/worktrees` or `settings.local.json` in it. After the owner merges the
-  PR: tag `v1.5.0` on `main`, then switch the `[1.5.0]` link to the tag URL
-  (`docs/RELEASING.md` step 3). `MenuInATerminalTests` in `tests/test_wizard.py`
-  covers the terminal path (stdlib `pty`; skipped on Windows).
+- Windows treats the NUL device as a terminal: `standards < NUL > NUL` opens the
+  menu, reads end-of-input at once, and exits 0 rather than 2. It never hangs, and
+  a file or pipe on either side gets help and exit 2 as designed. Fix in a patch
+  release by also requiring `os.get_terminal_size()` on stdout to succeed (it
+  raises `OSError` on NUL); see `ai/next-actions.md`. `MenuInATerminalTests`
+  covers the real-terminal path on Linux and macOS.
 - M8 leftovers: test D (Codex's interactive trust flow) is still a manual run,
   and Codex hook config isn't shipped (`.codex/` is gitignored here and not in
   the payload); RFC-0008's plugin is the planned way to ship it.

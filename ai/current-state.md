@@ -44,12 +44,12 @@ last_updated_by: claude
 - **v1.3.0 published.** `standards init` and `standards adopt` now seed missing root `README.md` and `CHANGELOG.md` files, preserve existing ones, and ship an advisory `standard-update-changelog` skill plus Stop-hook reminder. The `v1.3.0` tag published successfully to PyPI and has a GitHub Release with the sdist, wheel, and publish attestations attached. Published-package smoke passed from a clean temporary environment using `standards init --profile documentation` without manually seeding README/CHANGELOG.
 - **Standards-check traversal fix (v1.3.0).** Internal and external markdown link checks now skip common dependency, build, and cache directories such as `node_modules/`, `dist/`, `build/`, `.venv/`, and `.next/`.
 - **v1.4.0 published (M8 automation engine).** PR #21 merged as `f7bcc26`, and the `v1.4.0` tag published to PyPI with a GitHub Release (sdist, wheel, attestations). It ships the drift rules, the block-once Stop hook, the CI drift check, Copilot support (one hook file per repo via `--agents`), and a once-per-session block on CI runners.
+- **v1.5.0 published (M9 setup wizard).** PR #22 merged as `3d96ac2`, and the `v1.5.0` tag published to PyPI with a GitHub Release (sdist, wheel, attestations). It ships four profiles (`infra` kept as an alias for `application`), profiles that combine by the strongest tier with setup creating and ticking their docs, the bare `standards` menu and setup wizard, and `standards change`. Published-package smoke passed from a clean environment.
 
 ## What's in progress
 
 | Feature | Branch | Owner | Target |
 |---|---|---|---|
-| M9 setup wizard + four combinable profiles (RFC-0009, ADR-0025) | feat/m9-setup-wizard | Josh Swanson | building for v1.5.0: all three slices built (infra alias, combinable profiles with setup creating and ticking the docs, the bare `standards` menu and wizard plus `standards change`); v1.5.0 prepared and the release PR open; next: merge, tag `v1.5.0`, then point the changelog link at the tag |
 | RFC-0008 distribution (pip CLI for repo content + plugin for skills and hooks) | docs/rfc-0007-automation-engine | Josh Swanson | design approved; cloud-agent and Codex checks, then ADR-0024 |
 | RFC-0010 retrospectives (`standard-retro` skill) | docs/rfc-0007-automation-engine | Josh Swanson | draft; build after RFC-0007 to RFC-0009, then ADR-0026 |
 | ADR-0022 daily changelog grouping + managed `AGENTS.md` simplification (parked, not merged) | feat/adr-0022-daily-changelog-grouping | Josh Swanson | land via PR |
