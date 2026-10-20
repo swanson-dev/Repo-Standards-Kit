@@ -1,9 +1,14 @@
-"""The bare `standards` menu and setup wizard (ADR-0025), driven with scripted answers."""
+"""The bare `standards` menu and setup wizard (ADR-0025), driven with scripted answers,
+and once for real in a pseudo-terminal."""
 from __future__ import annotations
 
 import json
+import os
+import select
+import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -200,6 +205,74 @@ class RunMenuTests(unittest.TestCase):
             _code, calls, text = drive(target, ["1", "y"], codes={"check": 1})
             self.assertEqual([argv[0] for argv in calls], ["check", "doctor", "update"])
             self.assertIn("exited with code 1", text)
+
+
+@unittest.skipUnless(hasattr(os, "openpty"), "needs a POSIX pseudo-terminal (none on Windows)")
+class MenuInATerminalTests(unittest.TestCase):
+    """The one path scripted answers can't reach: the terminal check in `cli.main`,
+    and the menu reading and writing a real terminal."""
+
+    def test_bare_standards_opens_the_menu_and_sets_up_a_repo(self):
+        with tempfile.TemporaryDirectory() as d:
+            target = Path(d)
+            (target / "Dockerfile").write_text("FROM python\n", encoding="utf-8")
+            master, child = os.openpty()
+            proc = subprocess.Popen(
+                [sys.executable, "-m", "standards.cli"], cwd=d,
+                stdin=child, stdout=child, stderr=child,
+                env={**os.environ, "PYTHONPATH": str(REPO / "src")},
+            )
+            os.close(child)
+            seen = bytearray()
+            pos = 0
+
+            def expect(text: str, timeout: float = 30) -> None:
+                nonlocal pos
+                deadline = time.monotonic() + timeout
+                while (at := seen.find(text.encode(), pos)) == -1:
+                    left = deadline - time.monotonic()
+                    ready = select.select([master], [], [], max(left, 0))[0] if left > 0 else []
+                    try:
+                        chunk = os.read(master, 4096) if ready else b""
+                    except OSError:  # EIO once the child closes the terminal
+                        chunk = b""
+                    if not chunk:
+                        self.fail(f"never saw {text!r}; the terminal showed:\n"
+                                  + seen.decode(errors="replace"))
+                    seen.extend(chunk)
+                pos = at + len(text)
+
+            def answer(text: str) -> None:
+                os.write(master, text.encode() + b"\n")
+
+            try:
+                expect("This repo: not set up yet")
+                expect("1) Set up this repo   <- recommended")
+                expect("> ")
+                answer("1")
+                expect("Suggested from this repo: 1")
+                expect("> [1] ")
+                answer("")  # accept the suggestion
+                expect("Which agents does the team use?")
+                expect("[b] back")
+                expect("] ")  # the end of the prompt, whatever this machine suggests
+                answer("1")  # claude
+                expect("Here's what setup will do")
+                expect("> ")
+                answer("y")
+                expect("This repo: set up at kit")
+                expect("> ")
+                answer("q")
+                self.assertEqual(proc.wait(timeout=30), 0)
+            finally:
+                if proc.poll() is None:
+                    proc.kill()
+                    proc.wait()
+                os.close(master)
+            marker = json.loads((target / ".standards-kit.json").read_text(encoding="utf-8"))
+            self.assertEqual(marker["profiles"], ["application"])
+            self.assertEqual(marker["agents"], ["claude"])
+            self.assertTrue((target / "docs" / "06-runbook.md").is_file())
 
 
 if __name__ == "__main__":
