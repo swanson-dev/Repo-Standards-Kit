@@ -8,6 +8,23 @@ This project adheres to [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+### Fixed
+- On Windows, bare `standards` no longer opens the menu when both streams are the
+  `NUL` device (such as `standards < NUL > NUL`). Windows reports `NUL` as a
+  terminal, so the menu guard now also requires `os.get_terminal_size()` to
+  succeed — it raises `OSError` on `NUL` — and otherwise prints help and exits 2,
+  as on any pipe or file.
+- `standards update` now drops marker entries for files the kit no longer ships,
+  so the `removed` count converges instead of being re-reported on every run. A
+  `--dry-run` still changes nothing. Downstream copies of those files are left in
+  place, as before.
+- A corrupt `.standards-kit.json` (invalid JSON, or valid JSON that isn't an
+  object) now fails every command with a clear error instead of a traceback.
+  `read_marker` raises a descriptive `ValueError`, and `init`, `adopt`, `change`,
+  and `update` report it and exit 2.
+- `standards update` on a marker that parses but carries no profile now reports a
+  clear error and exits 2 instead of raising `KeyError`.
+
 ## [1.5.0] - 2026-10-20
 
 ### Added

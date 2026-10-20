@@ -89,7 +89,8 @@ def run_update(target: Path, *, dry_run: bool = False) -> dict[str, list[str]]:
                 continue
             cur_text = dest.read_text(encoding="utf-8")
             cur_block = block_hash(cur_text)
-            src_fb = find_block(full.read_text(encoding="utf-8"))
+            src_text = full.read_text(encoding="utf-8")
+            src_fb = find_block(src_text)
             if cur_block is None:
                 # No managed markers. Pre-0.6.0 adoptions tracked these files as
                 # kit-tracked and markerless; migrate to the partial format if the
@@ -114,7 +115,7 @@ def run_update(target: Path, *, dry_run: bool = False) -> dict[str, list[str]]:
                         dest.write_text(splice_block(cur_text, src_fb.inner), encoding="utf-8")
                         managed[rel] = block_hash(dest.read_text(encoding="utf-8"))
                     report["spliced"].append(rel)
-            elif src_fb is not None and cur_block == block_hash(full.read_text(encoding="utf-8")):
+            elif src_fb is not None and cur_block == block_hash(src_text):
                 # Block matches source and is apparently fresh (not in managed table).
                 managed[rel] = cur_block
                 report["unchanged"].append(rel)
@@ -125,9 +126,15 @@ def run_update(target: Path, *, dry_run: bool = False) -> dict[str, list[str]]:
     for rel in list(tracked) + list(managed):
         if rel not in seen:
             report["removed"].append(rel)
+            if not dry_run:  # drop the dropped-payload entry so the marker converges
+                tracked.pop(rel, None)
+                managed.pop(rel, None)
 
     if not dry_run:
-        write_marker(target, kit_version=__version__, profile=marker["profiles"],
-                     adopted=marker["adopted"], tracked=tracked, managed=managed,
+        profiles = marker.get("profiles")
+        if not profiles:  # a dict marker that parses but carries no profile
+            raise ValueError(f"{MARKER_NAME} has no profile; re-adopt the repo")
+        write_marker(target, kit_version=__version__, profile=profiles,
+                     adopted=marker.get("adopted", ""), tracked=tracked, managed=managed,
                      keep=marker)
     return report

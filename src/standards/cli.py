@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from datetime import date
@@ -247,12 +248,25 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
     return parser, parsers
 
 
+def _interactive() -> bool:
+    """True only with a real terminal on both ends. Windows reports the NUL device
+    as a tty, so isatty() alone lets `standards < NUL > NUL` open the menu; also
+    require os.get_terminal_size(), which raises OSError on NUL."""
+    if not (sys.stdin.isatty() and sys.stdout.isatty()):
+        return False
+    try:
+        os.get_terminal_size()
+    except OSError:
+        return False
+    return True
+
+
 def main(argv: list[str] | None = None) -> int:
     parser, help_parsers = build_parser()
     if not (sys.argv[1:] if argv is None else argv):
         # ADR-0025: bare `standards` opens the menu, but only in a terminal, so CI and
         # pipes never hang on a prompt.
-        if sys.stdin.isatty() and sys.stdout.isatty():
+        if _interactive():
             try:
                 return run_menu(Path("."), run=main)
             except KeyboardInterrupt:
@@ -286,11 +300,11 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "init":
-        agents, how = _pick_agents(args)
         try:
+            agents, how = _pick_agents(args)
             run_init(Path(args.target), profile=args.profile,
                      adopted=date.today().isoformat(), force=args.force, agents=agents)
-        except FileExistsError as exc:
+        except (FileExistsError, ValueError) as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 2
         print(f"Adopted Repo-Standards-Kit {__version__} ({' + '.join(args.profile)}) into {args.target}")
@@ -308,6 +322,9 @@ def main(argv: list[str] | None = None) -> int:
                 file=sys.stderr,
             )
             return 2
+        except ValueError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
         prefix = "[dry-run] " if args.dry_run else ""
         summary = ", ".join(f"{k}={len(report[k])}" for k in
                             ("updated", "spliced", "added", "conflicts", "unchanged", "removed"))
@@ -319,11 +336,11 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     if args.command == "adopt":
-        agents, how = _pick_agents(args)
         try:
+            agents, how = _pick_agents(args)
             report = run_adopt(Path(args.target), profile=args.profile,
                                adopted=date.today().isoformat(), agents=agents)
-        except FileExistsError as exc:
+        except (FileExistsError, ValueError) as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 2
         summary = ", ".join(f"{k}={len(report[k])}" for k in
@@ -344,6 +361,9 @@ def main(argv: list[str] | None = None) -> int:
             print(f"error: {exc}", file=sys.stderr)
             print("Use `standards adopt --profile <profiles> <target>` to set the repo up.",
                   file=sys.stderr)
+            return 2
+        except ValueError as exc:
+            print(f"error: {exc}", file=sys.stderr)
             return 2
         print(f"{args.target} now contains {' + '.join(args.profile)}.")
         for path in report["created"]:

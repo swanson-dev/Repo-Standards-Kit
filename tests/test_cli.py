@@ -141,6 +141,26 @@ class CliTests(unittest.TestCase):
         self.assertIn("usage: standards", res.stdout)
         self.assertIn("no interactive terminal", res.stderr)
 
+    def test_interactive_needs_more_than_isatty(self):
+        # Windows reports the NUL device as a tty, so `standards < NUL > NUL` would
+        # open the menu on isatty() alone. Requiring os.get_terminal_size() (which
+        # raises OSError on NUL) closes that gap, cross-platform via mocks.
+        from unittest import mock
+
+        from standards import cli
+
+        class _Tty:
+            def isatty(self):
+                return True
+
+        with mock.patch.object(cli.sys, "stdin", _Tty()), \
+                mock.patch.object(cli.sys, "stdout", _Tty()):
+            with mock.patch.object(cli.os, "get_terminal_size", side_effect=OSError):
+                self.assertFalse(cli._interactive())  # NUL: tty but no terminal size
+            with mock.patch.object(cli.os, "get_terminal_size",
+                                   return_value=os.terminal_size((80, 24))):
+                self.assertTrue(cli._interactive())
+
     def test_change_command_updates_what_the_repo_contains(self):
         with tempfile.TemporaryDirectory() as d:
             target = Path(d)
@@ -298,6 +318,16 @@ class CliTests(unittest.TestCase):
             text = (res.stdout + res.stderr).lower()
             self.assertIn("standards init", text)
             self.assertIn("standards adopt", text)
+
+    def test_corrupt_marker_errors_cleanly(self):
+        # A corrupt .standards-kit.json must give a clean error + exit 2, not a traceback.
+        for command in ("update", "change --profile library", "doctor"):
+            with tempfile.TemporaryDirectory() as d:
+                (Path(d) / ".standards-kit.json").write_text("{ not json", encoding="utf-8")
+                res = self._run(*command.split(), str(d), cwd=REPO)
+                self.assertEqual(res.returncode, 2 if command != "doctor" else 1,
+                                 f"{command}: {res.stderr}")
+                self.assertNotIn("Traceback", res.stderr, f"{command} leaked a traceback")
 
     def test_adopt_subcommand_is_nondestructive(self):
         with tempfile.TemporaryDirectory() as d:

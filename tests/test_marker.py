@@ -67,6 +67,22 @@ class MarkerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             self.assertIsNone(read_marker(Path(d)))
 
+    def test_invalid_json_raises_valueerror(self):
+        from standards.marker import MARKER_NAME, read_marker
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / MARKER_NAME).write_text("{ not json", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                read_marker(root)
+
+    def test_non_object_marker_raises_valueerror(self):
+        from standards.marker import MARKER_NAME, read_marker
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / MARKER_NAME).write_text("[]", encoding="utf-8")  # valid JSON, not an object
+            with self.assertRaises(ValueError):
+                read_marker(root)
+
 
 if __name__ == "__main__":
     unittest.main()
