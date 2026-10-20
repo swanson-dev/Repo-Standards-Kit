@@ -308,6 +308,28 @@ class ReconcileChecklistTests(unittest.TestCase):
         once = reconcile_checklist(HAND_WRITTEN_CHECKLIST, ["library", "data"])
         self.assertEqual(reconcile_checklist(once, ["library", "data"]), once)
 
+    def test_a_fenced_example_is_left_alone(self):
+        from standards.init import reconcile_checklist
+        text = ("# Standards Checklist — mine\n\n"
+                "```markdown\n**Profile:** application\n- [ ] <doc>\n```\n\n"
+                "**Profile:** library\n")
+        once = reconcile_checklist(text, ["documentation"])
+        self.assertIn("```markdown\n**Profile:** application\n- [ ] <doc>\n```\n", once)
+        self.assertIn("\n**Profile:** documentation\n", once)
+        self.assertEqual(reconcile_checklist(once, ["documentation"]), once)
+
+    def test_comments_in_the_profile_line_are_kept_and_old_names_go(self):
+        from standards.init import reconcile_checklist
+        cases = {
+            "**Profile:** library <!-- note --> + data\n": "**Profile:** documentation <!-- note -->\n",
+            "**Profile:** library <!-- note -->\n": "**Profile:** documentation <!-- note -->\n",
+            "**Profile:** library <!-- runs\npast the line -->\n":
+                "**Profile:** documentation <!-- runs\npast the line -->\n",
+        }
+        for before, after in cases.items():
+            with self.subTest(line=before):
+                self.assertIn(after, reconcile_checklist(f"# Mine\n\n{before}", ["documentation"]))
+
     def test_examples_in_comments_and_code_are_left_alone(self):
         from standards.init import reconcile_checklist
         text = ("# Standards Checklist — mine\n\n"

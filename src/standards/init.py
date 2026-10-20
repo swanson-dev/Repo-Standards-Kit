@@ -29,12 +29,16 @@ from standards.profiles import EXTRAS, MATRIX, needed_docs, parse_profiles
 ADOPT_REPORT_KEYS = ("added", "unchanged", "spliced", "conflicts", "scaffolded")
 
 CHECKLIST = "docs/STANDARDS-CHECKLIST.md"
-# Up to the end of the line, or to a trailing comment, which is kept.
-PROFILE_LINE_RE = re.compile(r"\*\*Profile:\*\*(?:(?!<!--)[^\n])*")
+PROFILE_LINE_RE = re.compile(r"\*\*Profile:\*\*[^\n]*")
 COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
-# Comments and inline code. A code span opens and closes with backtick runs of the
-# same length, so ``**Profile:** x`` is one span, not two empty ones.
-HIDDEN_RE = re.compile(r"<!--.*?-->|(?<!`)(`+)(?!`)[^\n]*?(?<!`)\1(?!`)", re.DOTALL)
+_FENCE = r"^[ \t]*(`{3,}|~{3,})[^\n]*\n.*?^[ \t]*\1[ \t]*$"
+# Examples that are never edited: comments, fenced blocks, and inline code. A code
+# span opens and closes with backtick runs of the same length, so ``**Profile:** x``
+# is one span, not two empty ones.
+HIDDEN_RE = re.compile(rf"<!--.*?-->|{_FENCE}|(?<!`)(`+)(?!`)[^\n]*?(?<!`)\2(?!`)",
+                       re.DOTALL | re.MULTILINE)
+# Where a doc mention doesn't count. Inline code does count: rows name docs in it.
+UNCOUNTED_RE = re.compile(rf"<!--.*?-->|{_FENCE}", re.DOTALL | re.MULTILINE)
 # Template rows that setup replaces; a hand-written checklist may have neither.
 PLACEHOLDER_ROWS = {
     "## Profile-required": "- [ ] <doc> — <one-line note if helpful>\n",
@@ -126,8 +130,13 @@ def reconcile_checklist(text: str, profiles: list[str]) -> str:
     header = "**Profile:** " + " + ".join(profiles)
     line = _first_visible(PROFILE_LINE_RE.pattern, text)
     if line:
-        rest = text[line.end():]
-        text = text[:line.start()] + header + (" " if rest.startswith("<!--") else "") + rest
+        old, end = line.group(0), line.end()
+        opener = old.rfind("<!--")
+        if opener != -1 and "-->" not in old[opener:]:  # a comment that runs on stays whole
+            old, end = old[:opener], line.start() + opener
+        # Replace every old name, but keep the line's comments.
+        notes = "".join(f" {c}" for c in COMMENT_RE.findall(old))
+        text = text[:line.start()] + header + notes + (" " if end < line.end() else "") + text[end:]
     else:
         title = re.search(r"^# .*$", text, re.MULTILINE)
         at = title.end() + 1 if title else 0
@@ -139,7 +148,7 @@ def reconcile_checklist(text: str, profiles: list[str]) -> str:
         ("## Profile extras", [(EXTRAS[p], f"- `{EXTRAS[p]}` ({p} extra)\n") for p in profiles]),
     )
     for heading, items in sections:
-        visible = COMMENT_RE.sub("", text)
+        visible = UNCOUNTED_RE.sub("", text)
         text = _add_rows(text, heading, "".join(row for key, row in items if key not in visible))
     return text
 

@@ -91,9 +91,11 @@ def check_profile(root: Path, report: Report):
     if not checklist.exists():
         return None
     text = checklist.read_text(encoding="utf-8", errors="replace")
-    # Examples in comments or inline code, such as `**Profile:** library`, aren't the header.
-    # A code span opens and closes with backtick runs of the same length.
-    text = re.sub(r"<!--.*?-->|(?<!`)(`+)(?!`)[^\n]*?(?<!`)\1(?!`)", " ", text, flags=re.DOTALL)
+    # Examples in comments, fenced blocks, or inline code, such as `**Profile:** library`,
+    # aren't the header. A code span opens and closes with backtick runs of the same length.
+    text = re.sub(r"<!--.*?-->|^[ \t]*(`{3,}|~{3,})[^\n]*\n.*?^[ \t]*\1[ \t]*$"
+                  r"|(?<!`)(`+)(?!`)[^\n]*?(?<!`)\2(?!`)", " ", text,
+                  flags=re.DOTALL | re.MULTILINE)
     m = re.search(r"\*\*Profile:\*\*[ \t]*([^\n]*)", text)
     value = m.group(1).strip() if m else ""
     if not value or value.startswith("<"):

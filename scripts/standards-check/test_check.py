@@ -46,7 +46,8 @@ class ProfileAliasTests(unittest.TestCase):
     def test_examples_before_the_real_header_are_skipped(self):
         import tempfile
         for example in ("<!-- e.g. **Profile:** bogus -->", "Write `**Profile:** bogus`.",
-                        "Use ``**Profile:** bogus`` as the format."):
+                        "Use ``**Profile:** bogus`` as the format.",
+                        "```markdown\n**Profile:** bogus\n```", "~~~\n**Profile:** bogus\n~~~"):
             with self.subTest(example=example), tempfile.TemporaryDirectory() as d:
                 root = Path(d)
                 (root / "docs").mkdir()
