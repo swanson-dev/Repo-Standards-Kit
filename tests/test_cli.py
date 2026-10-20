@@ -141,10 +141,11 @@ class CliTests(unittest.TestCase):
         self.assertIn("usage: standards", res.stdout)
         self.assertIn("no interactive terminal", res.stderr)
 
-    def test_interactive_needs_more_than_isatty(self):
-        # Windows reports the NUL device as a tty, so `standards < NUL > NUL` would
-        # open the menu on isatty() alone. Requiring os.get_terminal_size() (which
-        # raises OSError on NUL) closes that gap, cross-platform via mocks.
+    def test_interactive_requires_console_handles(self):
+        # isatty() isn't enough: Windows reports the NUL device as a tty, so a
+        # redirected `standards < NUL` (even with stdout on the console) must still
+        # fall through to help. _interactive also requires real console handles,
+        # checked via GetConsoleMode on Windows.
         from unittest import mock
 
         from standards import cli
@@ -153,13 +154,19 @@ class CliTests(unittest.TestCase):
             def isatty(self):
                 return True
 
+        class _NotTty:
+            def isatty(self):
+                return False
+
         with mock.patch.object(cli.sys, "stdin", _Tty()), \
                 mock.patch.object(cli.sys, "stdout", _Tty()):
-            with mock.patch.object(cli.os, "get_terminal_size", side_effect=OSError):
-                self.assertFalse(cli._interactive())  # NUL: tty but no terminal size
-            with mock.patch.object(cli.os, "get_terminal_size",
-                                   return_value=os.terminal_size((80, 24))):
+            with mock.patch.object(cli, "_console_handles_ok", return_value=True):
                 self.assertTrue(cli._interactive())
+            with mock.patch.object(cli, "_console_handles_ok", return_value=False):
+                self.assertFalse(cli._interactive())  # NUL / redirected handle
+        with mock.patch.object(cli.sys, "stdin", _NotTty()), \
+                mock.patch.object(cli.sys, "stdout", _Tty()):
+            self.assertFalse(cli._interactive())  # redirected stdin, console stdout
 
     def test_change_command_updates_what_the_repo_contains(self):
         with tempfile.TemporaryDirectory() as d:

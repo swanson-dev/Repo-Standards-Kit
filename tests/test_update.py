@@ -160,19 +160,25 @@ class UpdateTests(unittest.TestCase):
             second = run_update(target)  # the marker has converged; no ghost re-report
             self.assertNotIn("docs/gone.md", second["removed"])
 
-    def test_update_rejects_a_marker_with_no_profile(self):
+    def test_update_rejects_a_profile_less_marker_without_touching_files(self):
         from standards.marker import MARKER_NAME
         from standards.update import run_update
-        with tempfile.TemporaryDirectory() as d:
-            target = Path(d)
-            _adopt(target)
-            marker_path = target / MARKER_NAME
-            data = json.loads(marker_path.read_text(encoding="utf-8"))
-            data.pop("profile", None)
-            data.pop("profiles", None)  # a dict marker that parses but has no profile
-            marker_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
-            with self.assertRaises(ValueError):  # clean error, not a KeyError traceback
-                run_update(target)
+        for dry_run in (False, True):  # both modes reject before any writes
+            with tempfile.TemporaryDirectory() as d:
+                target = Path(d)
+                _adopt(target)
+                (target / "docs" / "STANDARDS.md").unlink()  # update would re-add this
+                marker_path = target / MARKER_NAME
+                data = json.loads(marker_path.read_text(encoding="utf-8"))
+                data.pop("profile", None)
+                data.pop("profiles", None)  # a dict marker that parses but has no profile
+                marker_path.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+                with self.assertRaises(ValueError):  # clean error, not a KeyError traceback
+                    run_update(target, dry_run=dry_run)
+                self.assertFalse(
+                    (target / "docs" / "STANDARDS.md").exists(),
+                    f"dry_run={dry_run}: files changed before the marker was rejected",
+                )
 
     def test_update_dry_run_does_not_prune_removed_entries(self):
         from standards.marker import MARKER_NAME, read_marker

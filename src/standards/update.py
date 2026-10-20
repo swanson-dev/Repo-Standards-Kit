@@ -40,6 +40,8 @@ def run_update(target: Path, *, dry_run: bool = False) -> dict[str, list[str]]:
         raise FileNotFoundError(
             f"{target / MARKER_NAME} not found; run `standards init` first"
         )
+    if not marker.get("profiles"):  # before any writes: a profile-less marker can't
+        raise ValueError(f"{MARKER_NAME} has no profile; re-adopt the repo")  # be reconciled
 
     src_root = payload_root()
     report = _empty_report()
@@ -131,10 +133,7 @@ def run_update(target: Path, *, dry_run: bool = False) -> dict[str, list[str]]:
                 managed.pop(rel, None)
 
     if not dry_run:
-        profiles = marker.get("profiles")
-        if not profiles:  # a dict marker that parses but carries no profile
-            raise ValueError(f"{MARKER_NAME} has no profile; re-adopt the repo")
-        write_marker(target, kit_version=__version__, profile=profiles,
+        write_marker(target, kit_version=__version__, profile=marker["profiles"],
                      adopted=marker.get("adopted", ""), tracked=tracked, managed=managed,
                      keep=marker)
     return report

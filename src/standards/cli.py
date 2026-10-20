@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import os
 import subprocess
 import sys
 from datetime import date
@@ -248,17 +247,28 @@ Keeps local files and writes <file>.kit-<version> sidecars on conflicts.""",
     return parser, parsers
 
 
+def _console_handles_ok() -> bool:
+    """On Windows, confirm stdin and stdout are real console handles. Windows reports
+    the NUL device as a tty, so isatty() alone lets a redirected `standards < NUL`
+    open the menu; GetConsoleMode fails on NUL, a pipe, or a file. Always True off
+    Windows, where isatty() is reliable."""
+    if sys.platform != "win32":
+        return True
+    import ctypes
+
+    kernel32 = ctypes.windll.kernel32
+    kernel32.GetStdHandle.restype = ctypes.c_void_p
+    mode = ctypes.c_ulong()
+    return all(
+        kernel32.GetConsoleMode(ctypes.c_void_p(kernel32.GetStdHandle(std)), ctypes.byref(mode))
+        for std in (-10, -11)  # STD_INPUT_HANDLE, STD_OUTPUT_HANDLE
+    )
+
+
 def _interactive() -> bool:
-    """True only with a real terminal on both ends. Windows reports the NUL device
-    as a tty, so isatty() alone lets `standards < NUL > NUL` open the menu; also
-    require os.get_terminal_size(), which raises OSError on NUL."""
-    if not (sys.stdin.isatty() and sys.stdout.isatty()):
-        return False
-    try:
-        os.get_terminal_size()
-    except OSError:
-        return False
-    return True
+    """True only with a real terminal on both ends, so CI, pipes, files, and the
+    Windows NUL device fall through to help instead of opening the menu."""
+    return sys.stdin.isatty() and sys.stdout.isatty() and _console_handles_ok()
 
 
 def main(argv: list[str] | None = None) -> int:
