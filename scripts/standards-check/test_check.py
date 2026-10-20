@@ -30,7 +30,9 @@ class ProfileAliasTests(unittest.TestCase):
                  "library + data — pipelines ship in-repo": 0, "`library`": 1,
                  "application + data2": 1, "application + library-custom": 1,
                  "application +": 1, "documentation <!-- note --> + library": 1,
-                 "<application | library | data | documentation>": 1}
+                 "<application | library | data | documentation>": 1,
+                 # An example in a comment or code span before the real header isn't it.
+                 "library <!-- e.g. **Profile:** bogus -->": 0}
         for header, errors in cases.items():
             with self.subTest(header=header), tempfile.TemporaryDirectory() as d:
                 root = Path(d)
@@ -40,6 +42,19 @@ class ProfileAliasTests(unittest.TestCase):
                 report = Report()
                 check_profile(root, report)
                 self.assertEqual(len(report.errors), errors, report.errors)
+
+    def test_examples_before_the_real_header_are_skipped(self):
+        import tempfile
+        for example in ("<!-- e.g. **Profile:** bogus -->", "Write `**Profile:** bogus`.",
+                        "Use ``**Profile:** bogus`` as the format."):
+            with self.subTest(example=example), tempfile.TemporaryDirectory() as d:
+                root = Path(d)
+                (root / "docs").mkdir()
+                (root / "docs" / "STANDARDS-CHECKLIST.md").write_text(
+                    f"{example}\n\n**Profile:** library + data\n", encoding="utf-8")
+                report = Report()
+                self.assertEqual(check_profile(root, report), ["library", "data"])
+                self.assertEqual(report.errors, [])
 
 
 class ParseFrontmatterTests(unittest.TestCase):

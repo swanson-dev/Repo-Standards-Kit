@@ -91,8 +91,11 @@ def check_profile(root: Path, report: Report):
     if not checklist.exists():
         return None
     text = checklist.read_text(encoding="utf-8", errors="replace")
+    # Examples in comments or inline code, such as `**Profile:** library`, aren't the header.
+    # A code span opens and closes with backtick runs of the same length.
+    text = re.sub(r"<!--.*?-->|(?<!`)(`+)(?!`)[^\n]*?(?<!`)\1(?!`)", " ", text, flags=re.DOTALL)
     m = re.search(r"\*\*Profile:\*\*[ \t]*([^\n]*)", text)
-    value = re.sub(r"<!--.*?-->", " ", m.group(1)).strip() if m else ""
+    value = m.group(1).strip() if m else ""
     if not value or value.startswith("<"):
         report.err("[profile] docs/STANDARDS-CHECKLIST.md does not declare a Profile field.")
         return None
