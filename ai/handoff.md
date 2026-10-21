@@ -1,5 +1,5 @@
 ---
-written: 2026-10-20T06:35:00-05:00
+written: 2026-10-20T16:00:00-05:00
 written_by: claude (for Josh Swanson)
 for: next-session
 ---
@@ -13,12 +13,28 @@ M9 (setup wizard, ADR-0025) shipped in v1.5.0 on 2026-10-20: PR 22 merged into
 is Latest. It ships four profiles (`infra` kept as an alias for `application`),
 profiles that combine by the strongest tier with setup creating and ticking
 their docs, the bare `standards` menu and setup wizard, and `standards change`.
-M8 (automation engine) shipped before it in v1.4.0. No milestone is active; the
-next designs are RFC-0008 (distribution, approved and still Open) and RFC-0010
+M8 (automation engine) shipped before it in v1.4.0. A follow-up patch, v1.5.1
+(2026-10-20, PR 25 merged as `e49eb5d`), shipped code-review fixes to the CLI
+and marker handling (Windows `NUL` console detection, `update` marker
+convergence, clear errors for bad markers). No milestone is active; the next
+designs are RFC-0008 (distribution, approved and still Open) and RFC-0010
 (retrospectives, drafted).
 
 ## Recently touched
 
+- v1.5.1 released (2026-10-20). A code review of the CLI and `update` paths
+  (`src tests`) found seven issues; the six real fixes landed via PR 24 (merged
+  `212d185`) and the release prep via PR 25 (merged `e49eb5d`), tag `v1.5.1`
+  published to PyPI and a Latest GitHub Release. The fixes: the bare-`standards`
+  menu guard now confirms real console handles with `GetConsoleMode` (Windows
+  reported `NUL` as a tty, so `standards < NUL` opened the menu); `standards
+  update` prunes marker entries for files the kit no longer ships so `removed`
+  converges; `read_marker` rejects corrupt or non-object markers with a clear
+  `ValueError` (surfaced as exit 2 by `init`/`adopt`/`change`/`update`); a
+  profile-less marker is rejected before any writes, in both normal and
+  `--dry-run` `update`; `update` reads each payload file once for its block hash;
+  and `init` skips the redundant checklist reconcile on a fresh init. Copilot's
+  PR reviews on both PRs were answered and their threads resolved.
 - v1.5.0 released (2026-10-20). PR 22's CI passed on every commit. Copilot's PR
   review found two real bugs in checklist reconciliation, fixed with tests in
   `af7bee0` and answered on both threads: a fenced code block (``` or ~~~) wasn't
@@ -175,12 +191,6 @@ next designs are RFC-0008 (distribution, approved and still Open) and RFC-0010
 
 ## Open threads
 
-- Windows treats the NUL device as a terminal: `standards < NUL > NUL` opens the
-  menu, reads end-of-input at once, and exits 0 rather than 2. It never hangs, and
-  a file or pipe on either side gets help and exit 2 as designed. Fix in a patch
-  release by also requiring `os.get_terminal_size()` on stdout to succeed (it
-  raises `OSError` on NUL); see `ai/next-actions.md`. `MenuInATerminalTests`
-  covers the real-terminal path on Linux and macOS.
 - M8 leftovers: test D (Codex's interactive trust flow) is still a manual run,
   and Codex hook config isn't shipped (`.codex/` is gitignored here and not in
   the payload); RFC-0008's plugin is the planned way to ship it.

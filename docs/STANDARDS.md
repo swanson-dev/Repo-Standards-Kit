@@ -1,7 +1,7 @@
 # Team Repository Standards
 
-**Kit version:** 1.5.0
-**Status:** v1.5.0 setup wizard shipped (a guided `standards` menu, combinable profiles, `standards change`); roadmap in `docs/05-implementation-plan.md`
+**Kit version:** 1.5.1
+**Status:** v1.5.1 (patch over the v1.5.0 setup wizard: a guided `standards` menu, combinable profiles, `standards change`); roadmap in `docs/05-implementation-plan.md`
 **Source of truth:** this file. Per-repo copies should be lightweight pointers (see `docs/templates/STANDARDS.md.template`).
 
 ## Purpose and precedence
